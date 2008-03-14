@@ -62,6 +62,7 @@ namespace Tasque
 		private EventBox eb;
 		private IBackend backend;
 		private PreferencesDialog preferencesDialog;
+		private LocalCache localCache;
 		
 		/// <value>
 		/// Keep track of the available backends.  The key is the Type name of
@@ -72,7 +73,7 @@ namespace Tasque
 		private IBackend customBackend;
 
 		public static IBackend Backend
-		{ 
+		{
 			get { return Application.Instance.backend; }
 			set {
 				Application tasque = Application.Instance;
@@ -116,6 +117,11 @@ namespace Tasque
 				return new List<IBackend> (Application.Instance.availableBackends.Values);
 			}
 //			get { return Application.Instance.availableBackends; }
+		}
+		
+		public static LocalCache LocalCache
+		{
+			get { return Application.Instance.localCache; }
 		}
 		
 		public static Application Instance
@@ -295,6 +301,9 @@ Logger.Debug ("args [0]: {0}", args [0]);
 
 		private bool InitializeIdle()
 		{
+			localCache = new LocalCache ();
+			localCache.Initialize ();
+			
 			if (customBackend != null) {
 				Application.Backend = customBackend;
 			} else {

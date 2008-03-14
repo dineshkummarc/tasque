@@ -12,9 +12,9 @@ namespace Tasque.Backends.RtmBackend
 {
 	public class RtmNote : INote
 	{
-		Note note;
+		RtmNet.Note note;
 		
-		public RtmNote(Note note)
+		public RtmNote(RtmNet.Note note)
 		{
 			this.note = note;
 			if( (note.Title != null) && (note.Title.Length > 0) ) {

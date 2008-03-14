@@ -55,13 +55,13 @@
     <File name="src/Backends/IceCore/IceTask.cs" subtype="Code" buildaction="Compile" />
     <File name="src/RemoteControl.cs" subtype="Code" buildaction="Compile" />
     <File name="src/RemoteControlProxy.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/Backends/Sqlite/SqliteBackend.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/Backends/Sqlite/SqliteCategory.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/Backends/Sqlite/SqliteNote.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/Backends/Sqlite/SqliteTask.cs" subtype="Code" buildaction="Compile" />
-    <File name="src/Backends/Sqlite/Database.cs" subtype="Code" buildaction="Compile" />
     <File name="src/Backends/Rtm/RtmPreferencesWidget.cs" subtype="Code" buildaction="Compile" />
     <File name="src/CompletedTaskGroup.cs" subtype="Code" buildaction="Compile" />
+    <File name="src/Task.cs" subtype="Code" buildaction="Compile" />
+    <File name="src/Note.cs" subtype="Code" buildaction="Compile" />
+    <File name="src/Category.cs" subtype="Code" buildaction="Compile" />
+    <File name="src/LocalCache.cs" subtype="Code" buildaction="Compile" />
+    <File name="src/Database.cs" subtype="Code" buildaction="Compile" />
   </Contents>
   <References>
     <ProjectReference type="Gac" localcopy="True" refto="glib-sharp, Version=2.10.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />

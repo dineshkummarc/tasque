@@ -1,5 +1,6 @@
-// SqliteBackend.cs created with MonoDevelop
-// User: boyd at 7:10 AM 2/11/2008
+// LocalCache.cs created with MonoDevelop
+// User: boyd at 1:35 PM 3/14/2008
+//
 
 using System;
 using System.Collections.Generic;
@@ -7,9 +8,9 @@ using Mono.Unix;
 using Tasque.Backends;
 using Mono.Data.Sqlite;
 
-namespace Tasque.Backends.Sqlite
+namespace Tasque
 {
-	public class SqliteBackend : IBackend
+	public class LocalCache
 	{
 		private Dictionary<int, Gtk.TreeIter> taskIters;
 		private Gtk.TreeStore taskStore;
@@ -26,21 +27,21 @@ namespace Tasque.Backends.Sqlite
 		public event BackendSyncStartedHandler BackendSyncStarted;
 		public event BackendSyncFinishedHandler BackendSyncFinished;
 		
-		SqliteCategory defaultCategory;
-		//SqliteCategory workCategory;
-		//SqliteCategory projectsCategory;
+		Category defaultCategory;
+		//Category workCategory;
+		//Category projectsCategory;
 		
-		public SqliteBackend ()
+		public LocalCache ()
 		{
 			initialized = false;
 			taskIters = new Dictionary<int, Gtk.TreeIter> (); 
-			taskStore = new Gtk.TreeStore (typeof (ITask));
+			taskStore = new Gtk.TreeStore (typeof (Task));
 			
 			sortedTasksModel = new Gtk.TreeModelSort (taskStore);
 			sortedTasksModel.SetSortFunc (0, new Gtk.TreeIterCompareFunc (CompareTasksSortFunc));
 			sortedTasksModel.SetSortColumnId (0, Gtk.SortType.Ascending);
 			
-			categoryListStore = new Gtk.ListStore (typeof (ICategory));
+			categoryListStore = new Gtk.ListStore (typeof (Category));
 			
 			sortedCategoriesModel = new Gtk.TreeModelSort (categoryListStore);
 			sortedCategoriesModel.SetSortFunc (0, new Gtk.TreeIterCompareFunc (CompareCategorySortFunc));
@@ -48,11 +49,6 @@ namespace Tasque.Backends.Sqlite
 		}
 		
 		#region Public Properties
-		public string Name
-		{
-			get { return "Local File"; } // TODO: Return something more usable to the user like, "Built-in" or whatever
-		}
-		
 		/// <value>
 		/// All the tasks including ITaskDivider items.
 		/// </value>
@@ -93,10 +89,10 @@ namespace Tasque.Backends.Sqlite
 		#endregion // Public Properties
 		
 		#region Public Methods
-		public ITask CreateTask (string taskName, ICategory category)		
+		public Task CreateTask (string taskName, Category category)		
 		{
 			// not sure what to do here with the category
-			SqliteTask task = new SqliteTask (this, taskName);
+			Task task = new Task (this, taskName);
 			
 			// Determine and set the task category
 			if (category == null || category is Tasque.AllCategory)
@@ -111,7 +107,7 @@ namespace Tasque.Backends.Sqlite
 			return task;
 		}
 		
-		public void DeleteTask(ITask task)
+		public void DeleteTask(Task task)
 		{}
 		
 		public void Refresh()
@@ -166,8 +162,8 @@ namespace Tasque.Backends.Sqlite
 										 Gtk.TreeIter a,
 										 Gtk.TreeIter b)
 		{
-			ITask taskA = model.GetValue (a, 0) as ITask;
-			ITask taskB = model.GetValue (b, 0) as ITask;
+			Task taskA = model.GetValue (a, 0) as Task;
+			Task taskB = model.GetValue (b, 0) as Task;
 			
 			if (taskA == null || taskB == null)
 				return 0;
@@ -179,8 +175,8 @@ namespace Tasque.Backends.Sqlite
 											Gtk.TreeIter a,
 											Gtk.TreeIter b)
 		{
-			ICategory categoryA = model.GetValue (a, 0) as ICategory;
-			ICategory categoryB = model.GetValue (b, 0) as ICategory;
+			Category categoryA = model.GetValue (a, 0) as Category;
+			Category categoryB = model.GetValue (b, 0) as Category;
 			
 			if (categoryA == null || categoryB == null)
 				return 0;
@@ -193,7 +189,7 @@ namespace Tasque.Backends.Sqlite
 			return (categoryA.Name.CompareTo (categoryB.Name));
 		}
 		
-		public void UpdateTask (SqliteTask task)
+		public void UpdateTask (Task task)
 		{
 			// Set the task in the store so the model will update the UI.
 			Gtk.TreeIter iter;
@@ -222,7 +218,7 @@ namespace Tasque.Backends.Sqlite
 		public void RefreshCategories()
 		{
 			Gtk.TreeIter iter;
-			SqliteCategory newCategory;
+			Category newCategory;
 			bool hasValues = false;
 			
 			string command = "SELECT id FROM Categories";
@@ -233,7 +229,7 @@ namespace Tasque.Backends.Sqlite
 			    int id = dataReader.GetInt32(0);
 				hasValues = true;
 				
-				newCategory = new SqliteCategory (this, id);
+				newCategory = new Category (this, id);
 				if( (defaultCategory == null) || (newCategory.Name.CompareTo("Work") == 0) )
 					defaultCategory = newCategory;
 				iter = categoryListStore.Append ();
@@ -245,19 +241,19 @@ namespace Tasque.Backends.Sqlite
 
 			if(!hasValues)
 			{
-				defaultCategory = newCategory = new SqliteCategory (this, "Work");
+				defaultCategory = newCategory = new Category (this, "Work");
 				iter = categoryListStore.Append ();
 				categoryListStore.SetValue (iter, 0, newCategory);
 
-				newCategory = new SqliteCategory (this, "Personal");
+				newCategory = new Category (this, "Personal");
 				iter = categoryListStore.Append ();
 				categoryListStore.SetValue (iter, 0, newCategory);
 				
-				newCategory = new SqliteCategory (this, "Family");
+				newCategory = new Category (this, "Family");
 				iter = categoryListStore.Append ();
 				categoryListStore.SetValue (iter, 0, newCategory);		
 
-				newCategory = new SqliteCategory (this, "Project");
+				newCategory = new Category (this, "Project");
 				iter = categoryListStore.Append ();
 				categoryListStore.SetValue (iter, 0, newCategory);		
 			}
@@ -267,7 +263,7 @@ namespace Tasque.Backends.Sqlite
 		public void RefreshTasks()
 		{
 			Gtk.TreeIter iter;
-			SqliteTask newTask;
+			Task newTask;
 			bool hasValues = false;
 			
 			string command = "SELECT id FROM Tasks";
@@ -278,7 +274,7 @@ namespace Tasque.Backends.Sqlite
 			    int id = dataReader.GetInt32(0);
 				hasValues = true;
 				
-				newTask = new SqliteTask(this, id);
+				newTask = new Task(this, id);
 				iter = taskStore.AppendNode();
 				taskStore.SetValue (iter, 0, newTask);				
         	}
@@ -288,7 +284,7 @@ namespace Tasque.Backends.Sqlite
 
 			if(!hasValues)
 			{
-				newTask = new SqliteTask (this, "Create some tasks");
+				newTask = new Task (this, "Create some tasks");
 				newTask.Category = defaultCategory;
 				newTask.DueDate = DateTime.Now;
 				newTask.Priority = TaskPriority.Medium;

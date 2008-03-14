@@ -1,18 +1,15 @@
-// SqliteCategory.cs created with MonoDevelop
-// User: boyd at 9:06 AM 2/11/2008
-//
-// To change standard headers go to Edit->Preferences->Coding->Standard Headers
+// Category.cs created with MonoDevelop
+// User: boyd at 1:34 PM 3/14/2008
 //
 
 using System;
-using Tasque;
 
-namespace Tasque.Backends.Sqlite
+namespace Tasque
 {
-	public class SqliteCategory : ICategory
+	public class Category
 	{
 		private int id;
-		SqliteBackend backend;
+		LocalCache cache;
 		
 		public int ID
 		{
@@ -23,11 +20,11 @@ namespace Tasque.Backends.Sqlite
 		{
 			get {
 				string command = String.Format("SELECT Name FROM Categories where ID='{0}'", id);
-				return backend.Database.GetSingleString(command);
+				return cache.Database.GetSingleString(command);
 			}
 			set {
 				string command = String.Format("UPDATE Categories set Name='{0}' where ID='{0}'", value, id);
-				backend.Database.ExecuteScalar(command);
+				cache.Database.ExecuteScalar(command);
 			}
 		}
 		
@@ -35,33 +32,33 @@ namespace Tasque.Backends.Sqlite
 		{
 			get {
 				string command = String.Format("SELECT ExternalID FROM Categories where ID='{0}'", id);
-				return backend.Database.GetSingleString(command);
+				return cache.Database.GetSingleString(command);
 			}
 			set {
 				string command = String.Format("UPDATE Categories set ExternalID='{0}' where ID='{0}'", value, id);
-				backend.Database.ExecuteScalar(command);
+				cache.Database.ExecuteScalar(command);
 			}
 		}
 		
-		public SqliteCategory (SqliteBackend backend, string name)
+		public Category (LocalCache cache, string name)
 		{
-			this.backend = backend;
+			this.cache = cache;
 			string command = String.Format("INSERT INTO Categories (Name, ExternalID) values ('{0}', '{1}')", name, string.Empty);
-			backend.Database.ExecuteScalar(command);
-			this.id = backend.Database.Connection.LastInsertRowId;
+			cache.Database.ExecuteScalar(command);
+			this.id = cache.Database.Connection.LastInsertRowId;
 			//Logger.Debug("Inserted category named: {0} with id {1}", name, id);
 		}
 		
-		public SqliteCategory (SqliteBackend backend, int id)
+		public Category (LocalCache cache, int id)
 		{
-			this.backend = backend;
+			this.cache = cache;
 			this.id = id;
 		}
 
 		public bool ContainsTask(ITask task)
 		{
-			if(task.Category is SqliteCategory)
-				return ((task.Category as SqliteCategory).ID == id);
+			if(task.Category is Category)
+				return ((task.Category as Category).ID == id);
 
 			return false;
 		}

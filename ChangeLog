@@ -1,5 +1,16 @@
 2008-03-14  Boyd Timothy <btimothy@gmail.com> 
 
+	* tasque.mdp, tasque.mds, src/LocalCache.cs, src/Application.cs,
+	  src/Backends/Sqlite/SqliteCategory.cs, src/Backends/Sqlite/Database.cs,
+	  src/Backends/Sqlite/SqliteTask.cs, src/Backends/Sqlite/SqliteNote.cs,
+	  src/Backends/Sqlite/SqliteBackend.cs, src/Backends/Rtm/RtmTask.cs,
+	  src/Backends/Rtm/RtmNote.cs, src/Category.cs, src/Task.cs,
+	  src/Database.cs, src/Note.cs, src/Makefile.am: Removed SQLite Backend
+	  and moved it into src/LocalCache.cs.  Created Note.cs, Category.cs, and
+	  Task.cs that the UI will eventually use.
+
+2008-03-14  Boyd Timothy <btimothy@gmail.com> 
+
 	* src/Backends/IceCore/IceTask.cs: Make the task priorities match up with
 	  ICEcore so that 1=1, 2=2, 3=3, and None=5.
 

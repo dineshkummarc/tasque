@@ -9,7 +9,7 @@ using Mono.Data.Sqlite;
 using System.IO;
 using Tasque;
 
-namespace Tasque.Backends.Sqlite
+namespace Tasque
 {
 	public class Database
 	{

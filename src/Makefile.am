@@ -30,15 +30,6 @@ else
 RTM_CSFILES =
 endif
 
-if ENABLE_BACKEND_SQLITE
-SQLITE_CSFILES = \
-	$(srcdir)/Backends/Sqlite/*.cs
-SQLITE_LIBS = -r:Mono.Data.Sqlite
-else
-SQLITE_CSFILES =
-SQLITE_LIBS = 
-endif
-
 if ENABLE_BACKEND_EDS
 EDS_CSFILES = \
        $(srcdir)/Backends/EDS/*.cs
@@ -50,20 +41,25 @@ CSFILES = \
 	$(srcdir)/AbstractTask.cs \
 	$(srcdir)/AllCategory.cs \
 	$(srcdir)/Application.cs \
+	$(srcdir)/Category.cs \
 	$(srcdir)/CellRendererDate.cs \
 	$(srcdir)/CompletedTaskGroup.cs \
+	$(srcdir)/Database.cs \
 	$(srcdir)/DateButton.cs \
 	$(srcdir)/IBackend.cs \
 	$(srcdir)/ICategory.cs \
 	$(srcdir)/ITask.cs \
 	$(srcdir)/INote.cs \
+	$(srcdir)/LocalCache.cs \
 	$(srcdir)/Logger.cs \
+	$(srcdir)/Note.cs \
 	$(srcdir)/NoteDialog.cs \
 	$(srcdir)/NoteWidget.cs \
 	$(srcdir)/Preferences.cs \
 	$(srcdir)/PreferencesDialog.cs \
 	$(srcdir)/RemoteControl.cs \
 	$(srcdir)/RemoteControlProxy.cs \
+	$(srcdir)/Task.cs \
 	$(srcdir)/TaskCalendar.cs \
 	$(srcdir)/TaskGroup.cs \
 	$(srcdir)/TaskPriority.cs \
@@ -78,8 +74,6 @@ CSFILES = \
 	$(RTM_CSFILES) \
 	\
 	$(ICECORE_CSFILES) \
-	\
-	$(SQLITE_CSFILES) \
 	\
 	$(EDS_CSFILES)
 
@@ -108,6 +102,7 @@ ASSEMBLIES =  \
 	-r:System \
 	-r:Mono.Posix \
 	-r:System.Xml \
+	-r:Mono.Data.Sqlite \
 	-r:$(top_builddir)/RtmNet/RtmNet \
 	$(GLIB_SHARP_20_LIBS) \
 	$(GNOME_SHARP_20_LIBS) \
@@ -116,7 +111,6 @@ ASSEMBLIES =  \
 	$(NDESK_DBUS_10_LIBS) \
 	$(NDESK_DBUS_GLIB_10_LIBS) \
 	$(ICE_DESKTOP_LIBS) \
-	$(SQLITE_LIBS) \
 	$(EVOLUTION_SHARP_LIBS)
 
 $(TARGET): $(CSFILES) Defines.cs

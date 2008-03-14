@@ -34,7 +34,7 @@ namespace Tasque.Backends.RtmBackend
 				state = TaskState.Completed;
 			notes = new List<INote>();
 			
-			foreach(Note note in taskSeries.Notes.NoteCollection) {
+			foreach(RtmNet.Note note in taskSeries.Notes.NoteCollection) {
 				RtmNote rtmNote = new RtmNote(note);
 				notes.Add(rtmNote);
 			}
