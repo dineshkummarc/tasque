@@ -122,15 +122,6 @@ AC_ARG_ENABLE(backend_rtm,
 		enable_backend_rtm=yes, enable_backend_rtm=no)
 
 #
-# SQLite Backend
-#
-AC_ARG_ENABLE(backend_sqlite,
-	AC_HELP_STRING([--enable-backend-sqlite],
-		[Enable the SQLite Backend [default=no]]),
-		enable_backend_sqlite=yes, enable_backend_sqlite=no)
-AM_CONDITIONAL(ENABLE_BACKEND_SQLITE, test "x$enable_backend_sqlite" = "xyes")
-
-#
 # ICEcore for IceBackend Support
 #
 PKG_CHECK_MODULES(ICE_DESKTOP, Novell.IceDesktop, enable_ice_desktop="yes", enable_ice_desktop="no")
@@ -162,13 +153,11 @@ AC_SUBST(EVOLUTION_SHARP_LIBS)
 #
 if test "x$enable_backend_dummy" = "xno" ; then
 	if test "x$enable_backend_rtm" = "xno" ; then
-		if test "x$enable_backend_sqlite" = "xno" ; then
-			if test "x$enable_backend_sqlite" = "xno" ; then
-				if test "x$enable_backend_eds" = "xno" ; then
-					# No other backend was enabled, so enable
-					# the RTM Backend by default
-					enable_backend_rtm=yes
-				fi
+		if test "x$enable_backend_icecore" = "xno" ; then
+			if test "x$enable_backend_eds" = "xno" ; then
+				# No other backend was enabled, so enable
+				# the RTM Backend by default
+				enable_backend_rtm=yes
 			fi
 		fi
 	fi
@@ -220,6 +209,5 @@ Configuration:
 	Evolution Backend: ${enable_backend_eds}
 	ICECore Backend:   ${enable_backend_icecore}
 	RTM Backend:       ${enable_backend_rtm}
-	SQLite Backend:    ${enable_backend_sqlite}
 "
 
