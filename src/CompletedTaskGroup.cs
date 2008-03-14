@@ -21,7 +21,7 @@ namespace Tasque
 	
 	public class CompletedTaskGroup : TaskGroup
 	{
-		ICategory selectedCategory;
+		Category selectedCategory;
 		HScale rangeSlider;
 		ShowCompletedRange currentRange;
 		
@@ -94,7 +94,7 @@ namespace Tasque
 			if (showCompletedTasks == false)
 				return false;
 			
-			ITask task = model.GetValue (iter, 0) as ITask;
+			Task task = model.GetValue (iter, 0) as Task;
 			if (task == null || task.State != TaskState.Completed)
 				return false;
 			
@@ -133,19 +133,19 @@ namespace Tasque
 			Refilter (selectedCategory);
 		}
 		
-		protected ICategory GetSelectedCategory ()
+		protected Category GetSelectedCategory ()
 		{
-			ICategory foundCategory = null;
+			Category foundCategory = null;
 			
 			string cat = Application.Preferences.Get (
 							Preferences.SelectedCategoryKey);
 			if (cat != null) {
 				TreeIter iter;
-				TreeModel model = Application.Backend.Categories;
+				TreeModel model = Application.LocalCache.Categories;
 				
 				if (model.GetIterFirst (out iter) == true) {
 					do {
-						ICategory category = model.GetValue (iter, 0) as ICategory;
+						Category category = model.GetValue (iter, 0) as Category;
 						if (category.Name.CompareTo (cat) == 0) {
 							foundCategory = category;
 							break;
@@ -265,8 +265,8 @@ namespace Tasque
 										 Gtk.TreeIter a,
 										 Gtk.TreeIter b)
 		{
-			ITask taskA = model.GetValue (a, 0) as ITask;
-			ITask taskB = model.GetValue (b, 0) as ITask;
+			Task taskA = model.GetValue (a, 0) as Task;
+			Task taskB = model.GetValue (b, 0) as Task;
 			
 			if (taskA == null || taskB == null)
 				return 0;

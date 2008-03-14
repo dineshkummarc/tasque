@@ -22,11 +22,11 @@ namespace Tasque
 		Gtk.Widget parent;
 		int eventCount;
 
-		private ITask task;
+		private Task task;
 		
 		private const uint CURRENT_TIME = 0;
 
-		public TaskCalendar(ITask task, Gtk.Widget parent)
+		public TaskCalendar(Task task, Gtk.Widget parent)
 		{
 			this.task = task;
 			

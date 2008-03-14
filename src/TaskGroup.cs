@@ -199,7 +199,7 @@ namespace Tasque
 		#endregion // Public Properties
 		
 		#region Public Methods
-		public void Refilter (ICategory selectedCategory)
+		public void Refilter (Category selectedCategory)
 		{
 			filteredTasks.Refilter ();
 			treeView.Refilter (selectedCategory);
@@ -210,18 +210,18 @@ namespace Tasque
 		/// currently shown in this TaskGroup.
 		/// </summary>
 		/// <param name="task">
-		/// A <see cref="ITask"/>
+		/// A <see cref="Task"/>
 		/// </param>
 		/// <param name="iter">
 		/// A <see cref="Gtk.TreeIter"/>
 		/// </param>
 		/// <returns>
 		/// A <see cref="System.Boolean"/> True if the specified <see
-		/// cref="ITask">task</see> is currently shown inside this TaskGroup.
+		/// cref="Task">task</see> is currently shown inside this TaskGroup.
 		/// Additionally, if true, the <see cref="Gtk.TreeIter">iter</see> will
-		/// point to the specified <see cref="ITask">task</see>.
+		/// point to the specified <see cref="Task">task</see>.
 		/// </returns>
-		public bool ContainsTask (ITask task, out Gtk.TreeIter iter)
+		public bool ContainsTask (Task task, out Gtk.TreeIter iter)
 		{
 			Gtk.TreeIter tempIter;
 			Gtk.TreeModel model = treeView.Model;
@@ -233,7 +233,7 @@ namespace Tasque
 			
 			// Loop through the model looking for a matching task
 			do {
-				ITask tempTask = model.GetValue (tempIter, 0) as ITask;
+				Task tempTask = model.GetValue (tempIter, 0) as Task;
 				if (tempTask == task) {
 					iter = tempIter;
 					return true;
@@ -258,7 +258,7 @@ namespace Tasque
 			int pos = 0;
 			Gtk.TreeIter tempIter;
 			Gtk.TreeModel model = treeView.Model;
-			ITask task = model.GetValue (iter, 0) as ITask;
+			Task task = model.GetValue (iter, 0) as Task;
 			
 			if (model.GetIterFirst (out tempIter) == false)
 				return 0;
@@ -266,7 +266,7 @@ namespace Tasque
 			// This is ugly, but figure out what position the specified iter is
 			// at so we can return a value accordingly.
 			do {
-				ITask tempTask = model.GetValue (tempIter, 0) as ITask;
+				Task tempTask = model.GetValue (tempIter, 0) as Task;
 				if (tempTask == task)
 					break;
 				
@@ -287,7 +287,7 @@ namespace Tasque
 			int pos = 0;
 			Gtk.TreeIter tempIter;
 			Gtk.TreeModel model = treeView.Model;
-			ITask task = model.GetValue (iter, 0) as ITask;
+			Task task = model.GetValue (iter, 0) as Task;
 			
 			if (model.GetIterFirst (out tempIter) == false)
 				return 0;
@@ -295,7 +295,7 @@ namespace Tasque
 			// This is ugly, but figure out what position the specified iter is
 			// at so we can return a value accordingly.
 			do {
-				ITask tempTask = model.GetValue (tempIter, 0) as ITask;
+				Task tempTask = model.GetValue (tempIter, 0) as Task;
 				if (tempTask == task)
 					break;
 				
@@ -309,7 +309,7 @@ namespace Tasque
 			return pos * height + header.Requisition.Height;
 		}
 		
-		public void EnterEditMode (ITask task, Gtk.TreeIter iter)
+		public void EnterEditMode (Task task, Gtk.TreeIter iter)
 		{
 			Gtk.TreePath path;
 			
@@ -344,7 +344,7 @@ namespace Tasque
         /// </summary>
 		protected virtual bool FilterTasks (Gtk.TreeModel model, Gtk.TreeIter iter)
 		{
-			ITask task = model.GetValue (iter, 0) as ITask;
+			Task task = model.GetValue (iter, 0) as Task;
 			if (task == null)
 				return false;
 			
@@ -370,7 +370,7 @@ namespace Tasque
 			return true;
 		}
 		
-		private bool ShowCompletedTask (ITask task)
+		private bool ShowCompletedTask (Task task)
 		{
 			if (task.State == TaskState.Completed) {
 				if (showCompletedTasks == false)
@@ -404,7 +404,7 @@ namespace Tasque
 		/// </summary>
 		private void Refilter ()
 		{
-			ICategory cat = GetSelectedCategory ();
+			Category cat = GetSelectedCategory ();
 			if (cat != null)
 				Refilter (cat);
 		}
@@ -415,24 +415,24 @@ namespace Tasque
 		/// or something.
 		/// </summary>
 		/// <returns>
-		/// A <see cref="ICategory"/>
+		/// A <see cref="Category"/>
 		/// </returns>
-		private ICategory GetSelectedCategory ()
+		private Category GetSelectedCategory ()
 		{
 			// TODO: Move this code into some function in the backend/somewhere
-			// with the signature of GetCategoryForName (string catName):ICategory
+			// with the signature of GetCategoryForName (string catName):Category
 			string selectedCategoryName =
 				Application.Preferences.Get (Preferences.SelectedCategoryKey);
 			
 			if (selectedCategoryName != null) {
 				Gtk.TreeIter iter;
-				Gtk.TreeModel model = Application.Backend.Categories;
+				Gtk.TreeModel model = Application.LocalCache.Categories;
 
 				// Iterate through (yeah, I know this is gross!) and find the
 				// matching category
 				if (model.GetIterFirst (out iter) == true) {
 					do {
-						ICategory cat = model.GetValue (iter, 0) as ICategory;
+						Category cat = model.GetValue (iter, 0) as Category;
 						if (cat == null)
 							continue; // Needed for some reason to prevent crashes from some backends
 						if (cat.Name.CompareTo (selectedCategoryName) == 0) {
@@ -486,7 +486,7 @@ namespace Tasque
 			
 			showCompletedTasks = newValue;
 			
-			ICategory cat = GetSelectedCategory ();
+			Category cat = GetSelectedCategory ();
 			if (cat != null)
 				Refilter (cat);
 		}

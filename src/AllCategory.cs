@@ -7,7 +7,7 @@ using Mono.Unix;
 
 namespace Tasque
 {
-	public class AllCategory : ICategory
+	public class AllCategory : Category
 	{
 		// A "set" of categories specified by the user to show when the "All"
 		// category is selected in the TaskWindow.  If the list is empty, tasks
@@ -15,7 +15,7 @@ namespace Tasque
 		// specified lists will be shown.
 		List<string> categoriesToHide;
 		
-		public AllCategory ()
+		public AllCategory () : base(Application.LocalCache, Catalog.GetString ("All"))
 		{
 			Preferences preferences = Application.Preferences;
 			categoriesToHide =
@@ -23,16 +23,11 @@ namespace Tasque
 			Application.Preferences.SettingChanged += OnSettingChanged;
 		}
 		
-		public string Name
-		{
-			get { return Catalog.GetString ("All"); }
-		}
-		
-		public bool ContainsTask(ITask task)
+		public new bool ContainsTask(Task task)
 		{
 			// Filter out tasks based on the user's preferences of which
 			// categories should be displayed in the AllCategory.
-			ICategory category = task.Category;
+			Category category = task.Category;
 			if (category == null)
 				return true;
 			

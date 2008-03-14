@@ -112,6 +112,7 @@ namespace Tasque
 			backendPage = null;
 			backendPageId = -1;
 			
+			/*
 			if (Application.Backend != null) {
 				backendPage = Application.Backend.GetPreferencesWidget ();
 				if (backendPage != null) {
@@ -125,7 +126,7 @@ namespace Tasque
 						notebook.AppendPage (backendPage, l);
 				}
 			}
-			
+			*/
 			notebook.Show ();
 			this.VBox.PackStart (notebook, true, true, 0);
 
@@ -182,8 +183,11 @@ namespace Tasque
 			backendComboBox = ComboBox.NewText ();
 			backendComboMap = new Dictionary<int,IBackend> ();
 			// Fill out the ComboBox
-			int i = 0;
+			//int i = 0;
 			selectedBackend = -1;
+
+			// disabling all of this for backend rework
+/*
 			foreach (IBackend backend in Application.AvailableBackends) {
 				backendComboBox.AppendText (backend.Name);
 				backendComboMap [i] = backend;
@@ -194,6 +198,7 @@ namespace Tasque
 			if (selectedBackend >= 0)
 				backendComboBox.Active = selectedBackend;
 			backendComboBox.Changed += OnBackendComboBoxChanged;
+*/
 			backendComboBox.Show ();
 			
 			HBox hbox = new HBox (false, 6);
@@ -322,7 +327,7 @@ namespace Tasque
 		
 		private void OnBackendComboBoxChanged (object sender, EventArgs args)
 		{
-			if (selectedBackend >= 0) {
+/*			if (selectedBackend >= 0) {
 				// TODO: Prompt the user and make sure they really want to change
 				// which backend they are using.
 				
@@ -389,6 +394,7 @@ namespace Tasque
 			//Application.Preferences.SetStringList (Preferences.HideInAllCategory,
 			//									   categoriesToHide);
 			RebuildCategoryTree ();
+*/
 		}
 		
 		private void ToggleCellDataFunc (Gtk.TreeViewColumn column,

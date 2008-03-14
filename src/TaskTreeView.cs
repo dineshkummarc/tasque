@@ -19,7 +19,7 @@ namespace Tasque
 		private static Gdk.Pixbuf[] inactiveAnimPixbufs;
 		
 		private Gtk.TreeModelFilter modelFilter;
-		private ICategory filterCategory;
+		private Category filterCategory;
 		
 		static TaskTreeView ()
 		{
@@ -241,7 +241,7 @@ namespace Tasque
 			Refilter (filterCategory);
 		}
 		
-		public void Refilter (ICategory selectedCategory)
+		public void Refilter (Category selectedCategory)
 		{
 			this.filterCategory = selectedCategory;
 			Model = modelFilter;
@@ -272,7 +272,7 @@ namespace Tasque
 											 Gtk.TreeIter iter)
 		{
 			Gtk.CellRendererToggle crt = cell as Gtk.CellRendererToggle;
-			ITask task = model.GetValue (iter, 0) as ITask;
+			Task task = model.GetValue (iter, 0) as Task;
 			if (task == null)
 				crt.Active = false;
 			else {
@@ -288,7 +288,7 @@ namespace Tasque
 		{
 			// TODO: Add bold (for high), light (for None), and also colors to priority?
 			Gtk.CellRendererCombo crc = cell as Gtk.CellRendererCombo;
-			ITask task = Model.GetValue (iter, 0) as ITask;
+			Task task = Model.GetValue (iter, 0) as Task;
 			switch (task.Priority) {
 			case TaskPriority.Low:
 				crc.Text = Catalog.GetString ("3");
@@ -311,7 +311,7 @@ namespace Tasque
 		{
 			Gtk.CellRendererText crt = renderer as Gtk.CellRendererText;
 			crt.Ellipsize = Pango.EllipsizeMode.End;
-			ITask task = model.GetValue (iter, 0) as ITask;
+			Task task = model.GetValue (iter, 0) as Task;
 			if (task == null) {
 				crt.Text = string.Empty;
 				return;
@@ -341,7 +341,7 @@ namespace Tasque
 				Gtk.TreeIter iter)
 		{
 			Gtk.CellRendererCombo crc = renderer as Gtk.CellRendererCombo;
-			ITask task = Model.GetValue (iter, 0) as ITask;
+			Task task = Model.GetValue (iter, 0) as Task;
 			DateTime date = task.State == TaskState.Completed ?
 									task.CompletionDate :
 									task.DueDate;
@@ -362,7 +362,7 @@ namespace Tasque
 				Gtk.TreeIter iter)
 		{
 			Gtk.CellRendererPixbuf crp = renderer as Gtk.CellRendererPixbuf;
-			ITask task = model.GetValue (iter, 0) as ITask;
+			Task task = model.GetValue (iter, 0) as Task;
 			if (task == null) {
 				crp.Pixbuf = null;
 				return;
@@ -376,7 +376,7 @@ namespace Tasque
 				Gtk.TreeIter iter)
 		{
 			Gtk.CellRendererPixbuf crp = renderer as Gtk.CellRendererPixbuf;
-			ITask task = model.GetValue (iter, 0) as ITask;
+			Task task = model.GetValue (iter, 0) as Task;
 			if (task == null)
 				return;
 			
@@ -453,7 +453,7 @@ namespace Tasque
 										   Gtk.TreeIter iter)
 		{
 			// Filter out deleted tasks
-			ITask task = model.GetValue (iter, 0) as ITask;
+			Task task = model.GetValue (iter, 0) as Task;
 			
 			if (task.State == TaskState.Deleted) {
 				//Logger.Debug ("TaskTreeView.FilterFunc:\n\t{0}\n\t{1}\n\tReturning false", task.Name, task.State);  
@@ -476,7 +476,7 @@ namespace Tasque
 			if (Model.GetIter (out iter, path) == false)
 				return; // Do nothing
 			
-			ITask task = Model.GetValue (iter, 0) as ITask;
+			Task task = Model.GetValue (iter, 0) as Task;
 			if (task == null)
 				return;
 
@@ -527,7 +527,7 @@ namespace Tasque
 				newPriority = TaskPriority.None;
 
 			// Update the priority if it's different
-			ITask task = Model.GetValue (iter, 0) as ITask;
+			Task task = Model.GetValue (iter, 0) as Task;
 			if (task.Priority != newPriority)
 				task.Priority = newPriority;
 		}
@@ -539,7 +539,7 @@ namespace Tasque
 			if (Model.GetIter (out iter, path) == false)
 				return;
 			
-			ITask task = Model.GetValue (iter, 0) as ITask;
+			Task task = Model.GetValue (iter, 0) as Task;
 			if (task == null)
 				return;
 			
@@ -595,7 +595,7 @@ namespace Tasque
 			
 			DateTime newDate = DateTime.MinValue;
 			DateTime today = DateTime.Now;
-			ITask task = Model.GetValue (iter, 0) as ITask;			
+			Task task = Model.GetValue (iter, 0) as Task;			
 			
 			if (args.NewText.CompareTo (
 							today.ToString(Catalog.GetString("M/d - ")) + Catalog.GetString("Today") ) == 0)
@@ -668,7 +668,7 @@ namespace Tasque
 			}
 			
 			private TaskTreeView tree;
-			private ITask task;
+			private Task task;
 			private uint delay;
 			protected uint pulseTimeoutId;
 			private Gtk.TreeIter iter;
@@ -676,7 +676,7 @@ namespace Tasque
 			
 			public InactivateTimer (TaskTreeView treeView,
 									Gtk.TreeIter taskIter,
-									ITask taskToComplete,
+									Task taskToComplete,
 									uint delayInSeconds)
 			{
 				tree = treeView;
@@ -694,7 +694,7 @@ namespace Tasque
 				timers [task.TimerID] = this;
 			}
 			
-			public static void CancelTimer(ITask task)
+			public static void CancelTimer(Task task)
 			{
 				Logger.Debug("Timeout Canceled for task: " + task.Name);
 				InactivateTimer timer = null;

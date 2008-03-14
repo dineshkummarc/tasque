@@ -54,8 +54,8 @@ namespace Tasque
 			this.cache = cache;
 			this.id = id;
 		}
-
-		public bool ContainsTask(ITask task)
+		
+		public bool ContainsTask(Task task)
 		{
 			if(task.Category is Category)
 				return ((task.Category as Category).ID == id);

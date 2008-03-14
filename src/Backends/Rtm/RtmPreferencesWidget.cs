@@ -99,7 +99,7 @@ namespace Tasque.Backends.RtmBackend
 		
 		private void OnAuthButtonClicked (object sender, EventArgs args)
 		{
-			RtmBackend rtmBackend = Application.Backend as RtmBackend;
+			RtmBackend rtmBackend = null; //Application.Backend as RtmBackend;
 			if (rtmBackend != null) {
 				if (!isAuthorized && !authRequested) {
 					string url = rtmBackend.GetAuthUrl();

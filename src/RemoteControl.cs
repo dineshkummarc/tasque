@@ -54,7 +54,7 @@ namespace Tasque
 								  bool enterEditMode)
 		{
 			Gtk.TreeIter iter;
-			Gtk.TreeModel model = Application.Backend.Categories;
+			Gtk.TreeModel model = Application.LocalCache.Categories;
 			
 			//
 			// Validate the input parameters.  Don't allow null or empty strings
@@ -72,9 +72,9 @@ namespace Tasque
 				return string.Empty;
 			}
 			
-			ICategory category = null;
+			Category category = null;
 			do {
-				ICategory tempCategory = model.GetValue (iter, 0) as ICategory;
+				Category tempCategory = model.GetValue (iter, 0) as Category;
 				if (tempCategory.Name.ToLower ().CompareTo (categoryName.ToLower ()) == 0) {
 					// Found a match
 					category = tempCategory;
@@ -85,9 +85,9 @@ namespace Tasque
 				return string.Empty;
 			}
 			
-			ITask task = null;
+			Task task = null;
 			try {
-				task = Application.Backend.CreateTask (taskName, category);
+				task = Application.LocalCache.CreateTask(taskName, category);
 			} catch (Exception e) {
 				Logger.Error ("Exception calling Application.Backend.CreateTask from RemoteControl: {0}", e.Message);
 				return string.Empty;
@@ -129,13 +129,13 @@ namespace Tasque
 			string[] emptyArray = categories.ToArray ();
 			
 			Gtk.TreeIter iter;
-			Gtk.TreeModel model = Application.Backend.Categories;
+			Gtk.TreeModel model = Application.LocalCache.Categories;
 			
 			if (model.GetIterFirst (out iter) == false)
 				return emptyArray;
 			
 			do {
-				ICategory category = model.GetValue (iter, 0) as ICategory;
+				Category category = model.GetValue (iter, 0) as Category;
 				if (category is AllCategory)
 					continue; // Prevent the AllCategory from being returned
 				categories.Add (category.Name);
