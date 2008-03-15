@@ -27,6 +27,22 @@ namespace Tasque
 		public event BackendSyncStartedHandler BackendSyncStarted;
 		public event BackendSyncFinishedHandler BackendSyncFinished;
 		
+		//private TaskGroup overdueGroup;
+		//private TaskGroup todayGroup;
+		//private TaskGroup tomorrowGroup;
+		//private TaskGroup nextSevenDaysGroup;
+		//private TaskGroup futureGroup;
+		//private CompletedTaskGroup completedTaskGroup;
+		
+		private Gtk.TreeIter overdueIter;
+		private Gtk.TreeIter todayIter;
+		private Gtk.TreeIter tomorrowIter;
+		private Gtk.TreeIter nextSevenDaysIter;
+		private Gtk.TreeIter futureIter;
+		private Gtk.TreeIter completedTaskIter;
+
+
+		
 		Category defaultCategory;
 		//Category workCategory;
 		//Category projectsCategory;
@@ -35,7 +51,7 @@ namespace Tasque
 		{
 			initialized = false;
 			taskIters = new Dictionary<int, Gtk.TreeIter> (); 
-			taskStore = new Gtk.TreeStore (typeof (Task));
+			taskStore = new Gtk.TreeStore (typeof (TaskModelNode));
 			
 			sortedTasksModel = new Gtk.TreeModelSort (taskStore);
 			sortedTasksModel.SetSortFunc (0, new Gtk.TreeIterCompareFunc (CompareTasksSortFunc));
@@ -265,7 +281,25 @@ namespace Tasque
 			Gtk.TreeIter iter;
 			Task newTask;
 			bool hasValues = false;
+
+			overdueIter = taskStore.AppendNode();
+			taskStore.SetValue(overdueIter, 0, new TaskModelNode(Catalog.GetString("Overdue")));
 			
+			todayIter = taskStore.AppendNode();
+			taskStore.SetValue(todayIter, 0, new TaskModelNode(Catalog.GetString("Today")));
+			
+			tomorrowIter = taskStore.AppendNode();
+			taskStore.SetValue(overdueIter, 0, new TaskModelNode(Catalog.GetString("Tomorrow")));
+			
+			nextSevenDaysIter = taskStore.AppendNode();
+			taskStore.SetValue(tomorrowIter, 0, new TaskModelNode(Catalog.GetString("Next 7 Days")));
+			
+			futureIter = taskStore.AppendNode();
+			taskStore.SetValue(futureIter, 0, new TaskModelNode(Catalog.GetString("Future")));
+			
+			completedTaskIter = taskStore.AppendNode();
+			taskStore.SetValue(completedTaskIter, 0, new TaskModelNode(Catalog.GetString("Completed")));
+
 			string command = "SELECT id FROM Tasks";
         	SqliteCommand cmd = db.Connection.CreateCommand();
         	cmd.CommandText = command;
@@ -275,8 +309,8 @@ namespace Tasque
 				hasValues = true;
 				
 				newTask = new Task(this, id);
-				iter = taskStore.AppendNode();
-				taskStore.SetValue (iter, 0, newTask);				
+				iter = taskStore.AppendNode(overdueIter);
+				taskStore.SetValue (iter, 0, new TaskModelNode(newTask));				
         	}
 
         	dataReader.Close();
@@ -289,7 +323,7 @@ namespace Tasque
 				newTask.DueDate = DateTime.Now;
 				newTask.Priority = TaskPriority.Medium;
 				iter = taskStore.AppendNode ();
-				taskStore.SetValue (iter, 0, newTask);	
+				taskStore.SetValue (iter, 0, new TaskModelNode(newTask));	
 				taskIters [newTask.Id] = iter;
 			}
 		}

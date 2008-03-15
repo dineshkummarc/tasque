@@ -52,12 +52,12 @@ namespace Tasque
 		private Gtk.ComboBox categoryComboBox;
 		private Gtk.VBox targetVBox;
 		
-		private TaskGroup overdueGroup;
-		private TaskGroup todayGroup;
-		private TaskGroup tomorrowGroup;
-		private TaskGroup nextSevenDaysGroup;
-		private TaskGroup futureGroup;
-		private CompletedTaskGroup completedTaskGroup;
+		//private TaskGroup overdueGroup;
+		//private TaskGroup todayGroup;
+		//private TaskGroup tomorrowGroup;
+		//private TaskGroup nextSevenDaysGroup;
+		//private TaskGroup futureGroup;
+		//private CompletedTaskGroup completedTaskGroup;
 		
 		private List<TaskGroup> taskGroups;
 		
@@ -71,6 +71,8 @@ namespace Tasque
 		
 		private Gtk.AccelGroup accelGroup;
 		private GlobalKeybinder globalKeys;
+		
+		private TaskTreeView taskTreeView;
 		
 		static TaskWindow ()
 		{
@@ -254,8 +256,16 @@ namespace Tasque
 			rangeEnd = DateTime.Now.AddDays (-1);
 			rangeEnd = new DateTime (rangeEnd.Year, rangeEnd.Month, rangeEnd.Day,
 									 23, 59, 59);
+
+			//
+			// Group TreeView
+			//
+			taskTreeView = new TaskTreeView (Application.LocalCache.Tasks);
+			taskTreeView.Show ();
+			targetVBox.PackStart (taskTreeView, true, true, 0);
 			
-			overdueGroup = new TaskGroup (Catalog.GetString ("Overdue"),
+			
+/*			overdueGroup = new TaskGroup (Catalog.GetString ("Overdue"),
 										  rangeStart, rangeEnd,
 										  Application.LocalCache.Tasks);
 			overdueGroup.RowActivated += OnRowActivated;
@@ -349,7 +359,7 @@ namespace Tasque
 			targetVBox.PackStart (completedTaskGroup, false, false, 0);
 			taskGroups.Add (completedTaskGroup);
 			
-
+*/
 			//manualTarget = new TargetService();
 			//manualTarget.Show ();
 			//mainVBox.PackStart(manualTarget, false, false, 0);
@@ -939,12 +949,12 @@ namespace Tasque
 				categoryComboBox.Model.GetValue (iter, 0) as Category;
 				
 			// Update the TaskGroups so they can filter accordingly
-			overdueGroup.Refilter (category);
-			todayGroup.Refilter (category);
-			tomorrowGroup.Refilter (category);
-			nextSevenDaysGroup.Refilter (category);
-			futureGroup.Refilter (category);
-			completedTaskGroup.Refilter (category);
+			//overdueGroup.Refilter (category);
+			//todayGroup.Refilter (category);
+			//tomorrowGroup.Refilter (category);
+			//nextSevenDaysGroup.Refilter (category);
+			//futureGroup.Refilter (category);
+			//completedTaskGroup.Refilter (category);
 			
 			// Save the selected category in preferences
 			Application.Preferences.Set (Preferences.SelectedCategoryKey,

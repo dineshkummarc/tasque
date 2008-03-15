@@ -1,5 +1,12 @@
 2008-03-14  Calvin Gaisford <calvinrg@gmail.com> 
 
+	* tasque.mdp, src/TaskTreeView.cs, src/LocalCache.cs, src/AllCategory.cs,
+	  src/Category.cs, src/TaskModelNode.cs, src/TaskWindow.cs,
+	  src/Makefile.am: fixed up things so there is a single TreeView which
+	  currently sucks pond water
+
+2008-03-14  Calvin Gaisford <calvinrg@gmail.com> 
+
 	* src/TaskTreeView.cs, src/PreferencesDialog.cs, src/NoteDialog.cs,
 	  src/TaskCalendar.cs, src/Application.cs,
 	  src/Backends/Rtm/RtmPreferencesWidget.cs, src/AllCategory.cs,

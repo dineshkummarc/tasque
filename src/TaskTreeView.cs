@@ -63,11 +63,30 @@ namespace Tasque
 			// TODO: Figure out how to turn off selection highlight
 			
 			Gtk.CellRenderer renderer;
+
+			//
+			// Task Separator name Column
+			//
+			Gtk.TreeViewColumn column = new Gtk.TreeViewColumn ();
+			// Title for Task Name Column
+			column.Title = Catalog.GetString ("Separator Name");
+//			column.Sizing = Gtk.TreeViewColumnSizing.Fixed;
+			column.Sizing = Gtk.TreeViewColumnSizing.Autosize;
+			column.Expand = true;
+			column.Resizable = true;
+			
+			renderer = new Gtk.CellRendererText ();
+			column.PackStart (renderer, true);
+			column.SetCellDataFunc (renderer,
+				new Gtk.TreeCellDataFunc (TaskSeparatorTextCellDataFunc));
+			((Gtk.CellRendererText)renderer).Editable = false;
+			
+			AppendColumn (column);
 			
 			//
 			// Checkbox Column
 			//
-			Gtk.TreeViewColumn column = new Gtk.TreeViewColumn ();
+			column = new Gtk.TreeViewColumn ();
 			// Title for Completed/Checkbox Column
 			column.Title = Catalog.GetString ("Completed");
 			column.Sizing = Gtk.TreeViewColumnSizing.Autosize;
@@ -272,12 +291,13 @@ namespace Tasque
 											 Gtk.TreeIter iter)
 		{
 			Gtk.CellRendererToggle crt = cell as Gtk.CellRendererToggle;
-			Task task = model.GetValue (iter, 0) as Task;
-			if (task == null)
-				crt.Active = false;
+			TaskModelNode node = model.GetValue (iter, 0) as TaskModelNode;
+			if (node == null || node.IsSeparator)
+				crt.Visible = false;					
 			else {
+				crt.Visible = true;			
 				crt.Active =
-					task.State == TaskState.Active ? false : true;
+					node.Task.State == TaskState.Active ? false : true;
 			}
 		}
 
@@ -288,8 +308,13 @@ namespace Tasque
 		{
 			// TODO: Add bold (for high), light (for None), and also colors to priority?
 			Gtk.CellRendererCombo crc = cell as Gtk.CellRendererCombo;
-			Task task = Model.GetValue (iter, 0) as Task;
-			switch (task.Priority) {
+			TaskModelNode node = Model.GetValue (iter, 0) as TaskModelNode;
+			if(node.IsSeparator) {
+				crc.Text = string.Empty;
+				return;
+			}
+			
+			switch (node.Task.Priority) {
 			case TaskPriority.Low:
 				crc.Text = Catalog.GetString ("3");
 				break;
@@ -305,20 +330,40 @@ namespace Tasque
 			}
 		}
 		
+
+		private void TaskSeparatorTextCellDataFunc (Gtk.TreeViewColumn treeColumn,
+				Gtk.CellRenderer renderer, Gtk.TreeModel model,
+				Gtk.TreeIter iter)
+		{
+			Gtk.CellRendererText crt = renderer as Gtk.CellRendererText;
+			TaskModelNode node = Model.GetValue (iter, 0) as TaskModelNode;
+			if( (node == null) || (!node.IsSeparator) ) {
+				crt.Text = string.Empty;
+				return;
+			}
+
+			string formatString = "<span weight=\"bold\">{0}</span>";
+
+			crt.Markup = string.Format (formatString,
+				GLib.Markup.EscapeText (node.Name));
+		}
+
+		
+		
 		private void TaskNameTextCellDataFunc (Gtk.TreeViewColumn treeColumn,
 				Gtk.CellRenderer renderer, Gtk.TreeModel model,
 				Gtk.TreeIter iter)
 		{
 			Gtk.CellRendererText crt = renderer as Gtk.CellRendererText;
 			crt.Ellipsize = Pango.EllipsizeMode.End;
-			Task task = model.GetValue (iter, 0) as Task;
-			if (task == null) {
+			TaskModelNode node = Model.GetValue (iter, 0) as TaskModelNode;
+			if (node == null || node.IsSeparator) {			
 				crt.Text = string.Empty;
 				return;
 			}
 			
 			string formatString = "{0}";
-			switch (task.State) {
+			switch (node.Task.State) {
 			case TaskState.Inactive:
 				// Strikeout the text
 				formatString = "<span strikethrough=\"true\">{0}</span>";
@@ -333,7 +378,7 @@ namespace Tasque
 			}
 			
 			crt.Markup = string.Format (formatString,
-				GLib.Markup.EscapeText (task.Name));
+				GLib.Markup.EscapeText (node.Task.Name));
 		}
 		
 		protected virtual void DueDateCellDataFunc (Gtk.TreeViewColumn treeColumn,
@@ -341,10 +386,14 @@ namespace Tasque
 				Gtk.TreeIter iter)
 		{
 			Gtk.CellRendererCombo crc = renderer as Gtk.CellRendererCombo;
-			Task task = Model.GetValue (iter, 0) as Task;
-			DateTime date = task.State == TaskState.Completed ?
-									task.CompletionDate :
-									task.DueDate;
+			TaskModelNode node = Model.GetValue (iter, 0) as TaskModelNode;
+			if(node == null || node.IsSeparator) {
+				crc.Text = string.Empty;
+				return;
+			}
+			DateTime date = node.Task.State == TaskState.Completed ?
+									node.Task.CompletionDate :
+									node.Task.DueDate;
 			if (date == DateTime.MinValue || date == DateTime.MaxValue) {
 				crc.Text = "-";
 				return;
@@ -362,13 +411,13 @@ namespace Tasque
 				Gtk.TreeIter iter)
 		{
 			Gtk.CellRendererPixbuf crp = renderer as Gtk.CellRendererPixbuf;
-			Task task = model.GetValue (iter, 0) as Task;
-			if (task == null) {
+			TaskModelNode node = Model.GetValue (iter, 0) as TaskModelNode;
+			if (node == null || node.IsSeparator) {
 				crp.Pixbuf = null;
 				return;
 			}
 			
-			crp.Pixbuf = task.HasNotes ? notePixbuf : null;
+			crp.Pixbuf = node.Task.HasNotes ? notePixbuf : null;
 		}
 		
 		private void TaskTimerCellDataFunc (Gtk.TreeViewColumn treeColumn,
@@ -376,11 +425,11 @@ namespace Tasque
 				Gtk.TreeIter iter)
 		{
 			Gtk.CellRendererPixbuf crp = renderer as Gtk.CellRendererPixbuf;
-			Task task = model.GetValue (iter, 0) as Task;
-			if (task == null)
+			TaskModelNode node = Model.GetValue (iter, 0) as TaskModelNode;
+			if (node == null || node.IsSeparator)
 				return;
 			
-			if (task.State != TaskState.Inactive) {
+			if (node.Task.State != TaskState.Inactive) {
 				// The task is not in the inactive state so don't show any icon
 				crp.Pixbuf = null;
 				return;
@@ -393,7 +442,7 @@ namespace Tasque
 			
 			//Logger.Debug ("TaskTimerCellDataFunc ()\n\tNow.Ticks: {0}\n\tCompletionDate.Ticks: {1}",
 			//				DateTime.Now.Ticks, task.CompletionDate.Ticks);
-			long elapsedTicks = DateTime.Now.Ticks - task.CompletionDate.Ticks;
+			long elapsedTicks = DateTime.Now.Ticks - node.Task.CompletionDate.Ticks;
 			//Logger.Debug ("\tElapsed Ticks: {0}", elapsedTicks);
 			long elapsedMillis = elapsedTicks / 10000;
 			//Logger.Debug ("\tElapsed Milliseconds: {0}", elapsedMillis);
@@ -453,17 +502,23 @@ namespace Tasque
 										   Gtk.TreeIter iter)
 		{
 			// Filter out deleted tasks
-			Task task = model.GetValue (iter, 0) as Task;
+			TaskModelNode node = model.GetValue (iter, 0) as TaskModelNode;
 			
-			if (task.State == TaskState.Deleted) {
+			if(node == null)
+				return false;
+				
+			if(node.IsSeparator)
+				return true;
+				
+			if (node.Task.State == TaskState.Deleted) {
 				//Logger.Debug ("TaskTreeView.FilterFunc:\n\t{0}\n\t{1}\n\tReturning false", task.Name, task.State);  
 				return false;
 			}
 			
 			if (filterCategory == null)
 				return true;
-			
-			return filterCategory.ContainsTask (task);
+				
+			return filterCategory.ContainsTask (node.Task);
 		}
 		#endregion // Private Methods
 		
@@ -475,15 +530,15 @@ namespace Tasque
 			Gtk.TreePath path = new Gtk.TreePath (args.Path);
 			if (Model.GetIter (out iter, path) == false)
 				return; // Do nothing
-			
-			Task task = Model.GetValue (iter, 0) as Task;
-			if (task == null)
+
+			TaskModelNode node = Model.GetValue (iter, 0) as TaskModelNode;			
+			if (node == null)
 				return;
 
 			// remove any timer set up on this task			
-			InactivateTimer.CancelTimer(task);
+			InactivateTimer.CancelTimer(node.Task);
 			
-			if (task.State == TaskState.Active) {
+			if (node.Task.State == TaskState.Active) {
 				bool showCompletedTasks =
 					Application.Preferences.GetBool (
 						Preferences.ShowCompletedTasksKey);
@@ -492,20 +547,20 @@ namespace Tasque
 				// away.  Otherwise, set a timer and show the timer animation
 				// before marking the task completed.
 				if (showCompletedTasks == true) {
-					task.Complete ();
+					node.Task.Complete ();
 				} else {
-					task.Inactivate ();
+					node.Task.Inactivate ();
 					
 					// Read the inactivate timeout from a preference
 					int timeout =
 						Application.Preferences.GetInt (Preferences.InactivateTimeoutKey);
 					Logger.Debug ("Read timeout from prefs: {0}", timeout);
 					InactivateTimer timer =
-						new InactivateTimer (this, iter, task, (uint) timeout);
+						new InactivateTimer (this, iter, node.Task, (uint) timeout);
 					timer.StartTimer ();
 				}
 			} else {
-				task.Activate ();
+				node.Task.Activate ();
 			}
 		}
 
@@ -527,9 +582,10 @@ namespace Tasque
 				newPriority = TaskPriority.None;
 
 			// Update the priority if it's different
-			Task task = Model.GetValue (iter, 0) as Task;
-			if (task.Priority != newPriority)
-				task.Priority = newPriority;
+			
+			TaskModelNode node = Model.GetValue (iter, 0) as TaskModelNode;
+			if (node.Task.Priority != newPriority)
+				node.Task.Priority = newPriority;
 		}
 		
 		void OnTaskNameEdited (object sender, Gtk.EditedArgs args)
@@ -539,27 +595,27 @@ namespace Tasque
 			if (Model.GetIter (out iter, path) == false)
 				return;
 			
-			Task task = Model.GetValue (iter, 0) as Task;
-			if (task == null)
+			TaskModelNode node = Model.GetValue (iter, 0) as TaskModelNode;
+			if (node == null)
 				return;
 			
 			string newText = args.NewText;
 			
 			// Attempt to derive due date information from text.
 			if (Application.Preferences.GetBool (Preferences.ParseDateEnabledKey) &&
-			    task.State == TaskState.Active &&
-			    task.DueDate == DateTime.MinValue) {
+			    node.Task.State == TaskState.Active &&
+			    node.Task.DueDate == DateTime.MinValue) {
 				
 				string parsedTaskText;
 				DateTime parsedDueDate;
 				Utilities.ParseTaskText (newText, out parsedTaskText, out parsedDueDate);
 				
 				if (parsedDueDate != DateTime.MinValue)
-					task.DueDate = parsedDueDate;
+					node.Task.DueDate = parsedDueDate;
 				newText = parsedTaskText;
 			}
 			
-			task.Name = newText;
+			node.Task.Name = newText;
 		}
 		
 		/// <summary>
@@ -595,7 +651,7 @@ namespace Tasque
 			
 			DateTime newDate = DateTime.MinValue;
 			DateTime today = DateTime.Now;
-			Task task = Model.GetValue (iter, 0) as Task;			
+			TaskModelNode node = Model.GetValue (iter, 0) as TaskModelNode;			
 			
 			if (args.NewText.CompareTo (
 							today.ToString(Catalog.GetString("M/d - ")) + Catalog.GetString("Today") ) == 0)
@@ -609,7 +665,7 @@ namespace Tasque
 				today.AddDays(7).ToString(Catalog.GetString("M/d - ")) + Catalog.GetString("In 1 Week")	) == 0)
 				newDate = today.AddDays (7);
 			else if (args.NewText.CompareTo (Catalog.GetString ("Choose Date...")) == 0) {
-				TaskCalendar tc = new TaskCalendar(task, this.Parent);
+				TaskCalendar tc = new TaskCalendar(node.Task, this.Parent);
 				tc.ShowCalendar();
 				return;
 			} else {
@@ -623,12 +679,12 @@ namespace Tasque
 				}
 			}
 			
-			if (task.State == TaskState.Completed) {
+			if (node.Task.State == TaskState.Completed) {
 				// Modify the completion date
-				task.CompletionDate = newDate;
+				node.Task.CompletionDate = newDate;
 			} else {
 				// Modify the due date
-				task.DueDate = newDate;
+				node.Task.DueDate = newDate;
 			}
 		}
 		

@@ -16,7 +16,7 @@ namespace Tasque
 			get { return id; }
 		}
 		
-		public string Name
+		public virtual string Name
 		{
 			get {
 				string command = String.Format("SELECT Name FROM Categories where ID='{0}'", id);
@@ -54,6 +54,11 @@ namespace Tasque
 			this.cache = cache;
 			this.id = id;
 		}
+
+		internal Category ()
+		{
+		}
+
 		
 		public bool ContainsTask(Task task)
 		{

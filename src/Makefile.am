@@ -62,6 +62,7 @@ CSFILES = \
 	$(srcdir)/Task.cs \
 	$(srcdir)/TaskCalendar.cs \
 	$(srcdir)/TaskGroup.cs \
+	$(srcdir)/TaskModelNode.cs \
 	$(srcdir)/TaskPriority.cs \
 	$(srcdir)/TaskState.cs \
 	$(srcdir)/TaskWindow.cs \

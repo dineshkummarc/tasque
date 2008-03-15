@@ -15,12 +15,19 @@ namespace Tasque
 		// specified lists will be shown.
 		List<string> categoriesToHide;
 		
-		public AllCategory () : base(Application.LocalCache, Catalog.GetString ("All"))
+		public AllCategory () : base()
 		{
 			Preferences preferences = Application.Preferences;
 			categoriesToHide =
 				preferences.GetStringList (Preferences.HideInAllCategory);
 			Application.Preferences.SettingChanged += OnSettingChanged;
+		}
+		
+		public override string Name
+		{
+			get {
+				return Catalog.GetString("All");
+			}
 		}
 		
 		public new bool ContainsTask(Task task)
