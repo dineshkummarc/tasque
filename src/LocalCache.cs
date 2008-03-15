@@ -26,6 +26,21 @@ namespace Tasque
 		public event BackendInitializedHandler BackendInitialized;
 		public event BackendSyncStartedHandler BackendSyncStarted;
 		public event BackendSyncFinishedHandler BackendSyncFinished;
+
+		private DateTime overdueRangeStart;
+		private DateTime overdueRangeEnd;
+
+		private DateTime todayRangeStart;
+		private DateTime todayRangeEnd;
+
+		private DateTime tomorrowRangeStart;
+		private DateTime tomorrowRangeEnd;
+
+		private DateTime sevenDaysRangeStart;
+		private DateTime sevenDaysRangeEnd;
+
+		private DateTime futureRangeStart;
+		private DateTime futureRangeEnd;
 		
 		//private TaskGroup overdueGroup;
 		//private TaskGroup todayGroup;
@@ -41,11 +56,10 @@ namespace Tasque
 		private Gtk.TreeIter futureIter;
 		private Gtk.TreeIter completedTaskIter;
 
-
-		
 		Category defaultCategory;
 		//Category workCategory;
 		//Category projectsCategory;
+		
 		
 		public LocalCache ()
 		{
@@ -143,7 +157,7 @@ namespace Tasque
 			Gtk.TreeIter iter = categoryListStore.Append ();
 			categoryListStore.SetValue (iter, 0, allCategory);
 			
-			
+			RefreshDates();
 			RefreshCategories();
 			RefreshTasks();		
 
@@ -209,6 +223,9 @@ namespace Tasque
 		{
 			// Set the task in the store so the model will update the UI.
 			Gtk.TreeIter iter;
+			Gtk.TreeIter parentIter;
+			
+			Logger.Debug("Update task was called");
 			
 			if (taskIters.ContainsKey (task.Id) == false)
 				return;
@@ -225,7 +242,19 @@ namespace Tasque
 						task.Name);
 				}
 			} else {
-				taskStore.SetValue (iter, 0, task);
+				parentIter = GetParentIter(task);
+				
+				if(!taskStore.IsAncestor(parentIter, iter))
+				{
+					Logger.Debug("Task is in the wrong group!");
+
+					taskStore.Remove(ref iter);
+					iter = taskStore.AppendNode(parentIter);
+					taskStore.SetValue (iter, 0, new TaskModelNode(task));					
+					taskIters [task.Id] = iter;
+				} else {
+					taskStore.SetValue (iter, 0, new TaskModelNode(task));
+				}
 			}
 		}
 		
@@ -305,12 +334,16 @@ namespace Tasque
         	cmd.CommandText = command;
         	SqliteDataReader dataReader = cmd.ExecuteReader();
         	while(dataReader.Read()) {
+        		Gtk.TreeIter parentIter;
+        		
 			    int id = dataReader.GetInt32(0);
 				hasValues = true;
 				
 				newTask = new Task(this, id);
-				iter = taskStore.AppendNode(overdueIter);
-				taskStore.SetValue (iter, 0, new TaskModelNode(newTask));				
+				parentIter = GetParentIter(newTask);
+				iter = taskStore.AppendNode(parentIter);
+				taskStore.SetValue (iter, 0, new TaskModelNode(newTask));
+				taskIters [newTask.Id] = iter;				
         	}
 
         	dataReader.Close();
@@ -326,6 +359,90 @@ namespace Tasque
 				taskStore.SetValue (iter, 0, new TaskModelNode(newTask));	
 				taskIters [newTask.Id] = iter;
 			}
+		}
+
+		private Gtk.TreeIter GetParentIter(Task task)
+		{
+			Gtk.TreeIter iter;
+			
+			if(task.LocalState == TaskState.Completed) {
+				Logger.Debug("Parent is Complete");
+				iter = completedTaskIter;
+			}
+			else if( InRange(overdueRangeStart, overdueRangeEnd, task) ) {
+				Logger.Debug("Parent is Overdue");
+				iter = overdueIter;
+			}
+			else if( InRange(todayRangeStart, todayRangeEnd, task) ) {
+				Logger.Debug("Parent is Today");
+				iter = todayIter;
+			}
+			else if( InRange(tomorrowRangeStart, tomorrowRangeEnd, task) ) {
+				Logger.Debug("Parent is Tomorrow");
+				iter = tomorrowIter;
+			}
+			else if( InRange(sevenDaysRangeStart, sevenDaysRangeEnd, task) ) {
+				Logger.Debug("Parent is Next Seven Days");
+				iter = nextSevenDaysIter;
+			}
+			else { 
+				Logger.Debug("Parent is Future");
+				iter = futureIter;
+			}
+			
+			return iter;
+		}
+		
+		
+		private bool InRange (DateTime rangeStart, DateTime rangeEnd, Task task)
+		{
+			if (task == null)
+				return false;
+				
+			if (task.DueDate < rangeStart || task.DueDate > rangeEnd)
+				return false;
+			
+			return true;
+		}
+		
+		
+		private void RefreshDates()
+		{
+			// Overdue
+			overdueRangeStart = DateTime.MinValue;
+			overdueRangeEnd = DateTime.Now.AddDays (-1);
+			overdueRangeEnd = new DateTime (overdueRangeEnd.Year, overdueRangeEnd.Month, overdueRangeEnd.Day,
+									 23, 59, 59);		
+
+			// Today
+			todayRangeStart = DateTime.Now;
+			todayRangeStart = new DateTime (todayRangeStart.Year, todayRangeStart.Month,
+									   todayRangeStart.Day, 0, 0, 0);
+			todayRangeEnd = DateTime.Now;
+			todayRangeEnd = new DateTime (todayRangeEnd.Year, todayRangeEnd.Month,
+									 todayRangeEnd.Day, 23, 59, 59);
+
+			// Tomorrow
+			tomorrowRangeStart = DateTime.Now.AddDays (1);
+			tomorrowRangeStart = new DateTime (tomorrowRangeStart.Year, tomorrowRangeStart.Month,
+									   tomorrowRangeStart.Day, 0, 0, 0);
+			tomorrowRangeEnd = DateTime.Now.AddDays (1);
+			tomorrowRangeEnd = new DateTime (tomorrowRangeEnd.Year, tomorrowRangeEnd.Month,
+									 tomorrowRangeEnd.Day, 23, 59, 59);
+
+			// Next Seven Days
+			sevenDaysRangeStart = DateTime.Now.AddDays (2);
+			sevenDaysRangeStart = new DateTime (sevenDaysRangeStart.Year, sevenDaysRangeStart.Month,
+									   sevenDaysRangeStart.Day, 0, 0, 0);
+			sevenDaysRangeEnd = DateTime.Now.AddDays (6);
+			sevenDaysRangeEnd = new DateTime (sevenDaysRangeEnd.Year, sevenDaysRangeEnd.Month,
+									 sevenDaysRangeEnd.Day, 23, 59, 59);
+
+			// Future
+			futureRangeStart = DateTime.Now.AddDays (7);
+			futureRangeStart = new DateTime (futureRangeStart.Year, futureRangeStart.Month,
+									   futureRangeStart.Day, 0, 0, 0);
+			futureRangeEnd = DateTime.MaxValue;
 		}
 
 		#endregion // Private Methods

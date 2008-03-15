@@ -59,12 +59,14 @@ namespace Tasque
 			RulesHint = false;
 			HeadersVisible = false;
 			HoverSelection = true;
+			// TODO: This can eventually be turned to false, but until debugged
+			// this should stay
+			this.ShowExpanders = true;
 			
 			// TODO: Figure out how to turn off selection highlight
 			
 			Gtk.CellRenderer renderer;
 
-			this.ShowExpanders = false;
 			//
 			// Checkbox Column
 			//
@@ -734,6 +736,7 @@ namespace Tasque
 			} else {
 				node.Task.Activate ();
 			}
+			this.ExpandAll();			
 		}
 
 		void OnTaskPriorityEdited (object sender, Gtk.EditedArgs args)
@@ -858,6 +861,7 @@ namespace Tasque
 				// Modify the due date
 				node.Task.DueDate = newDate;
 			}
+			this.ExpandAll();
 		}
 		
 		void OnRowInsertedHandler (object sender, Gtk.RowInsertedArgs args)
