@@ -64,29 +64,11 @@ namespace Tasque
 			
 			Gtk.CellRenderer renderer;
 
-			//
-			// Task Separator name Column
-			//
-			Gtk.TreeViewColumn column = new Gtk.TreeViewColumn ();
-			// Title for Task Name Column
-			column.Title = Catalog.GetString ("Separator Name");
-//			column.Sizing = Gtk.TreeViewColumnSizing.Fixed;
-			column.Sizing = Gtk.TreeViewColumnSizing.Autosize;
-			column.Expand = true;
-			column.Resizable = true;
-			
-			renderer = new Gtk.CellRendererText ();
-			column.PackStart (renderer, true);
-			column.SetCellDataFunc (renderer,
-				new Gtk.TreeCellDataFunc (TaskSeparatorTextCellDataFunc));
-			((Gtk.CellRendererText)renderer).Editable = false;
-			
-			AppendColumn (column);
-			
+			this.ShowExpanders = false;
 			//
 			// Checkbox Column
 			//
-			column = new Gtk.TreeViewColumn ();
+			Gtk.TreeViewColumn column = new Gtk.TreeViewColumn ();
 			// Title for Completed/Checkbox Column
 			column.Title = Catalog.GetString ("Completed");
 			column.Sizing = Gtk.TreeViewColumnSizing.Autosize;
@@ -97,9 +79,182 @@ namespace Tasque
 			(renderer as Gtk.CellRendererToggle).Toggled += OnTaskToggled;
 			column.PackStart (renderer, false);
 			column.SetCellDataFunc (renderer,
-							new Gtk.TreeCellDataFunc (TaskToggleCellDataFunc));
+				new Gtk.TreeCellDataFunc (TaskToggleCellDataFunc));
+			//renderer.Xpad = 5;
+			//renderer.Ypad = 1;
+			//renderer.Width = 20;
+			//renderer.Height = 20;
+			renderer.Visible = false;
+			renderer.Xalign = 0;
+			
+			renderer = new Gtk.CellRendererText ();
+			column.PackStart (renderer, true);
+			column.SetCellDataFunc (renderer,
+				new Gtk.TreeCellDataFunc (TaskSeparatorTextCellDataFunc));
+			//renderer.Xpad = 5;
+			//renderer.Ypad = 1;
+			renderer.Visible = true;
+			renderer.Xalign = 0;
+			
+
+
+
+//==========================================
+			//
+			// Priority Column
+			//
+			//column.Sizing = Gtk.TreeViewColumnSizing.Fixed;
+			//column.Alignment = 0.5f;
+			//column.FixedWidth = 30;
+			//column.Resizable = false;
+			//column.Clickable = true;
+
+			renderer = new Gtk.CellRendererCombo ();
+			(renderer as Gtk.CellRendererCombo).Editable = true;
+			(renderer as Gtk.CellRendererCombo).HasEntry = false;
+			(renderer as Gtk.CellRendererCombo).Edited += OnTaskPriorityEdited;
+			Gtk.ListStore priorityStore = new Gtk.ListStore (typeof (string));
+			priorityStore.AppendValues (Catalog.GetString ("1")); // High
+			priorityStore.AppendValues (Catalog.GetString ("2")); // Medium
+			priorityStore.AppendValues (Catalog.GetString ("3")); // Low
+			priorityStore.AppendValues (Catalog.GetString ("-")); // None
+			(renderer as Gtk.CellRendererCombo).Model = priorityStore;
+			(renderer as Gtk.CellRendererCombo).TextColumn = 0;
+			renderer.Visible = false;
+			renderer.Xalign = 0.5f;
+			//renderer.Width = 30;
+			(renderer as Gtk.CellRendererCombo).WidthChars = 1;
+			//renderer.SetFixedSize(30, 30);
+			column.PackStart (renderer, false);
+			column.SetCellDataFunc (renderer,
+					new Gtk.TreeCellDataFunc (TaskPriorityCellDataFunc));
+
+			//
+			// Task Name Column
+			//
+			//column = new Gtk.TreeViewColumn ();
+			// Title for Task Name Column
+			//column.Title = Catalog.GetString ("Task Name");
+			//column.Sizing = Gtk.TreeViewColumnSizing.Autosize;
+			//column.Expand = true;
+			//column.Resizable = true;
+			
+			// TODO: Add in code to determine how wide we should make the name
+			// column.
+			// TODO: Add in code to readjust the size of the name column if the
+			// user resizes the Task Window.
+			//column.FixedWidth = 250;
+			
+			renderer = new Gtk.CellRendererText ();
+			column.PackStart (renderer, true);
+			column.SetCellDataFunc (renderer,
+				new Gtk.TreeCellDataFunc (TaskNameTextCellDataFunc));
+			((Gtk.CellRendererText)renderer).Editable = true;
+			((Gtk.CellRendererText)renderer).Edited += OnTaskNameEdited;
+			renderer.Visible = false;
+			renderer.Xalign = 0;			
+			
+			
+			//
+			// Due Date Column
+			//
+
+			//  2/11 - Today
+			//  2/12 - Tomorrow
+			//  2/13 - Wed
+			//  2/14 - Thu
+			//  2/15 - Fri
+			//  2/16 - Sat
+			//  2/17 - Sun
+			// --------------
+			//  2/18 - In 1 Week
+			// --------------
+			//  No Date
+			// ---------------
+			//  Choose Date...
+			
+			//column = new Gtk.TreeViewColumn ();
+			// Title for Due Date Column
+			//column.Title = Catalog.GetString ("Due Date");
+			//column.Sizing = Gtk.TreeViewColumnSizing.Fixed;
+			//column.Alignment = 0f;
+			//column.FixedWidth = 90;
+			//column.Resizable = false;
+			//column.Clickable = true;
+
+			renderer = new Gtk.CellRendererCombo ();
+			(renderer as Gtk.CellRendererCombo).Editable = true;
+			(renderer as Gtk.CellRendererCombo).HasEntry = false;
+			(renderer as Gtk.CellRendererCombo).Edited += OnDateEdited;
+			Gtk.ListStore dueDateStore = new Gtk.ListStore (typeof (string));
+			DateTime today = DateTime.Now;
+			dueDateStore.AppendValues (
+				today.ToString(Catalog.GetString("M/d - ")) + Catalog.GetString("Today"));
+			dueDateStore.AppendValues (
+				today.AddDays(1).ToString(Catalog.GetString("M/d - ")) + Catalog.GetString("Tomorrow"));
+			dueDateStore.AppendValues (
+				today.AddDays(2).ToString(Catalog.GetString("M/d - ddd")));
+			dueDateStore.AppendValues (
+				today.AddDays(3).ToString(Catalog.GetString("M/d - ddd")));
+			dueDateStore.AppendValues (
+				today.AddDays(4).ToString(Catalog.GetString("M/d - ddd")));
+			dueDateStore.AppendValues (
+				today.AddDays(5).ToString(Catalog.GetString("M/d - ddd")));
+			dueDateStore.AppendValues (
+				today.AddDays(6).ToString(Catalog.GetString("M/d - ddd")));
+			dueDateStore.AppendValues (
+				today.AddDays(7).ToString(Catalog.GetString("M/d - ")) + Catalog.GetString("In 1 Week"));			
+			dueDateStore.AppendValues (Catalog.GetString ("No Date"));
+			dueDateStore.AppendValues (Catalog.GetString ("Choose Date..."));
+			(renderer as Gtk.CellRendererCombo).Model = dueDateStore;
+			(renderer as Gtk.CellRendererCombo).TextColumn = 0;
+			renderer.Xalign = 0.0f;
+			column.PackStart (renderer, false);
+			column.SetCellDataFunc (renderer,
+					new Gtk.TreeCellDataFunc (DueDateCellDataFunc));
+			renderer.Visible = false;
+			renderer.Xalign = 0;	
+
+			
+			//
+			// Notes Column
+			//
+			//column = new Gtk.TreeViewColumn ();
+			// Title for Notes Column
+			//column.Title = Catalog.GetString ("Notes");
+			//column.Sizing = Gtk.TreeViewColumnSizing.Fixed;
+			//column.FixedWidth = 20;
+			//column.Resizable = false;
+			
+			renderer = new Gtk.CellRendererPixbuf ();
+			column.PackStart (renderer, false);
+			column.SetCellDataFunc (renderer,
+				new Gtk.TreeCellDataFunc (TaskNotesCellDataFunc));
+			renderer.Visible = false;
+			renderer.Xalign = 0;				
+			
+			//
+			// Timer Column
+			//
+			//column = new Gtk.TreeViewColumn ();
+			// Title for Timer Column
+			//column.Title = Catalog.GetString ("Timer");
+			//column.Sizing = Gtk.TreeViewColumnSizing.Fixed;
+			//column.FixedWidth = 20;
+			//column.Resizable = false;
+			
+			renderer = new Gtk.CellRendererPixbuf ();
+			renderer.Xalign = 0.5f;
+			column.PackStart (renderer, false);
+			column.SetCellDataFunc (renderer,
+				new Gtk.TreeCellDataFunc (TaskTimerCellDataFunc));
+			renderer.Visible = false;
+			renderer.Xalign = 0;				
+
+//===========================================
 			AppendColumn (column);
 			
+/*
 			//
 			// Priority Column
 			//
@@ -252,6 +407,7 @@ namespace Tasque
 				new Gtk.TreeCellDataFunc (TaskTimerCellDataFunc));
 			
 			AppendColumn (column);
+*/
 		}
 		
 		#region Public Methods
@@ -282,6 +438,7 @@ namespace Tasque
 			// Not sure why we need this, but without it, completed items are
 			// initially appearing in the view.
 			Refilter (filterCategory);
+			this.ExpandAll();
 		}
 
 		
@@ -309,10 +466,13 @@ namespace Tasque
 			// TODO: Add bold (for high), light (for None), and also colors to priority?
 			Gtk.CellRendererCombo crc = cell as Gtk.CellRendererCombo;
 			TaskModelNode node = Model.GetValue (iter, 0) as TaskModelNode;
-			if(node.IsSeparator) {
+			if (node == null || node.IsSeparator) {
+				crc.Visible = false;			
 				crc.Text = string.Empty;
 				return;
 			}
+			
+			crc.Visible = true;
 			
 			switch (node.Task.Priority) {
 			case TaskPriority.Low:
@@ -338,16 +498,17 @@ namespace Tasque
 			Gtk.CellRendererText crt = renderer as Gtk.CellRendererText;
 			TaskModelNode node = Model.GetValue (iter, 0) as TaskModelNode;
 			if( (node == null) || (!node.IsSeparator) ) {
+				crt.Visible = false;
 				crt.Text = string.Empty;
 				return;
 			}
+			crt.Visible = true;			
 
-			string formatString = "<span weight=\"bold\">{0}</span>";
+			string formatString = "<span size=\"x-large\" foreground=\"#9eb96e\" weight=\"bold\">{0}</span>";
 
 			crt.Markup = string.Format (formatString,
 				GLib.Markup.EscapeText (node.Name));
 		}
-
 		
 		
 		private void TaskNameTextCellDataFunc (Gtk.TreeViewColumn treeColumn,
@@ -357,11 +518,13 @@ namespace Tasque
 			Gtk.CellRendererText crt = renderer as Gtk.CellRendererText;
 			crt.Ellipsize = Pango.EllipsizeMode.End;
 			TaskModelNode node = Model.GetValue (iter, 0) as TaskModelNode;
-			if (node == null || node.IsSeparator) {			
+			if( (node == null) || (node.IsSeparator) ) {
+				crt.Visible = false;
 				crt.Text = string.Empty;
 				return;
 			}
-			
+			crt.Visible = true;	
+
 			string formatString = "{0}";
 			switch (node.Task.State) {
 			case TaskState.Inactive:
@@ -387,10 +550,13 @@ namespace Tasque
 		{
 			Gtk.CellRendererCombo crc = renderer as Gtk.CellRendererCombo;
 			TaskModelNode node = Model.GetValue (iter, 0) as TaskModelNode;
-			if(node == null || node.IsSeparator) {
+			if( (node == null) || (node.IsSeparator) ) {
+				crc.Visible = false;
 				crc.Text = string.Empty;
 				return;
 			}
+			crc.Visible = true;	
+
 			DateTime date = node.Task.State == TaskState.Completed ?
 									node.Task.CompletionDate :
 									node.Task.DueDate;
@@ -412,10 +578,12 @@ namespace Tasque
 		{
 			Gtk.CellRendererPixbuf crp = renderer as Gtk.CellRendererPixbuf;
 			TaskModelNode node = Model.GetValue (iter, 0) as TaskModelNode;
-			if (node == null || node.IsSeparator) {
+			if( (node == null) || (node.IsSeparator) ) {
+				crp.Visible = false;
 				crp.Pixbuf = null;
 				return;
 			}
+			crp.Visible = true;	
 			
 			crp.Pixbuf = node.Task.HasNotes ? notePixbuf : null;
 		}
@@ -426,8 +594,12 @@ namespace Tasque
 		{
 			Gtk.CellRendererPixbuf crp = renderer as Gtk.CellRendererPixbuf;
 			TaskModelNode node = Model.GetValue (iter, 0) as TaskModelNode;
-			if (node == null || node.IsSeparator)
+			if( (node == null) || (node.IsSeparator) ) {
+				crp.Visible = false;
+				crp.Pixbuf = null;
 				return;
+			}
+			crp.Visible = true;	
 			
 			if (node.Task.State != TaskState.Inactive) {
 				// The task is not in the inactive state so don't show any icon
