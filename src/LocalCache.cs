@@ -289,10 +289,10 @@ namespace Tasque
 			taskStore.SetValue(todayIter, 0, new TaskModelNode(Catalog.GetString("Today")));
 			
 			tomorrowIter = taskStore.AppendNode();
-			taskStore.SetValue(overdueIter, 0, new TaskModelNode(Catalog.GetString("Tomorrow")));
+			taskStore.SetValue(tomorrowIter, 0, new TaskModelNode(Catalog.GetString("Tomorrow")));
 			
 			nextSevenDaysIter = taskStore.AppendNode();
-			taskStore.SetValue(tomorrowIter, 0, new TaskModelNode(Catalog.GetString("Next 7 Days")));
+			taskStore.SetValue(nextSevenDaysIter, 0, new TaskModelNode(Catalog.GetString("Next 7 Days")));
 			
 			futureIter = taskStore.AppendNode();
 			taskStore.SetValue(futureIter, 0, new TaskModelNode(Catalog.GetString("Future")));
