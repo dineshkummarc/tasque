@@ -247,7 +247,7 @@ namespace Tasque.Backends.RtmBackend
 
 		public Gtk.Widget GetPreferencesWidget ()
 		{
-			return new RtmPreferencesWidget ();
+			return new RtmPreferencesWidget (this);
 		}
 
 		public string GetAuthUrl()

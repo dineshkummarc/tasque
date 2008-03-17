@@ -60,7 +60,7 @@ namespace Tasque
 		private Egg.TrayIcon trayIcon;	
 		private Preferences preferences;
 		private EventBox eb;
-		//private IBackend backend;
+		private IBackend backend;
 		private PreferencesDialog preferencesDialog;
 		private LocalCache localCache;
 		
@@ -68,11 +68,10 @@ namespace Tasque
 		/// Keep track of the available backends.  The key is the Type name of
 		/// the backend.
 		/// </value>
-		//private Dictionary<string, IBackend> availableBackends;
+		private Dictionary<string, IBackend> availableBackends;
 		
-		//private IBackend customBackend;
+		private IBackend customBackend;
 
-		/*
 		public static IBackend Backend
 		{
 			get { return Application.Instance.backend; }
@@ -111,14 +110,13 @@ namespace Tasque
 				}
 			}
 		}
-		*/
 		
 		public static List<IBackend> AvailableBackends
 		{
 			get {
-				return null; //new List<IBackend> (Application.Instance.availableBackends.Values);
+				return new List<IBackend> (Application.Instance.availableBackends.Values);
 			}
-//			get { return Application.Instance.availableBackends; }
+			// get { return Application.Instance.availableBackends; }
 		}
 		
 		public static LocalCache LocalCache
@@ -188,14 +186,13 @@ namespace Tasque
 				            e.Message);
 			}
 			
-/*
 			// Read the args and check to see if a specific backend is specified
 			if (args.Length > 0) {
 				Logger.Debug ("args [0]: {0}", args [0]);
 				// We're only looking at the first argument
 				string potentialBackendClassName = args [0];
 				
-				//customBackend = null;
+				customBackend = null;
 				Assembly asm = Assembly.GetCallingAssembly ();
 				try {
 					customBackend = (IBackend)
@@ -208,7 +205,7 @@ namespace Tasque
 			
 			// Discover all available backends
 			LoadAvailableBackends ();
-*/
+
 			GLib.Idle.Add(InitializeIdle);
 		}
 		
@@ -217,7 +214,7 @@ namespace Tasque
 		/// Tasque.exe and then for other DLLs in the same directory Tasque.ex
 		/// resides.
 		/// </summary>
-/*		private void LoadAvailableBackends ()
+		private void LoadAvailableBackends ()
 		{
 			availableBackends = new Dictionary<string,IBackend> ();
 			
@@ -301,13 +298,12 @@ namespace Tasque
 			
 			return backends;
 		}
-*/
+
 		private bool InitializeIdle()
 		{
 			localCache = new LocalCache ();
 			localCache.Initialize ();
 			
-			/*
 			if (customBackend != null) {
 				Application.Backend = customBackend;
 			} else {
@@ -321,18 +317,15 @@ namespace Tasque
 					Application.Backend = availableBackends [backendTypeString];
 				}
 			}
-			*/
+
 			SetupTrayIcon ();
 			
-			/*
 			if (backend == null) {
 				// Pop open the preferences dialog so the user can choose a
 				// backend service to use.
 				Application.ShowPreferences ();
-			} else {
-				TaskWindow.ShowWindow();
 			}
-			*/
+
 			TaskWindow.ShowWindow();
 			
 			return false;
@@ -435,18 +428,18 @@ namespace Tasque
 		private void OnQuit (object sender, EventArgs args)
 		{
 			Logger.Info ("OnQuitAction called - terminating application");
-			/*
+
 			if (backend != null) {
 				backend.Cleanup();
 			}
-			*/
+
 			TaskWindow.SavePosition();			
 			program.Quit (); // Should this be called instead?
 		}
 		
 		private void OnRefreshAction (object sender, EventArgs args)
 		{
-			//Application.Backend.Refresh();
+			Application.Backend.Refresh();
 		}
 		
 		
@@ -463,16 +456,14 @@ namespace Tasque
 					(Catalog.GetString ("Show Tasks ..."));
 
 				showTasksItem.Image = new Gtk.Image(Utilities.GetIcon ("tasque-16", 16));
-				//showTasksItem.Sensitive = backend != null && backend.Initialized;
-				showTasksItem.Sensitive = true;
+				showTasksItem.Sensitive = backend != null && backend.Initialized;
 				showTasksItem.Activated += OnShowTaskWindow;
 				popupMenu.Add (showTasksItem);
 				
 				ImageMenuItem newTaskItem = new ImageMenuItem
 					(Catalog.GetString ("New Task ..."));
 				newTaskItem.Image = new Gtk.Image (Gtk.Stock.New, IconSize.Menu);
-//				newTaskItem.Sensitive = backend != null && backend.Initialized;
-				newTaskItem.Sensitive = true;
+				newTaskItem.Sensitive = backend != null && backend.Initialized;
 				newTaskItem.Activated += OnNewTask;
 				popupMenu.Add (newTaskItem);
 
@@ -494,8 +485,7 @@ namespace Tasque
 					(Catalog.GetString ("Refresh Tasks"));
 
 				refreshAction.Image = new Gtk.Image(Utilities.GetIcon (Gtk.Stock.Execute, 16));
-//				refreshAction.Sensitive = backend != null && backend.Initialized;
-				refreshAction.Sensitive = true;
+				refreshAction.Sensitive = backend != null && backend.Initialized;
 				refreshAction.Activated += OnRefreshAction;
 				popupMenu.Add (refreshAction);
 				
@@ -575,7 +565,7 @@ namespace Tasque
 
 		public void QuitMainLoop ()
 		{
-			//	actionManager ["QuitAction"].Activate ();
+			// actionManager ["QuitAction"].Activate ();
 		}
 
 	}

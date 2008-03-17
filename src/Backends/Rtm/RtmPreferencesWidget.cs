@@ -18,6 +18,7 @@ namespace Tasque.Backends.RtmBackend
 		private Gtk.Image		image;
 		private bool			authRequested;
 		private bool			isAuthorized;
+		private RtmBackend		backend;
 		
 		private static Gdk.Pixbuf normalPixbuf;
 		
@@ -26,8 +27,10 @@ namespace Tasque.Backends.RtmBackend
 			normalPixbuf = Utilities.GetIcon ("rtmLogo", 122);
 		}
 		
-		public RtmPreferencesWidget () : base ()
+		public RtmPreferencesWidget (RtmBackend backend) : base ()
 		{
+			this.backend = backend;
+			
 			LoadPreferences ();
 			
 			// We're using an event box so we can paint the background white
@@ -99,10 +102,9 @@ namespace Tasque.Backends.RtmBackend
 		
 		private void OnAuthButtonClicked (object sender, EventArgs args)
 		{
-			RtmBackend rtmBackend = null; //Application.Backend as RtmBackend;
-			if (rtmBackend != null) {
+			if (backend != null) {
 				if (!isAuthorized && !authRequested) {
-					string url = rtmBackend.GetAuthUrl();
+					string url = backend.GetAuthUrl();
 					Logger.Debug("Launching browser to authorize with Remember the Milk");
 					Gnome.Url.Show(url);
 					authRequested = true;
@@ -110,7 +112,7 @@ namespace Tasque.Backends.RtmBackend
 				} else if (!isAuthorized && authRequested) {
 					authButton.Label = "Processing...";
 					try {
-						rtmBackend.FinishedAuth();
+						backend.FinishedAuth();
 						Logger.Debug("Successfully authorized with Remember the Milk");
 						isAuthorized = true;
 						authRequested = false;

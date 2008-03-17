@@ -112,7 +112,6 @@ namespace Tasque
 			backendPage = null;
 			backendPageId = -1;
 			
-			/*
 			if (Application.Backend != null) {
 				backendPage = Application.Backend.GetPreferencesWidget ();
 				if (backendPage != null) {
@@ -126,36 +125,9 @@ namespace Tasque
 						notebook.AppendPage (backendPage, l);
 				}
 			}
-			*/
+
 			notebook.Show ();
 			this.VBox.PackStart (notebook, true, true, 0);
-
-			/* Available preferences
-			// Preferences
-			// Show completed tasks
-			showCompletedTasksCheck = new CheckButton("Show Completed Tasks");
-			showCompletedTasksCheck.Show();
-			mainVBox.PackStart(showCompletedTasksCheck, false, false, 0);
-			*/
-
-			/*  Available backends
-			label = new Label();
-			label.Show();
-			label.Justify = Gtk.Justification.Left;
-			label.SetAlignment (0.0f, 0.5f);
-			label.LineWrap = false;
-			label.UseMarkup = true;
-			label.UseUnderline = false;
-			label.Markup = "<span weight=\"bold\" size=\"large\">Backend</span>";
-			mainVBox.PackStart(label, false, false, 0);
-
-			// List of available backends
-			string [] backends = new string[] { "Remember the Milk" };
-			ComboBox backendComboBox = new ComboBox(backends);
-			backendComboBox.Active = 0;
-			backendComboBox.Show();
-			mainVBox.PackStart(backendComboBox, false, false, 0);
-			*/
 
 			DeleteEvent += WindowDeleted;
 		}
@@ -183,11 +155,9 @@ namespace Tasque
 			backendComboBox = ComboBox.NewText ();
 			backendComboMap = new Dictionary<int,IBackend> ();
 			// Fill out the ComboBox
-			//int i = 0;
+			int i = 0;
 			selectedBackend = -1;
 
-			// disabling all of this for backend rework
-/*
 			foreach (IBackend backend in Application.AvailableBackends) {
 				backendComboBox.AppendText (backend.Name);
 				backendComboMap [i] = backend;
@@ -198,7 +168,6 @@ namespace Tasque
 			if (selectedBackend >= 0)
 				backendComboBox.Active = selectedBackend;
 			backendComboBox.Changed += OnBackendComboBoxChanged;
-*/
 			backendComboBox.Show ();
 			
 			HBox hbox = new HBox (false, 6);
@@ -327,7 +296,7 @@ namespace Tasque
 		
 		private void OnBackendComboBoxChanged (object sender, EventArgs args)
 		{
-/*			if (selectedBackend >= 0) {
+			if (selectedBackend >= 0) {
 				// TODO: Prompt the user and make sure they really want to change
 				// which backend they are using.
 				
@@ -394,7 +363,6 @@ namespace Tasque
 			//Application.Preferences.SetStringList (Preferences.HideInAllCategory,
 			//									   categoriesToHide);
 			RebuildCategoryTree ();
-*/
 		}
 		
 		private void ToggleCellDataFunc (Gtk.TreeViewColumn column,
@@ -463,7 +431,6 @@ namespace Tasque
 												   categoriesToHide);
 		}
 		
-/*
 		/// <summary>
 		/// Build a new category list setting from all the categories
 		/// </summary>
@@ -493,7 +460,6 @@ namespace Tasque
 			
 			return list;
 		}
-*/
 		
 		void RebuildCategoryTree ()
 		{

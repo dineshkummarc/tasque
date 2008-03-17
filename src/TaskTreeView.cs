@@ -61,7 +61,8 @@ namespace Tasque
 			HoverSelection = true;
 			// TODO: This can eventually be turned to false, but until debugged
 			// this should stay
-			this.ShowExpanders = true;
+			ShowExpanders = true;
+			EnableTreeLines = false;
 			
 			// TODO: Figure out how to turn off selection highlight
 			

@@ -42,13 +42,6 @@ namespace Tasque
 		private DateTime futureRangeStart;
 		private DateTime futureRangeEnd;
 		
-		//private TaskGroup overdueGroup;
-		//private TaskGroup todayGroup;
-		//private TaskGroup tomorrowGroup;
-		//private TaskGroup nextSevenDaysGroup;
-		//private TaskGroup futureGroup;
-		//private CompletedTaskGroup completedTaskGroup;
-		
 		private Gtk.TreeIter overdueIter;
 		private Gtk.TreeIter todayIter;
 		private Gtk.TreeIter tomorrowIter;
@@ -57,9 +50,6 @@ namespace Tasque
 		private Gtk.TreeIter completedTaskIter;
 
 		Category defaultCategory;
-		//Category workCategory;
-		//Category projectsCategory;
-		
 		
 		public LocalCache ()
 		{
@@ -103,7 +93,6 @@ namespace Tasque
 			get { return configured; }
 		}
 		
-		
 		/// <value>
 		/// Inidication that the backend is initialized
 		/// </value>
@@ -129,11 +118,12 @@ namespace Tasque
 				task.Category = defaultCategory; // Default to work
 			else
 				task.Category = category;
-			
-			Gtk.TreeIter iter = taskStore.AppendNode ();
-			taskStore.SetValue (iter, 0, task);
-			taskIters [task.Id] = iter;
-			
+
+			Gtk.TreeIter parentIter = GetParentIter(task);
+			Gtk.TreeIter iter = taskStore.AppendNode(parentIter);
+			taskStore.SetValue (iter, 0, new TaskModelNode(task));
+			taskIters [task.Id] = iter;		
+
 			return task;
 		}
 		
@@ -178,13 +168,6 @@ namespace Tasque
 			db = null;
 			initialized = false;		
 		}
-
-		public Gtk.Widget GetPreferencesWidget ()
-		{
-			// TODO: Replace this with returning null once things are going
-			// so that the Preferences Dialog doesn't waste space.
-			return new Gtk.Label ("Local file requires no configuration.");
-		}
 		#endregion // Public Methods
 		
 		#region Private Methods
@@ -192,13 +175,13 @@ namespace Tasque
 										 Gtk.TreeIter a,
 										 Gtk.TreeIter b)
 		{
-			Task taskA = model.GetValue (a, 0) as Task;
-			Task taskB = model.GetValue (b, 0) as Task;
+			TaskModelNode taskModelNodeA = model.GetValue (a, 0) as TaskModelNode;
+			TaskModelNode taskModelNodeB = model.GetValue (b, 0) as TaskModelNode;
 			
-			if (taskA == null || taskB == null)
+			if (taskModelNodeA == null || taskModelNodeB == null || taskModelNodeA.Task == null || taskModelNodeB.Task == null)
 				return 0;
 			
-			return (taskA.CompareTo (taskB));
+			return (taskModelNodeA.Task.CompareTo (taskModelNodeB.Task));
 		}
 		
 		static int CompareCategorySortFunc (Gtk.TreeModel model,
@@ -218,6 +201,7 @@ namespace Tasque
 			
 			return (categoryA.Name.CompareTo (categoryB.Name));
 		}
+
 		
 		public void UpdateTask (Task task)
 		{
@@ -246,7 +230,7 @@ namespace Tasque
 				
 				if(!taskStore.IsAncestor(parentIter, iter))
 				{
-					Logger.Debug("Task is in the wrong group!");
+					Logger.Debug("Task needs to be re-parented...");
 
 					taskStore.Remove(ref iter);
 					iter = taskStore.AppendNode(parentIter);
@@ -305,10 +289,12 @@ namespace Tasque
 		}
 		
 
+
 		public void RefreshTasks()
 		{
 			Gtk.TreeIter iter;
-			Task newTask;
+        	Gtk.TreeIter parentIter;
+        	Task newTask;
 			bool hasValues = false;
 
 			overdueIter = taskStore.AppendNode();
@@ -334,8 +320,6 @@ namespace Tasque
         	cmd.CommandText = command;
         	SqliteDataReader dataReader = cmd.ExecuteReader();
         	while(dataReader.Read()) {
-        		Gtk.TreeIter parentIter;
-        		
 			    int id = dataReader.GetInt32(0);
 				hasValues = true;
 				
@@ -351,13 +335,33 @@ namespace Tasque
 
 			if(!hasValues)
 			{
-				newTask = new Task (this, "Create some tasks");
+				newTask = new Task (this, "Enter tasks into Tasque");
+				newTask.Category = defaultCategory;
+				newTask.DueDate = DateTime.Now;
+				newTask.Priority = TaskPriority.High;
+				parentIter = GetParentIter(newTask);
+				iter = taskStore.AppendNode(parentIter);
+				taskStore.SetValue (iter, 0, new TaskModelNode(newTask));
+				taskIters [newTask.Id] = iter;
+				
+				newTask = new Task (this, "Get things done");
 				newTask.Category = defaultCategory;
 				newTask.DueDate = DateTime.Now;
 				newTask.Priority = TaskPriority.Medium;
-				iter = taskStore.AppendNode ();
-				taskStore.SetValue (iter, 0, new TaskModelNode(newTask));	
-				taskIters [newTask.Id] = iter;
+				parentIter = GetParentIter(newTask);
+				iter = taskStore.AppendNode(parentIter);
+				taskStore.SetValue (iter, 0, new TaskModelNode(newTask));
+				taskIters [newTask.Id] = iter;				
+
+				newTask = new Task (this, "Enjoy new found freedom");
+				newTask.Category = defaultCategory;
+				newTask.DueDate = DateTime.Now;
+				newTask.Priority = TaskPriority.Low;
+				parentIter = GetParentIter(newTask);
+				iter = taskStore.AppendNode(parentIter);
+				taskStore.SetValue (iter, 0, new TaskModelNode(newTask));
+				taskIters [newTask.Id] = iter;				
+
 			}
 		}
 
@@ -409,7 +413,7 @@ namespace Tasque
 		private void RefreshDates()
 		{
 			// Overdue
-			overdueRangeStart = DateTime.MinValue;
+			overdueRangeStart = DateTime.MinValue.AddSeconds(1); // min is one second more than min
 			overdueRangeEnd = DateTime.Now.AddDays (-1);
 			overdueRangeEnd = new DateTime (overdueRangeEnd.Year, overdueRangeEnd.Month, overdueRangeEnd.Day,
 									 23, 59, 59);		
