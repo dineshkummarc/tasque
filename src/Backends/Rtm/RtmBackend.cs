@@ -17,22 +17,15 @@ namespace Tasque.Backends.RtmBackend
 	{
 		private const string apiKey = "b29f7517b6584035d07df3170b80c430";
 		private const string sharedSecret = "93eb5f83628b2066";
-		private Gtk.TreeStore taskStore;
-		private Gtk.TreeModelSort sortedTasksModel;
 
-		private Gtk.ListStore categoryListStore;
-		private Gtk.TreeModelSort sortedCategoriesModel;
-		
+		private Dictionary<string, ITask> tasks;
+		private Dictionary<string, ICategory> categories;
+
 		private Rtm rtm;
 		private string frob;
 		private Auth rtmAuth;
 		private string timeline;
 		
-		private Dictionary<string, Gtk.TreeIter> taskIters;
-		private object taskLock;
-
-		private Dictionary<string, RtmCategory> categories;
-		private object catLock;
 		private bool initialized;
 		private bool configured;
 
@@ -41,34 +34,8 @@ namespace Tasque.Backends.RtmBackend
 			initialized = false;
 			configured = false;
 
-			taskIters = new Dictionary<string, Gtk.TreeIter> ();
-			taskLock = new Object();
-			
-			categories = new Dictionary<string, RtmCategory> ();
-			catLock = new Object();
-
-			// *************************************
-			// Data Model Set up
-			// *************************************
-			taskStore = new Gtk.TreeStore (typeof (ITask));
-
-			sortedTasksModel = new Gtk.TreeModelSort (taskStore);
-			sortedTasksModel.SetSortFunc (0, new Gtk.TreeIterCompareFunc (CompareTasksSortFunc));
-			sortedTasksModel.SetSortColumnId (0, Gtk.SortType.Ascending);
-
-			categoryListStore = new Gtk.ListStore (typeof (ICategory));
-
-			sortedCategoriesModel = new Gtk.TreeModelSort (categoryListStore);
-			sortedCategoriesModel.SetSortFunc (0, new Gtk.TreeIterCompareFunc (CompareCategorySortFunc));
-			sortedCategoriesModel.SetSortColumnId (0, Gtk.SortType.Ascending);
-
-			// make sure we have the all Category in our list
-			Gtk.Application.Invoke ( delegate {
-				AllCategory allCategory = new Tasque.AllCategory ();
-				Gtk.TreeIter iter = categoryListStore.Append ();
-				categoryListStore.SetValue (iter, 0, allCategory);				
-			});
-
+			tasks = new Dictionary<string,Tasque.ITask> ();
+			categories = new Dictionary<string, ICategory> ();
 		}
 
 		#region Public Properties
@@ -80,17 +47,17 @@ namespace Tasque.Backends.RtmBackend
 		/// <value>
 		/// All the tasks including ITaskDivider items.
 		/// </value>
-		public Gtk.TreeModel Tasks
+		public Dictionary<string,ITask> Tasks
 		{
-			get { return sortedTasksModel; }
+			get { return tasks; }
 		}
 
 		/// <value>
 		/// This returns all the task lists (categories) that exist.
 		/// </value>
-		public Gtk.TreeModel Categories
+		public Dictionary<string,ICategory> Categories
 		{
-			get { return sortedCategoriesModel; }
+			get { return categories; }
 		}
 
 		public string RtmUserName
@@ -130,7 +97,7 @@ namespace Tasque.Backends.RtmBackend
 			if(category is Tasque.AllCategory)
 				categoryID = null;
 			else
-				categoryID = (category as RtmCategory).ID;	
+				categoryID = (category as RtmCategory).Id;	
 
 			if(rtm != null) {
 				try {
@@ -158,17 +125,10 @@ namespace Tasque.Backends.RtmBackend
 			RtmTask rtmTask = task as RtmTask;
 			if(rtm != null) {
 				try {
-					rtm.TasksDelete(timeline, rtmTask.ListID, rtmTask.SeriesTaskID, rtmTask.TaskTaskID);
+					rtm.TasksDelete(timeline, rtmTask.ListID, rtmTask.SeriesTaskID, rtmTask.TaskID);
 
-					lock(taskLock)
-					{
-						Gtk.Application.Invoke ( delegate {
-							if(taskIters.ContainsKey(rtmTask.ID)) {
-								Gtk.TreeIter iter = taskIters[rtmTask.ID];
-								taskStore.Remove(ref iter);
-								taskIters.Remove(rtmTask.ID);
-							}
-						});
+					if(tasks.ContainsKey(rtmTask.Id) ) {
+						tasks.Remove(rtmTask.Id);
 					}
 				} catch(Exception e) {
 					Logger.Debug("Unable to delete task: " + task.Name);
@@ -273,7 +233,7 @@ namespace Tasque.Backends.RtmBackend
 		{
 			if(rtm != null) {
 				try {
-					List list = rtm.TasksSetName(timeline, task.ListID, task.SeriesTaskID, task.TaskTaskID, task.Name);		
+					List list = rtm.TasksSetName(timeline, task.ListID, task.SeriesTaskID, task.TaskID, task.Name);		
 					UpdateTaskFromResult(list);
 				} catch(Exception e) {
 					Logger.Debug("Unable to set name on task: " + task.Name);
@@ -288,9 +248,9 @@ namespace Tasque.Backends.RtmBackend
 				try {
 					List list;
 					if(task.DueDate == DateTime.MinValue)
-						list = rtm.TasksSetDueDate(timeline, task.ListID, task.SeriesTaskID, task.TaskTaskID);
+						list = rtm.TasksSetDueDate(timeline, task.ListID, task.SeriesTaskID, task.TaskID);
 					else	
-						list = rtm.TasksSetDueDate(timeline, task.ListID, task.SeriesTaskID, task.TaskTaskID, task.DueDateString);
+						list = rtm.TasksSetDueDate(timeline, task.ListID, task.SeriesTaskID, task.TaskID, task.DueDateString);
 					UpdateTaskFromResult(list);
 				} catch(Exception e) {
 					Logger.Debug("Unable to set due date on task: " + task.Name);
@@ -308,7 +268,7 @@ namespace Tasque.Backends.RtmBackend
 		{
 			if(rtm != null) {
 				try {
-					List list = rtm.TasksSetPriority(timeline, task.ListID, task.SeriesTaskID, task.TaskTaskID, task.PriorityString);
+					List list = rtm.TasksSetPriority(timeline, task.ListID, task.SeriesTaskID, task.TaskID, task.PriorityString);
 					UpdateTaskFromResult(list);
 				} catch(Exception e) {
 					Logger.Debug("Unable to set priority on task: " + task.Name);
@@ -323,7 +283,7 @@ namespace Tasque.Backends.RtmBackend
 			{
 				if(rtm != null) {
 					try {
-						List list = rtm.TasksUncomplete(timeline, task.ListID, task.SeriesTaskID, task.TaskTaskID);
+						List list = rtm.TasksUncomplete(timeline, task.ListID, task.SeriesTaskID, task.TaskID);
 						UpdateTaskFromResult(list);
 					} catch(Exception e) {
 						Logger.Debug("Unable to set Task as completed: " + task.Name);
@@ -344,7 +304,7 @@ namespace Tasque.Backends.RtmBackend
 		{
 			if(rtm != null) {
 				try {
-					List list = rtm.TasksComplete(timeline, task.ListID, task.SeriesTaskID, task.TaskTaskID);
+					List list = rtm.TasksComplete(timeline, task.ListID, task.SeriesTaskID, task.TaskID);
 					UpdateTaskFromResult(list);
 				} catch(Exception e) {
 					Logger.Debug("Unable to set Task as completed: " + task.Name);
@@ -363,7 +323,7 @@ namespace Tasque.Backends.RtmBackend
 		{
 			if(rtm != null) {
 				try {
-					List list = rtm.TasksMoveTo(timeline, task.ListID, id, task.SeriesTaskID, task.TaskTaskID);
+					List list = rtm.TasksMoveTo(timeline, task.ListID, id, task.SeriesTaskID, task.TaskID);
 					UpdateTaskFromResult(list);
 				} catch(Exception e) {
 					Logger.Debug("Unable to set Task as completed: " + task.Name);
@@ -375,17 +335,10 @@ namespace Tasque.Backends.RtmBackend
 		
 		public void UpdateTask(RtmTask task)
 		{
-			lock(taskLock)
+			if(tasks.ContainsKey(task.Id))
 			{
-				Gtk.TreeIter iter;
-				
-				Gtk.Application.Invoke ( delegate {
-					if(taskIters.ContainsKey(task.ID)) {
-						iter = taskIters[task.ID];
-						taskStore.SetValue (iter, 0, task);
-					}
-				});
-			}		
+				tasks[task.Id] = task;
+			}
 		}
 		
 		public RtmTask UpdateTaskFromResult(List list)
@@ -393,25 +346,13 @@ namespace Tasque.Backends.RtmBackend
 			TaskSeries ts = list.TaskSeriesCollection[0];
 			if(ts != null) {
 				RtmTask rtmTask = new RtmTask(ts, this, list.ID);
-				lock(taskLock)
-				{
-					Gtk.Application.Invoke ( delegate {
-						if(taskIters.ContainsKey(rtmTask.ID)) {
-							Gtk.TreeIter iter = taskIters[rtmTask.ID];
-							taskStore.SetValue (iter, 0, rtmTask);
-						} else {
-							Gtk.TreeIter iter = taskStore.AppendNode();
-							taskIters.Add(rtmTask.ID, iter);
-							taskStore.SetValue (iter, 0, rtmTask);
-						}
-					});
-				}
+				tasks[rtmTask.Id] = rtmTask;
 				return rtmTask;				
 			}
 			return null;
 		}
 		
-		public RtmCategory GetCategory(string id)
+		public ICategory GetCategory(string id)
 		{
 			if(categories.ContainsKey(id))
 				return categories[id];
@@ -426,7 +367,7 @@ namespace Tasque.Backends.RtmBackend
 			
 			if(rtm != null) {
 				try {
-					note = rtm.NotesAdd(timeline, rtmTask.ListID, rtmTask.SeriesTaskID, rtmTask.TaskTaskID, String.Empty, text);
+					note = rtm.NotesAdd(timeline, rtmTask.ListID, rtmTask.SeriesTaskID, rtmTask.TaskID, String.Empty, text);
 					rtmNote = new RtmNote(note);
 				} catch(Exception e) {
 					Logger.Debug("RtmBackend.CreateNote: Unable to create a new note");
@@ -471,37 +412,6 @@ namespace Tasque.Backends.RtmBackend
 #endregion // Public Methods
 
 #region Private Methods
-		static int CompareTasksSortFunc (Gtk.TreeModel model,
-				Gtk.TreeIter a,
-				Gtk.TreeIter b)
-		{
-			ITask taskA = model.GetValue (a, 0) as ITask;
-			ITask taskB = model.GetValue (b, 0) as ITask;
-
-			if (taskA == null || taskB == null)
-				return 0;
-
-			return (taskA.CompareTo (taskB));
-		}
-
-		static int CompareCategorySortFunc (Gtk.TreeModel model,
-											Gtk.TreeIter a,
-											Gtk.TreeIter b)
-		{
-			ICategory categoryA = model.GetValue (a, 0) as ICategory;
-			ICategory categoryB = model.GetValue (b, 0) as ICategory;
-			
-			if (categoryA == null || categoryB == null)
-				return 0;
-			
-			if (categoryA is Tasque.AllCategory)
-				return -1;
-			else if (categoryB is Tasque.AllCategory)
-				return 1;
-			
-			return (categoryA.Name.CompareTo (categoryB.Name));
-		}
-
 		/// <summary>
 		/// Update the model to match what is in RTM
 		/// FIXME: This is a lame implementation and needs to be optimized
@@ -510,29 +420,15 @@ namespace Tasque.Backends.RtmBackend
 		{
 			Logger.Debug("RtmBackend.UpdateCategories was called");
 			
+			categories.Clear();
+			
 			try {
 				Lists lists = rtm.ListsGetList();
 				foreach(List list in lists.listCollection)
 				{
 					RtmCategory rtmCategory = new RtmCategory(list);
 
-					lock(catLock)
-					{
-						Gtk.TreeIter iter;
-						
-						Gtk.Application.Invoke ( delegate {
-
-							if(categories.ContainsKey(rtmCategory.ID)) {
-								iter = categories[rtmCategory.ID].Iter;
-								categoryListStore.SetValue (iter, 0, rtmCategory);
-							} else {
-								iter = categoryListStore.Append();
-								categoryListStore.SetValue (iter, 0, rtmCategory);
-								rtmCategory.Iter = iter;
-								categories.Add(rtmCategory.ID, rtmCategory);
-							}
-						});
-					}
+					categories[rtmCategory.Id] = rtmCategory;
 				}
 			} catch (Exception e) {
 				Logger.Debug("Exception in fetch " + e.Message);
@@ -548,40 +444,28 @@ namespace Tasque.Backends.RtmBackend
 		{
 			Logger.Debug("RtmBackend.UpdateTasks was called");
 			
+			tasks.Clear();
+
 			try {
+			
 				Lists lists = rtm.ListsGetList();
 				foreach(List list in lists.listCollection)
 				{
-					Tasks tasks = null;
+					Tasks tasksList = null;
 					try {
-						tasks = rtm.TasksGetList(list.ID);
+						tasksList = rtm.TasksGetList(list.ID);
 					} catch (Exception tglex) {
 						Logger.Debug("Exception calling TasksGetList(list.ListID) " + tglex.Message);
 					}
 
-					if(tasks != null) {
-						foreach(List tList in tasks.ListCollection)
+					if(tasksList != null) {
+						foreach(List tList in tasksList.ListCollection)
 						{
 							foreach(TaskSeries ts in tList.TaskSeriesCollection)
 							{
 								RtmTask rtmTask = new RtmTask(ts, this, list.ID);
 								
-								lock(taskLock)
-								{
-									Gtk.TreeIter iter;
-									
-									Gtk.Application.Invoke ( delegate {
-
-										if(taskIters.ContainsKey(rtmTask.ID)) {
-											iter = taskIters[rtmTask.ID];
-										} else {
-											iter = taskStore.AppendNode ();
-											taskIters.Add(rtmTask.ID, iter);
-										}
-
-										taskStore.SetValue (iter, 0, rtmTask);
-									});
-								}
+								tasks[rtmTask.Id] = rtmTask;
 							}
 						}
 					}

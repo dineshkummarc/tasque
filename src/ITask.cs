@@ -17,6 +17,14 @@ namespace Tasque
 			get;
 			set;
 		}
+
+		/// <value>
+		/// A Task's ID in the backend
+		/// </value>
+		string Id
+		{
+			get;
+		}
 		
 		/// <value>
 		/// A DueDate of DateTime.MinValue indicates that a due date is not set.

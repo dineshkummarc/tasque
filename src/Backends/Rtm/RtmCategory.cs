@@ -25,7 +25,7 @@ namespace Tasque.Backends.RtmBackend
 			get { return list.Name; }
 		}
 
-		public string ID
+		public string Id
 		{
 			get { return list.ID; }
 		}
@@ -64,7 +64,7 @@ namespace Tasque.Backends.RtmBackend
 		public bool ContainsTask(ITask task)
 		{
 			if(task.Category is RtmCategory)
-				return ((task.Category as RtmCategory).ID.CompareTo(ID) == 0);
+				return ((task.Category as RtmCategory).Id.CompareTo(Id) == 0);
 			else
 				return false;
 		}

@@ -441,11 +441,8 @@ namespace Tasque
 		{
 			List<string> list = new List<string> ();
 			TreeModel model;
-			IBackend backend = Application.Backend;
-			if (backend == null)
-				return list;
 			
-			model = backend.Categories;
+			model = Application.LocalCache.Categories;
 			Gtk.TreeIter iter;
 			if (model.GetIterFirst (out iter) == false)
 				return list;
@@ -463,13 +460,7 @@ namespace Tasque
 		
 		void RebuildCategoryTree ()
 		{
-			if (backendComboMap.ContainsKey (selectedBackend) == false) {
-				categoriesTree.Model = null;
-				return;
-			}
-			
-			IBackend backend = backendComboMap [selectedBackend];
-			filteredCategories = new TreeModelFilter (backend.Categories, null);
+			filteredCategories = new TreeModelFilter (Application.LocalCache.Categories, null);
 			filteredCategories.VisibleFunc = FilterFunc;
 			categoriesTree.Model = filteredCategories;
 		}

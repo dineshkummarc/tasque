@@ -16,6 +16,11 @@ namespace Tasque
 			get;
 			set;
 		}
+
+		public abstract string Id
+		{
+			get;
+		}
 		
 		public abstract DateTime DueDate
 		{

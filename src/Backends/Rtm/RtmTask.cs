@@ -26,7 +26,7 @@ namespace Tasque.Backends.RtmBackend
 		{
 			this.taskSeries = taskSeries;
 			this.rtmBackend = be;
-			this.category = be.GetCategory(listID);
+			this.category = be.GetCategory(listID) as RtmCategory;
 			
 			if(CompletionDate == DateTime.MinValue )
 				state = TaskState.Active;
@@ -54,6 +54,14 @@ namespace Tasque.Backends.RtmBackend
 					rtmBackend.UpdateTaskName(this);
 				}
 			}
+		}
+
+		/// <value>
+		/// Holds the Id of the task
+		/// </value>		
+		public override string Id
+		{
+			get { return taskSeries.TaskID; }
 		}
 		
 		/// <value>
@@ -179,7 +187,7 @@ namespace Tasque.Backends.RtmBackend
 			get { return category; } 
 			set {
 				RtmCategory rtmCategory = value as RtmCategory;
-				rtmBackend.MoveTaskCategory(this, rtmCategory.ID);				
+				rtmBackend.MoveTaskCategory(this, rtmCategory.Id);				
 			}
 		}
 		
@@ -199,24 +207,19 @@ namespace Tasque.Backends.RtmBackend
 			get { return this.rtmBackend; }
 		}
 		
-		public string ID
-		{
-			get {return taskSeries.TaskID; }
-		}
-		
 		public string SeriesTaskID
 		{
 			get { return taskSeries.TaskID; }
 		}
 		
-		public string TaskTaskID
+		public string TaskID
 		{
 			get { return taskSeries.Task.TaskID; }
 		}
 		
 		public string ListID
 		{
-			get { return category.ID; }
+			get { return category.Id; }
 		}
 		#endregion // Public Properties
 		

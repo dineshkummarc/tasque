@@ -2,6 +2,7 @@
 // User: boyd at 7:02 AM 2/11/2008
 
 using System;
+using System.Collections.Generic;
 
 namespace Tasque.Backends
 {
@@ -23,17 +24,17 @@ namespace Tasque.Backends
 		}
 		
 		/// <value>
-		/// All the tasks provided by the backend.
+		/// Dictionary of ITasks.  The key is the backend's task ID or external ID.
 		/// </value>
-		Gtk.TreeModel Tasks
+		Dictionary<string, ITask> Tasks
 		{
 			get;
 		}
 		
 		/// <value>
-		/// This returns all the ICategory items from the backend.
+		/// Dictionary of ICategories.  The key is the backend's category ID or external ID.
 		/// </value>
-		Gtk.TreeModel Categories
+		Dictionary<string, ICategory> Categories
 		{
 			get;
 		}
