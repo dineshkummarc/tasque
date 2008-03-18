@@ -62,12 +62,25 @@ namespace Tasque
 					(Application.Backend.Configured) &&
 					(Application.Backend.Initialized) )
 				{
+					Dictionary<string, ITask> tasks;
+					Dictionary<string, ICategory> categories;
+					
 					// Refresh the tasks
 					Application.Backend.Refresh();
 
 					// Read Categories and populate them in the localCache
+					categories = Application.Backend.Categories;
+					foreach(ICategory cat in categories.Values)
+					{
+						Logger.Debug("Category: {0}", cat.Name);
+					}
 					
 					// Read Tasks and populate them into the localCache
+					tasks = Application.Backend.Tasks;
+					foreach(ITask task in tasks.Values)
+					{
+						Logger.Debug("Task: {0}", task.Name);
+					}
 				}
 			
 				Logger.Debug("SyncThreadLoop done!");

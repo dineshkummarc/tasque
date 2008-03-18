@@ -1,5 +1,10 @@
 2008-03-18  Calvin Gaisford <calvinrg@gmail.com> 
 
+	* src/Backends/Rtm/RtmBackend.cs, src/SyncManager.cs: Fixed up SyncManager
+	  to actually get the categories and tasks from backend
+
+2008-03-18  Calvin Gaisford <calvinrg@gmail.com> 
+
 	* src/PreferencesDialog.cs, src/AbstractTask.cs, src/ICategory.cs,
 	  src/IBackend.cs, src/Backends/Rtm/RtmCategory.cs,
 	  src/Backends/Rtm/RtmTask.cs, src/Backends/Rtm/RtmBackend.cs,

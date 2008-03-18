@@ -141,12 +141,8 @@ namespace Tasque.Backends.RtmBackend
 		
 		public void Refresh()
 		{
-			Logger.Debug("RtmBackend Refreshing data...");
-
 			UpdateCategories();			
 			UpdateTasks();
-
-			Logger.Debug("RtmBackend refreshing data!");
 		}
 
 		public void Initialize()
@@ -418,8 +414,6 @@ namespace Tasque.Backends.RtmBackend
 		/// </summary>		
 		private void UpdateCategories()
 		{
-			Logger.Debug("RtmBackend.UpdateCategories was called");
-			
 			categories.Clear();
 			
 			try {
@@ -433,7 +427,6 @@ namespace Tasque.Backends.RtmBackend
 			} catch (Exception e) {
 				Logger.Debug("Exception in fetch " + e.Message);
 			}
-			Logger.Debug("RtmBackend.UpdateCategories is done");			
 		}
 
 		/// <summary>
@@ -442,8 +435,6 @@ namespace Tasque.Backends.RtmBackend
 		/// </summary>		
 		private void UpdateTasks()
 		{
-			Logger.Debug("RtmBackend.UpdateTasks was called");
-			
 			tasks.Clear();
 
 			try {
@@ -474,7 +465,6 @@ namespace Tasque.Backends.RtmBackend
 				Logger.Debug("Exception in fetch " + e.Message);
 				Logger.Debug(e.ToString());
 			}
-			Logger.Debug("RtmBackend.UpdateTasks is done");			
 		}
 
 		
