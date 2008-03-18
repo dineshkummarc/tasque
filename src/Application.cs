@@ -61,6 +61,7 @@ namespace Tasque
 		private Preferences preferences;
 		private EventBox eb;
 		private IBackend backend;
+		private SyncManager syncManager;
 		private PreferencesDialog preferencesDialog;
 		private LocalCache localCache;
 		
@@ -162,6 +163,8 @@ namespace Tasque
 							args);
 
 			preferences = new Preferences();
+
+			syncManager = new SyncManager();
 			
 			// Register Tasque RemoteControl
 			try {
@@ -327,7 +330,9 @@ namespace Tasque
 			}
 
 			TaskWindow.ShowWindow();
-			
+
+			syncManager.Start();
+
 			return false;
 		}
 
@@ -429,6 +434,9 @@ namespace Tasque
 		{
 			Logger.Info ("OnQuitAction called - terminating application");
 
+			if(syncManager != null)
+				syncManager.Stop();
+			
 			if (backend != null) {
 				backend.Cleanup();
 			}
@@ -439,10 +447,8 @@ namespace Tasque
 		
 		private void OnRefreshAction (object sender, EventArgs args)
 		{
-			Application.Backend.Refresh();
+			syncManager.Sync();
 		}
-		
-		
 
 		private void OnTrayIconClick (object o, ButtonPressEventArgs args) // handler for mouse click
 		{
@@ -456,14 +462,14 @@ namespace Tasque
 					(Catalog.GetString ("Show Tasks ..."));
 
 				showTasksItem.Image = new Gtk.Image(Utilities.GetIcon ("tasque-16", 16));
-				showTasksItem.Sensitive = backend != null && backend.Initialized;
+				showTasksItem.Sensitive = true;
 				showTasksItem.Activated += OnShowTaskWindow;
 				popupMenu.Add (showTasksItem);
 				
 				ImageMenuItem newTaskItem = new ImageMenuItem
 					(Catalog.GetString ("New Task ..."));
 				newTaskItem.Image = new Gtk.Image (Gtk.Stock.New, IconSize.Menu);
-				newTaskItem.Sensitive = backend != null && backend.Initialized;
+				newTaskItem.Sensitive = true;
 				newTaskItem.Activated += OnNewTask;
 				popupMenu.Add (newTaskItem);
 
@@ -485,7 +491,7 @@ namespace Tasque
 					(Catalog.GetString ("Refresh Tasks"));
 
 				refreshAction.Image = new Gtk.Image(Utilities.GetIcon (Gtk.Stock.Execute, 16));
-				refreshAction.Sensitive = backend != null && backend.Initialized;
+				refreshAction.Sensitive = true;
 				refreshAction.Activated += OnRefreshAction;
 				popupMenu.Add (refreshAction);
 				

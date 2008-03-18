@@ -59,6 +59,7 @@ CSFILES = \
 	$(srcdir)/PreferencesDialog.cs \
 	$(srcdir)/RemoteControl.cs \
 	$(srcdir)/RemoteControlProxy.cs \
+	$(srcdir)/SyncManager.cs \
 	$(srcdir)/Task.cs \
 	$(srcdir)/TaskCalendar.cs \
 	$(srcdir)/TaskGroup.cs \

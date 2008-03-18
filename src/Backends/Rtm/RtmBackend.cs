@@ -23,10 +23,6 @@ namespace Tasque.Backends.RtmBackend
 		private Gtk.ListStore categoryListStore;
 		private Gtk.TreeModelSort sortedCategoriesModel;
 		
-		private Thread refreshThread;
-		private bool runningRefreshThread;
-		private AutoResetEvent runRefreshEvent;
-
 		private Rtm rtm;
 		private string frob;
 		private Auth rtmAuth;
@@ -40,10 +36,6 @@ namespace Tasque.Backends.RtmBackend
 		private bool initialized;
 		private bool configured;
 
-		public event BackendInitializedHandler BackendInitialized;
-		public event BackendSyncStartedHandler BackendSyncStarted;
-		public event BackendSyncFinishedHandler BackendSyncFinished;
-		
 		public RtmBackend ()
 		{
 			initialized = false;
@@ -77,10 +69,6 @@ namespace Tasque.Backends.RtmBackend
 				categoryListStore.SetValue (iter, 0, allCategory);				
 			});
 
-			runRefreshEvent = new AutoResetEvent(false);
-			
-			runningRefreshThread = false;
-			refreshThread  = new Thread(RefreshThreadLoop);
 		}
 
 		#region Public Properties
@@ -193,11 +181,12 @@ namespace Tasque.Backends.RtmBackend
 		
 		public void Refresh()
 		{
-			Logger.Debug("Refreshing data...");
+			Logger.Debug("RtmBackend Refreshing data...");
 
-			runRefreshEvent.Set();
-			
-			Logger.Debug("Done refreshing data!");
+			UpdateCategories();			
+			UpdateTasks();
+
+			Logger.Debug("RtmBackend refreshing data!");
 		}
 
 		public void Initialize()
@@ -229,20 +218,11 @@ namespace Tasque.Backends.RtmBackend
 			if(rtm == null)
 				rtm = new Rtm(apiKey, sharedSecret);
 			
-			runningRefreshThread = true;
-			if (refreshThread.ThreadState == ThreadState.Running) {
-				Logger.Debug ("RtmBackend refreshThread already running");
-			} else {
-				refreshThread.Start();
-			}
-			runRefreshEvent.Set();		
+			initialized = true;
 		}
 
 		public void Cleanup()
 		{
-			runningRefreshThread = false;
-			runRefreshEvent.Set();
-			refreshThread.Abort ();
 		}
 
 		public Gtk.Widget GetPreferencesWidget ()
@@ -280,7 +260,7 @@ namespace Tasque.Backends.RtmBackend
 					Logger.Debug("RTM Auth Token is valid!");
 					Logger.Debug("Setting configured status to true");
 					configured = true;
-					Refresh();
+//					Refresh();
 				} catch (Exception e) {
 					rtm = null;
 					rtmAuth = null;				
@@ -612,46 +592,7 @@ namespace Tasque.Backends.RtmBackend
 			}
 			Logger.Debug("RtmBackend.UpdateTasks is done");			
 		}
-		
-		
-		
-		private void RefreshThreadLoop()
-		{
-			while(runningRefreshThread) {
-				runRefreshEvent.WaitOne();
 
-				if(!runningRefreshThread)
-					return;
-
-				// Fire the event on the main thread
-				Gtk.Application.Invoke ( delegate {
-					if(BackendSyncStarted != null)
-						BackendSyncStarted();
-				});
-
-				runRefreshEvent.Reset();
-
-				if(rtmAuth != null) {
-					UpdateCategories();			
-					UpdateTasks();
-				}
-				if(!initialized) {
-					initialized = true;
-
-					// Fire the event on the main thread
-					Gtk.Application.Invoke ( delegate {
-						if(BackendInitialized != null)
-							BackendInitialized();
-					});
-				}
-
-				// Fire the event on the main thread
-				Gtk.Application.Invoke ( delegate {
-					if(BackendSyncFinished != null)
-						BackendSyncFinished();
-				});
-			}
-		}
 		
 #endregion // Private Methods
 

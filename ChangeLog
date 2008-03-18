@@ -1,3 +1,10 @@
+2008-03-18  Calvin Gaisford <calvinrg@gmail.com> 
+
+	* tasque.mdp, src/LocalCache.cs, src/IBackend.cs, src/Application.cs,
+	  src/Backends/Rtm/RtmBackend.cs, src/SyncManager.cs, src/TaskWindow.cs,
+	  src/Makefile.am: Created SyncManager and removed threading from
+	  RtmBackend
+
 2008-03-17  Boyd Timothy <btimothy@gmail.com> 
 
 	* src/TaskTreeView.cs: Change ordering of refiltering.  Also ExpandAll ()

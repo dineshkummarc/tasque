@@ -23,10 +23,6 @@ namespace Tasque
 		private Gtk.ListStore categoryListStore;
 		private Gtk.TreeModelSort sortedCategoriesModel;
 
-		public event BackendInitializedHandler BackendInitialized;
-		public event BackendSyncStartedHandler BackendSyncStarted;
-		public event BackendSyncFinishedHandler BackendSyncFinished;
-
 		private DateTime overdueRangeStart;
 		private DateTime overdueRangeEnd;
 
@@ -156,11 +152,7 @@ namespace Tasque
 			RefreshCategories();
 			RefreshTasks();		
 
-		
 			initialized = true;
-			if(BackendInitialized != null) {
-				BackendInitialized();
-			}		
 		}
 
 		public void Cleanup()

@@ -5,20 +5,12 @@ using System;
 
 namespace Tasque.Backends
 {
-	public delegate void BackendInitializedHandler ();
-	public delegate void BackendSyncStartedHandler ();
-	public delegate void BackendSyncFinishedHandler ();
-	
 	/// <summary>
 	/// This is the main integration interface for different backends that
 	/// Tasque can use.
 	/// </summary>
 	public interface IBackend
 	{
-		event BackendInitializedHandler BackendInitialized;
-		event BackendSyncStartedHandler BackendSyncStarted;
-		event BackendSyncFinishedHandler BackendSyncFinished;
-
 		#region Properties
 		/// <value>
 		/// A human-readable name for the backend that will be displayed in the

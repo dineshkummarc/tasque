@@ -1085,15 +1085,10 @@ namespace Tasque
 		{		
 			//backend.BackendInitialized -= OnBackendInitialized;
 			PopulateWindow();
-			OnBackendSyncFinished (); // To update the statusbar
+//			OnBackendSyncFinished (); // To update the statusbar
 		}
 		
-		private void OnBackendSyncStarted ()
-		{
-			TaskWindow.ShowStatus (Catalog.GetString ("Reloading tasks..."));
-		}
-		
-		private void OnBackendSyncFinished ()
+/*		private void OnBackendSyncFinished ()
 		{
 			Logger.Debug("Backend sync finished");
 			string status =
@@ -1108,7 +1103,8 @@ namespace Tasque
 				addTaskEntry.ModifyText (Gtk.StateType.Normal, insensitiveColor);
 			//}
 		}
-		#endregion // Event Handlers
+*/
+#endregion // Event Handlers
 		
 		#region Private Classes
 		class CategoryMenuItem : Gtk.MenuItem
