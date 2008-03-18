@@ -30,18 +30,19 @@ namespace Tasque
 			}
 		}
 		
-		public new bool ContainsTask(Task task)
+		public override bool ContainsTask(Task task)
 		{
 			// Filter out tasks based on the user's preferences of which
 			// categories should be displayed in the AllCategory.
 			Category category = task.Category;
-			if (category == null)
+			if (category == null) {
 				return true;
+			}
 			
 			//if (categoriesToHide.Count == 0)
 			//	return true;
 			
-			return (!categoriesToHide.Contains (category.Name));
+			return (categoriesToHide.Contains (category.Name) == false);
 		}
 		
 		private void OnSettingChanged (Preferences preferences, string settingKey)

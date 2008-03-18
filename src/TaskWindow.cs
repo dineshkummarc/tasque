@@ -776,6 +776,7 @@ namespace Tasque
 				addTaskEntry.GrabFocus ();
 			}
 			
+			taskTreeView.ExpandAll ();
 			return task;
 		}
 		#endregion // Private Methods
@@ -948,13 +949,8 @@ namespace Tasque
 			Category category =
 				categoryComboBox.Model.GetValue (iter, 0) as Category;
 				
-			// Update the TaskGroups so they can filter accordingly
-			//overdueGroup.Refilter (category);
-			//todayGroup.Refilter (category);
-			//tomorrowGroup.Refilter (category);
-			//nextSevenDaysGroup.Refilter (category);
-			//futureGroup.Refilter (category);
-			//completedTaskGroup.Refilter (category);
+			// Update the TreeView so it can filter accordingly
+			taskTreeView.Refilter (category);
 			
 			// Save the selected category in preferences
 			Application.Preferences.Set (Preferences.SelectedCategoryKey,

@@ -123,7 +123,12 @@ namespace Tasque
 			Gtk.TreeIter iter = taskStore.AppendNode(parentIter);
 			taskStore.SetValue (iter, 0, new TaskModelNode(task));
 			taskIters [task.Id] = iter;		
-
+			
+			// Set the parent iter object so that in case it's not showing
+			// already, the TreeModelFilter will refilter and cause it to appear.
+			object parentObj = taskStore.GetValue (parentIter, 0);
+			taskStore.SetValue (parentIter, 0, parentObj);
+			
 			return task;
 		}
 		
@@ -236,6 +241,10 @@ namespace Tasque
 					iter = taskStore.AppendNode(parentIter);
 					taskStore.SetValue (iter, 0, new TaskModelNode(task));					
 					taskIters [task.Id] = iter;
+					
+					// Set the values of all the parent objects so any filters
+					// will update themselves
+					UpdateParentIters ();
 				} else {
 					taskStore.SetValue (iter, 0, new TaskModelNode(task));
 				}
@@ -447,6 +456,21 @@ namespace Tasque
 			futureRangeStart = new DateTime (futureRangeStart.Year, futureRangeStart.Month,
 									   futureRangeStart.Day, 0, 0, 0);
 			futureRangeEnd = DateTime.MaxValue;
+		}
+		
+		void UpdateParentIters ()
+		{
+			Gtk.TreeIter iter;
+			if (taskStore.GetIterFirst (out iter) == false)
+				return;
+			
+			do {
+				TaskModelNode node = taskStore.GetValue (iter, 0) as TaskModelNode;
+				if (node == null)
+					continue;
+				
+				taskStore.SetValue (iter, 0, node);
+			} while (taskStore.IterNext (ref iter) == true);
 		}
 
 		#endregion // Private Methods

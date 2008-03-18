@@ -53,7 +53,7 @@ namespace Tasque
 			modelFilter.RowInserted += OnRowInsertedHandler;
 			modelFilter.RowDeleted += OnRowDeletedHandler;
 			
-			//Model = modelFilter
+			Model = modelFilter;
 			
 			Selection.Mode = Gtk.SelectionMode.Single;
 			RulesHint = false;
@@ -422,8 +422,9 @@ namespace Tasque
 		public void Refilter (Category selectedCategory)
 		{
 			this.filterCategory = selectedCategory;
-			Model = modelFilter;
 			modelFilter.Refilter ();
+			Model = modelFilter;
+			ExpandAll ();
 		}
 		
 		public int GetNumberOfTasks ()
@@ -682,18 +683,75 @@ namespace Tasque
 			if(node == null)
 				return false;
 				
-			if(node.IsSeparator)
-				return true;
-				
+			if(node.IsSeparator) {
+				return ShouldShowSeparator (node, model, iter);
+			}
+			
 			if (node.Task.State == TaskState.Deleted) {
 				//Logger.Debug ("TaskTreeView.FilterFunc:\n\t{0}\n\t{1}\n\tReturning false", task.Name, task.State);  
 				return false;
 			}
 			
-			if (filterCategory == null)
+			if (filterCategory == null) {
 				return true;
+			}
 				
 			return filterCategory.ContainsTask (node.Task);
+		}
+		
+		/// <summary>
+		/// Evaluate the given parent iter to see if any of its children would
+		/// cause it to be shown.  As soon as one is found, return true.
+		/// </summary>
+		/// <param name="node">
+		/// A <see cref="TaskModelNode"/>
+		/// </param>
+		/// <param name="model">
+		/// A <see cref="Gtk.TreeModel"/>
+		/// </param>
+		/// <param name="iter">
+		/// A <see cref="Gtk.TreeIter"/>
+		/// </param>
+		/// <returns>
+		/// A <see cref="System.Boolean"/>
+		/// </returns>
+		private bool ShouldShowSeparator (TaskModelNode node,
+										  Gtk.TreeModel model,
+										  Gtk.TreeIter iter)
+		{
+			if (node.IsSeparator == false)
+				return false;
+			
+			// Go through all of the children of the separator and check whether
+			// any of them should be showing based on the currently selected
+			// filterCategory.
+			if (model.IterHasChild (iter) == false) {
+				return false;
+			}
+			
+			if (filterCategory == null) {
+				return true;
+			}
+			
+			Gtk.TreeIter childIter;
+			if (model.IterChildren (out childIter, iter) == false)
+				return false;
+			
+			do {
+				TaskModelNode childNode = model.GetValue (childIter, 0) as TaskModelNode;
+				if (childNode == null)
+					continue;
+				
+				Task childTask = childNode.Task;
+				if (childTask.State == TaskState.Deleted)
+					continue;
+				
+				if (filterCategory.ContainsTask (childTask) == true) {
+					return true;
+				}
+			} while (model.IterNext (ref childIter));
+			
+			return false;
 		}
 		#endregion // Private Methods
 		

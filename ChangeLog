@@ -1,3 +1,20 @@
+2008-03-17  Boyd Timothy <btimothy@gmail.com> 
+
+	* src/TaskTreeView.cs: Change ordering of refiltering.  Also ExpandAll ()
+	  after Refiltering.  Also, depending on the selected category, don't show
+	  section headers unless it actually has tasks inside it.
+	* src/LocalCache.cs: When creating a new task and updating an existing task,
+	  call SetValue () on the parentIter so that any TreeModelFilters above
+	  will refilter and show the parent item.
+	* src/AllCategory.cs: Change ContainsTask () to "override" Category.cs's
+	  implementation.  Before this change, AllCategory.ContainsTask() was
+	  never being called.
+	* src/Category.cs: Change ContainsTask() to be virtual so it can be
+	  overridden appropriately.
+	* src/TaskWindow.cs: Call TreeView.ExpandAll () after adding a new task so
+	  that it will show up if the section had never been shown before.  Also
+	  refilter when a new category is selected.
+
 2008-03-17  Calvin Gaisford <calvinrg@gmail.com> 
 
 	* src/TaskTreeView.cs, src/LocalCache.cs, src/PreferencesDialog.cs,

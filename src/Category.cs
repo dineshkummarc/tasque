@@ -60,7 +60,7 @@ namespace Tasque
 		}
 
 		
-		public bool ContainsTask(Task task)
+		public virtual bool ContainsTask(Task task)
 		{
 			if(task.Category is Category)
 				return ((task.Category as Category).ID == id);
