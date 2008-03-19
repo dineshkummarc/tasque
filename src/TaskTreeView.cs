@@ -159,9 +159,10 @@ namespace Tasque
 			column = new Gtk.TreeViewColumn ();
 			// Title for Due Date Column
 			column.Title = Catalog.GetString ("Due Date");
-			column.Sizing = Gtk.TreeViewColumnSizing.Fixed;
+			//column.Sizing = Gtk.TreeViewColumnSizing.Fixed;
+			column.Sizing = Gtk.TreeViewColumnSizing.Autosize;
 			column.Alignment = 0f;
-			column.FixedWidth = 90;
+			//column.FixedWidth = 90;
 			column.Resizable = false;
 			column.Clickable = true;
 

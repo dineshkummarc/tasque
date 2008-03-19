@@ -1,3 +1,9 @@
+2008-03-19  Calvin Gaisford <calvinrg@gmail.com> 
+
+	* src/TaskTreeView.cs, src/PreferencesDialog.cs,
+	  src/Backends/Rtm/RtmPreferencesWidget.cs: Boyd's changes to make things
+	  work with huge fonts
+
 2008-03-12  Calvin Gaisford <calvinrg@gmail.com> 
 
 	* NEWS: Updated NEWS for release 0.1.5

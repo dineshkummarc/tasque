@@ -89,7 +89,8 @@ namespace Tasque
 			
 			this.VBox.Spacing = 0;
 			this.VBox.BorderWidth = 0;
-			this.Resizable = false;
+			this.Resizable = true;
+			DefaultSize = new Gdk.Size(750, 640);
 		
 			this.AddButton(Stock.Close, Gtk.ResponseType.Ok);
 			this.DefaultResponse = ResponseType.Ok;

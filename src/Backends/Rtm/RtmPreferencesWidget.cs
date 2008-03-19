@@ -39,6 +39,11 @@ namespace Tasque.Backends.RtmBackend
 			mainVBox.BorderWidth = 10;
 			mainVBox.Show();
 			Add(mainVBox);
+			
+			// Add a spacer to push the image down
+			Label l = new Gtk.Label (string.Empty);
+			l.Show ();
+			mainVBox.PackStart (l, true, true, 0);
 
 			// Add the rtm logo
 			image = new Gtk.Image (normalPixbuf);
