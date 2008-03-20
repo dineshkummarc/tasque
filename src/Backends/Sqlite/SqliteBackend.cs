@@ -112,7 +112,20 @@ namespace Tasque.Backends.Sqlite
 		}
 		
 		public void DeleteTask(ITask task)
-		{}
+		{
+			SqliteTask sqtask = task as SqliteTask;
+			
+			string command = String.Format("DELETE FROM Tasks WHERE ID='{0}'", sqtask.Id);
+			this.db.ExecuteScalar(command);
+
+			if(taskIters.ContainsKey(sqtask.Id)) {
+				Gtk.TreeIter iter = taskIters[sqtask.Id];
+				
+				taskStore.Remove(ref iter);
+				taskIters.Remove(sqtask.Id);
+			}
+			//Logger.Debug("Inserted task named: {0} with id {1}", name, id);			
+		}
 		
 		public void Refresh()
 		{}
@@ -249,6 +262,10 @@ namespace Tasque.Backends.Sqlite
 				iter = categoryListStore.Append ();
 				categoryListStore.SetValue (iter, 0, newCategory);
 
+				newCategory = new SqliteCategory (this, "Brainshare Demo 08");
+				iter = categoryListStore.Append ();
+				categoryListStore.SetValue (iter, 0, newCategory);
+				
 				newCategory = new SqliteCategory (this, "Personal");
 				iter = categoryListStore.Append ();
 				categoryListStore.SetValue (iter, 0, newCategory);

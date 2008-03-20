@@ -1,5 +1,9 @@
 2008-03-20  Calvin Gaisford <calvinrg@gmail.com> 
 
+	* src/Backends/Sqlite/SqliteBackend.cs: added delete to SQLite backend
+
+2008-03-20  Calvin Gaisford <calvinrg@gmail.com> 
+
 	* src/Application.cs: Added DBUS support in startup code
 
 2008-03-20  Calvin Gaisford <calvinrg@gmail.com> 
