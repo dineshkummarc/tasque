@@ -1,5 +1,9 @@
 2008-03-20  Calvin Gaisford <calvinrg@gmail.com> 
 
+	* src/TaskWindow.cs: Fixed up a show window problem
+
+2008-03-20  Calvin Gaisford <calvinrg@gmail.com> 
+
 	* src/Application.cs: fixed up giver intergration code
 
 2008-03-20  Calvin Gaisford <calvinrg@gmail.com> 

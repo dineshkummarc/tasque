@@ -399,7 +399,7 @@ namespace Tasque
 					lastXPos = x;
 					lastYPos = y;
 
-					taskWindow.Hide();
+					taskWindow.Present();
 				} else {
 					if(!taskWindow.Visible) {
 						int x = lastXPos;
