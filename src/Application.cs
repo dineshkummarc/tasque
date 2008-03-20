@@ -155,6 +155,7 @@ namespace Tasque
 
 				switch (args [idx]) {
 				case "--open-task":
+					Logger.Debug("tasque was called with a --open-task parameter");
 					// Get required name for task to open...
 					if (idx + 1 >= args.Length ||
 					                (args [idx + 1] != null
@@ -166,6 +167,8 @@ namespace Tasque
 
 					++idx;
 
+					Logger.Debug("Tasque passed the parameters : {0}", args[idx]);
+					
 					if (File.Exists (args [idx])) {
 						// TODO: insert stuff here to create a task
 						// Complete and total hack for TomBoy
@@ -174,24 +177,12 @@ namespace Tasque
 						if(Path.GetExtension(args[idx]).CompareTo(".tasque") == 0) {
 							Logger.Debug("I got a Task file");
 							try {
-								StreamReader reader = new StreamReader (args[idx]);
-								string taskXml = reader.ReadToEnd ();
 								string name = null;
-								reader.Close();
-								XmlTextReader xml = new XmlTextReader (new StringReader (taskXml));
-								xml.Namespaces = false;
-								while (xml.Read ()) {
-									switch (xml.NodeType) {
-										case XmlNodeType.Element:
-											switch (xml.Name) {
-												case "Name":
-													name = xml.ReadString ();
-													break;
-											}
-											break;
-									}
-								}
-
+								System.Xml.XmlDocument doc = new XmlDocument();
+								doc.Load (args[idx]);
+								XmlNode node = doc.SelectSingleNode ("//name");
+								name = node.InnerText;
+								
 								if(name != null) {
 									// Register Tasque RemoteControl
 									try {
