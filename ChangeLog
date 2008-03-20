@@ -1,3 +1,10 @@
+2008-03-19  Boyd Timothy <btimothy@gmail.com> 
+
+	* src/TaskTreeView.cs: Added start to drag and drop from tasque.  Make sure
+	  to drag from the far left or far right of a task line.  This isn't quite
+	  working because it's not writing the file properly yet.  Good start
+	  though and should be pretty easy to fix tomorrow.
+
 2008-03-19  Calvin Gaisford <calvinrg@gmail.com> 
 
 	* src/TaskTreeView.cs, src/PreferencesDialog.cs,

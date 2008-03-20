@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Gtk;
 using Mono.Unix;
 
@@ -20,6 +21,8 @@ namespace Tasque
 		
 		private Gtk.TreeModelFilter modelFilter;
 		private ICategory filterCategory;
+		
+		private Gtk.TargetEntry[] targets;
 		
 		static TaskTreeView ()
 		{
@@ -234,6 +237,16 @@ namespace Tasque
 				new Gtk.TreeCellDataFunc (TaskTimerCellDataFunc));
 			
 			AppendColumn (column);
+			
+			// Set up Drag and Drop
+			targets =
+				new Gtk.TargetEntry[] {
+					new Gtk.TargetEntry ("text/uri-list", Gtk.TargetFlags.App, 1),
+			};
+			DragDataGet += OnDragDataGet;
+			EnableModelDragSource (Gdk.ModifierType.Button1Mask,
+			                       targets,
+			                       Gdk.DragAction.Move);
 		}
 		
 		#region Public Methods
@@ -464,6 +477,48 @@ namespace Tasque
 			
 			return filterCategory.ContainsTask (task);
 		}
+		
+		/// <summary>
+		/// Serialize the specified task to an XML file and return the full
+		/// path to the file.
+		/// </summary>
+		/// <param name="task">
+		/// A <see cref="ITask"/>
+		/// </param>
+		/// <returns>
+		/// A <see cref="System.String"/>
+		/// </returns>
+		private string SerializeTaskToXmlFile (ITask task)
+		{
+			if (task == null)
+				return null;
+			
+			string guid = System.Guid.NewGuid ().ToString ();
+			string filePath = "/tmp/" + guid + ".tasque";
+			Logger.Debug ("Serializing task to: {0}", filePath);
+			
+			try {
+				TextWriter tw = new StreamWriter (filePath);
+				
+				// There are better ways to do this with XML stuff, but this is just
+				// quick and dirty...
+				tw.WriteLine("<tasque>");
+				tw.WriteLine("<task>");
+				tw.WriteLine(string.Format("<name>{0}</name>", task.Name));
+				tw.WriteLine(string.Format("<priority>{0}</priority>", task.Priority.ToString ()));
+				tw.WriteLine(string.Format("<due-date>{0}</due-date>", task.DueDate.ToFileTimeUtc ()));
+				tw.WriteLine(string.Format("<completion-date>{0}</completion-date>", task.CompletionDate.ToFileTimeUtc ()));
+				tw.WriteLine(string.Format("<state>{0}</state>", task.State.ToString ()));
+				tw.WriteLine("</task>");
+				tw.WriteLine("</tasque>");
+				tw.Close ();
+			} catch (Exception e) {
+				Logger.Warn ("Error writing task XML file: {0}", e.Message);
+				return null;
+			}
+			
+			return filePath;
+		}
 		#endregion // Private Methods
 		
 		#region EventHandlers
@@ -629,6 +684,37 @@ namespace Tasque
 				return;
 			
 			NumberOfTasksChanged (this, EventArgs.Empty);
+		}
+		
+		void OnDragDataGet (object sender, Gtk.DragDataGetArgs args)
+		{
+			Gtk.TreeModel model;
+			Gtk.TreeIter iter;
+			
+			if (Selection.GetSelected (out model, out iter) == false)
+				return;
+			
+			ITask task = model.GetValue (iter, 0) as ITask;
+			if (task == null)
+				return;
+			
+			//
+			// 1: Serialize the task to a temporary XML file
+			// 2: Create a URL for the task (just mimic file:// url for now
+			// 3: Set this as the URL data
+			string taskFileUrlPath = SerializeTaskToXmlFile (task);
+			if (taskFileUrlPath == null) {
+				Logger.Debug ("Error serializing task to XML file");
+				return;
+			}
+			
+			string taskFileUrl = string.Format ("tasque://{0}", taskFileUrlPath);
+			
+			args.SelectionData.Set (Gdk.Atom.Intern ("text/uri-list", false),
+									8,
+									System.Text.Encoding.UTF8.GetBytes (taskFileUrl));
+			
+			args.SelectionData.Text = task.Name;
 		}
 		#endregion // EventHandlers
 		
