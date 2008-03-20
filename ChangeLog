@@ -1,3 +1,7 @@
+2008-03-20  Calvin Gaisford <calvinrg@gmail.com> 
+
+	* src/Application.cs: Added code to break up command line arguments
+
 2008-03-19  Boyd Timothy <btimothy@gmail.com> 
 
 	* src/TaskTreeView.cs: Added start to drag and drop from tasque.  Make sure

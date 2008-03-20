@@ -144,8 +144,83 @@ namespace Tasque
 
 		private Application (string[] args)
 		{
+			Parse(args);
 			Init(args);
 		}
+
+		private void Parse (string[] args)
+		{
+			for (int idx = 0; idx < args.Length; idx++) {
+				bool quit = false;
+
+				switch (args [idx]) {
+				case "--open-task":
+					// Get required name for task to open...
+					if (idx + 1 >= args.Length ||
+					                (args [idx + 1] != null
+					                 && args [idx + 1] != String.Empty
+					                 && args [idx + 1][0] == '-')) {
+						PrintUsage ();
+						quit = true;
+					}
+
+					++idx;
+
+					if (File.Exists (args [idx])) {
+						// TODO: insert stuff here to create a task
+					} 
+
+					break;
+
+				case "--backend":
+					if (idx + 1 >= args.Length ||
+					                (args [idx + 1] != null
+					                 && args [idx + 1] != String.Empty
+					                 && args [idx + 1][0] == '-')) {
+						PrintUsage ();
+						quit = true;
+					} 
+
+					++idx;
+
+					Logger.Debug ("Backend to Load: {0}", args [idx]);
+
+					string potentialBackendClassName = args [idx];
+					
+					customBackend = null;
+					Assembly asm = Assembly.GetCallingAssembly ();
+					try {
+						customBackend = (IBackend)
+							asm.CreateInstance (potentialBackendClassName);
+					} catch (Exception e) {
+						Logger.Warn ("Backend specified on args not found: {0}\n\t{1}",
+							potentialBackendClassName, e.Message);
+						quit = true;							
+					}
+					break;
+
+				case "--version":
+					PrintAbout ();
+					PrintVersion();
+					quit = true;
+					break;
+
+				case "--help":
+				case "--usage":
+					PrintAbout ();
+					PrintUsage ();
+					quit = true;
+					break;
+
+				default:
+					break;
+				}
+
+				if (quit == true)
+					System.Environment.Exit (1);
+			}
+		}
+
 
 		private void Init(string[] args)
 		{
@@ -179,24 +254,7 @@ namespace Tasque
 				Logger.Debug ("Tasque remote control disabled (DBus exception): {0}",
 				            e.Message);
 			}
-			
-			// Read the args and check to see if a specific backend is specified
-			if (args.Length > 0) {
-Logger.Debug ("args [0]: {0}", args [0]);
-				// We're only looking at the first argument
-				string potentialBackendClassName = args [0];
-				
-				customBackend = null;
-				Assembly asm = Assembly.GetCallingAssembly ();
-				try {
-					customBackend = (IBackend)
-						asm.CreateInstance (potentialBackendClassName);
-				} catch (Exception e) {
-					Logger.Warn ("Backend specified on args not found: {0}\n\t{1}",
-						potentialBackendClassName, e.Message);
-				}
-			}
-			
+						
 			// Discover all available backends
 			LoadAvailableBackends ();
 
@@ -543,6 +601,36 @@ Logger.Debug ("args [0]: {0}", args [0]);
 		public void QuitMainLoop ()
 		{
 			//	actionManager ["QuitAction"].Activate ();
+		}
+		
+		
+		public static void PrintAbout ()
+		{
+			string about =
+			        Catalog.GetString (
+			                "Tasque: A Useful Task List\n" +
+			                "Copyright (C) 2008 Novell, Inc. " +
+			                "Authors: Boyd Timothy <btimothy@gmail.com>\n" +
+			                "         Calvin Gaisford <calvinrg@gmail.com>\n\n");
+
+			Console.Write (about);
+		}
+
+		public static void PrintUsage ()
+		{
+			string usage =
+			        Catalog.GetString (
+			                "Usage:\n" +
+			                "  --version\t\t\tPrint version information.\n" +
+			                "  --help\t\t\tPrint this usage message.\n" +
+			                "  --backend [backend name]\tUse the backend specified.\n" +
+			                "  --open-task [title/url]\tImport the task to default category\n");
+			Console.WriteLine (usage);
+		}
+
+		public static void PrintVersion()
+		{
+			Console.WriteLine (Catalog.GetString ("Version {0}"), Defines.Version);
 		}
 
 	}
