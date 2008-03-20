@@ -168,8 +168,51 @@ namespace Tasque
 
 					if (File.Exists (args [idx])) {
 						// TODO: insert stuff here to create a task
-					} 
+						// Complete and total hack for TomBoy
+						Logger.Debug("The extension is: {0}", Path.GetExtension(args[idx]));
+						
+						if(Path.GetExtension(args[idx]).CompareTo(".tasque") == 0) {
+							Logger.Debug("I got a Task file");
+							try {
+								StreamReader reader = new StreamReader (args[idx]);
+								string taskXml = reader.ReadToEnd ();
+								string name = null;
+								reader.Close();
+								XmlTextReader xml = new XmlTextReader (new StringReader (taskXml));
+								xml.Namespaces = false;
+								while (xml.Read ()) {
+									switch (xml.NodeType) {
+										case XmlNodeType.Element:
+											switch (xml.Name) {
+												case "Name":
+													name = xml.ReadString ();
+													break;
+											}
+											break;
+									}
+								}
 
+								if(name != null) {
+									// Register Tasque RemoteControl
+									try {
+										remoteControl = RemoteControlProxy.Register ();
+										if (remoteControl != null) {
+											remoteControl.CreateTask(String.Empty, name, false);
+										}
+									} catch (Exception e) {
+										Logger.Debug ("Tasque remote control disabled (DBus exception): {0}",
+										            e.Message);
+									}
+								} else {
+									Logger.Debug("Unable to create a task");
+								}
+							} catch (Exception e) {
+								Logger.Debug("Exception getting task {0}", e);
+							}	
+						} else {
+							Logger.Debug("File being loaded is not a Tasque file");
+						}
+					} 
 					break;
 
 				case "--backend":
