@@ -1,5 +1,9 @@
 2008-03-20  Calvin Gaisford <calvinrg@gmail.com> 
 
+	* src/Application.cs: fixed up giver intergration code
+
+2008-03-20  Calvin Gaisford <calvinrg@gmail.com> 
+
 	* src/Application.cs: Further work on the DBUS work with Giver
 
 2008-03-20  Boyd Timothy <btimothy@gmail.com> 

@@ -144,7 +144,6 @@ namespace Tasque
 
 		private Application (string[] args)
 		{
-			Parse(args);
 			Init(args);
 		}
 
@@ -184,12 +183,16 @@ namespace Tasque
 								name = node.InnerText;
 								
 								if(name != null) {
+									Logger.Debug("the name is {0}", name);
 									// Register Tasque RemoteControl
 									try {
-										remoteControl = RemoteControlProxy.Register ();
+										remoteControl = RemoteControlProxy.GetInstance();
 										if (remoteControl != null) {
-											remoteControl.CreateTask(String.Empty, name, false);
+											Logger.Debug("We are about to call to create a task");
+											remoteControl.CreateTask("Work", name, false);
 										}
+										else
+											Logger.Debug("RemoteControl was null");
 									} catch (Exception e) {
 										Logger.Debug ("Tasque remote control disabled (DBus exception): {0}",
 										            e.Message);
@@ -265,6 +268,8 @@ namespace Tasque
 							args);
 
 			preferences = new Preferences();
+			
+			Parse(args);
 			
 			// Register Tasque RemoteControl
 			try {
