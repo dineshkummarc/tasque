@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml;
 using Gtk;
 using Mono.Unix;
 
@@ -498,20 +499,25 @@ namespace Tasque
 			Logger.Debug ("Serializing task to: {0}", filePath);
 			
 			try {
-				TextWriter tw = new StreamWriter (filePath);
+				StringWriter sw = new StringWriter ();
+				XmlTextWriter xml = new XmlTextWriter (sw);
 				
 				// There are better ways to do this with XML stuff, but this is just
 				// quick and dirty...
-				tw.WriteLine("<tasque>");
-				tw.WriteLine("<task>");
-				tw.WriteLine(string.Format("<name>{0}</name>", task.Name));
-				tw.WriteLine(string.Format("<priority>{0}</priority>", task.Priority.ToString ()));
-				tw.WriteLine(string.Format("<due-date>{0}</due-date>", task.DueDate.ToFileTimeUtc ()));
-				tw.WriteLine(string.Format("<completion-date>{0}</completion-date>", task.CompletionDate.ToFileTimeUtc ()));
-				tw.WriteLine(string.Format("<state>{0}</state>", task.State.ToString ()));
-				tw.WriteLine("</task>");
-				tw.WriteLine("</tasque>");
-				tw.Close ();
+				xml.WriteStartElement (null, "task", null);
+				
+				xml.WriteElementString ("name", task.Name);
+//				xml.WriteElementString ("priority", task.Priority.ToString ());
+//				xml.WriteElementString ("due-date", task.DueDate.ToFileTimeUtc ());
+//				xml.WriteElementString ("completion-date", task.CompletionDate.ToFileTimeUtc ());
+//				xml.WriteElementString ("state", task.State.ToString ());
+				
+				xml.WriteEndElement ();
+				xml.Close ();
+				
+				StreamWriter writer = File.CreateText (filePath);
+				writer.WriteLine (sw.ToString ());
+				writer.Close ();
 			} catch (Exception e) {
 				Logger.Warn ("Error writing task XML file: {0}", e.Message);
 				return null;
