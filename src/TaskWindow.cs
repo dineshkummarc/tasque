@@ -47,7 +47,6 @@ namespace Tasque
 		//private IBackend backend;
 		private ScrolledWindow scrolledWindow;
 		
-		private Entry addTaskEntry;
 		private MenuToolButton addTaskButton;
 		private Gtk.ComboBox categoryComboBox;
 		private Gtk.VBox targetVBox;
@@ -84,8 +83,6 @@ namespace Tasque
 			taskGroups = new List<TaskGroup> ();
 			noteDialogs = new Dictionary<Task, NoteDialog> ();
 			InitWindow();
-			
-			Realized += OnRealized;
 		}
 
 		void InitWindow()
@@ -147,38 +144,25 @@ namespace Tasque
 			spacer.Show ();
 			topHBox.PackStart (spacer, true, true, 0);
 			
-			// The new task entry widget
-			addTaskEntry = new Entry (Catalog.GetString ("New task..."));
-			addTaskEntry.Sensitive = false;
-			addTaskEntry.Focused += OnAddTaskEntryFocused;
-			addTaskEntry.Changed += OnAddTaskEntryChanged;
-			addTaskEntry.Activated += OnAddTaskEntryActivated;
-			addTaskEntry.FocusInEvent += OnAddTaskEntryFocused;
-			addTaskEntry.FocusOutEvent += OnAddTaskEntryUnfocused;
-			addTaskEntry.Show ();
-			topHBox.PackStart (addTaskEntry, true, true, 0);
-			
 			// Use a small add icon so the button isn't mammoth-sized
 			HBox buttonHBox = new HBox (false, 6);
 			Image addImage = new Image (Gtk.Stock.Add, IconSize.Menu);
 			addImage.Show ();
 			buttonHBox.PackStart (addImage, false, false, 0);
-			Label l = new Label (Catalog.GetString ("_Add"));
+			Label l = new Label (Catalog.GetString ("_Add Task"));
 			l.Show ();
 			buttonHBox.PackStart (l, true, true, 0);
 			buttonHBox.Show ();
 			addTaskButton =
 				new MenuToolButton (buttonHBox, Catalog.GetString ("_Add Task"));
 			addTaskButton.UseUnderline = true;
-			// Disactivate the button until the backend is initialized
-			addTaskButton.Sensitive = false;
 			Gtk.Menu addTaskMenu = new Gtk.Menu ();
 			addTaskButton.Menu = addTaskMenu;
 			addTaskButton.Clicked += OnAddTask;
 			addTaskButton.Show ();
 			topHBox.PackStart (addTaskButton, false, false, 0);
 			
-			globalKeys.AddAccelerator (OnGrabEntryFocus,
+			globalKeys.AddAccelerator (OnAddTask,
 			                           (uint) Gdk.Key.n,
 			                           Gdk.ModifierType.ControlMask,
 			                           Gtk.AccelFlags.Visible);
@@ -221,20 +205,8 @@ namespace Tasque
 
 			mainVBox.PackEnd (statusbar, false, false, 0);
 			
-			//
-			// Delay adding in the TaskGroups until the backend is initialized
-			//
-			
-			Shown += OnWindowShown;
 			DeleteEvent += WindowDeleted;
-			
-			//backend.BackendInitialized += OnBackendInitialized;
-			//backend.BackendSyncStarted += OnBackendSyncStarted;
-			//backend.BackendSyncFinished += OnBackendSyncFinished;
-			// if the backend is already initialized, go ahead... initialize
-			//if(backend.Initialized) {
-				OnBackendInitialized();
-			//}
+			Realized += OnRealized;
 			
 			Application.Preferences.SettingChanged += OnSettingChanged;
 		}
@@ -456,14 +428,6 @@ namespace Tasque
 
 				taskWindow.ShowAll();
 			}
-		}
-		
-		public static void GrabNewTaskEntryFocus ()
-		{
-			if (taskWindow == null)
-				TaskWindow.ShowWindow ();
-			
-			taskWindow.addTaskEntry.GrabFocus ();
 		}
 		
 		public static void SelectAndEdit (Task task)
@@ -770,10 +734,6 @@ namespace Tasque
 			if (task == null) {
 				// TODO: Change the status to say there was an error
 				Logger.Debug ("Error creating a new task!");
-			} else {
-				// Clear out the entry
-				addTaskEntry.Text = string.Empty;
-				addTaskEntry.GrabFocus ();
 			}
 			
 			taskTreeView.ExpandAll ();
@@ -784,7 +744,7 @@ namespace Tasque
 		#region Event Handlers
 		private void OnRealized (object sender, EventArgs args)
 		{
-			addTaskEntry.GrabFocus ();
+			PopulateWindow();
 		}
 		
 		private void WindowDeleted (object sender, DeleteEventArgs args)
@@ -808,11 +768,6 @@ namespace Tasque
 			Logger.Debug("WindowDeleted was called");
 			taskWindow = null;
 		}
-
-		private void OnWindowShown (object sender, EventArgs args)
-		{
-
-		}
 		
 		void OnSettingChanged (Preferences preferences, string settingKey)
 		{
@@ -822,89 +777,23 @@ namespace Tasque
 			OnCategoryChanged (this, EventArgs.Empty);
 		}
 		
-		void OnGrabEntryFocus (object sender, EventArgs args)
-		{
-			addTaskEntry.GrabFocus ();
-		}
-		
-		void OnAddTaskEntryFocused (object sender, EventArgs args)
-		{
-			// Clear the entry if it contains the default text
-			if (addTaskEntry.Text == Catalog.GetString ("New task...")) {
-				addTaskEntry.Text = string.Empty;
-				addTaskEntry.ModifyText (Gtk.StateType.Normal);
-			}
-		}
-		
-		void OnAddTaskEntryUnfocused (object sender, EventArgs args)
-		{
-			// Restore the default text if nothing is entered
-			if (addTaskEntry.Text == string.Empty) {
-				addTaskEntry.Text = Catalog.GetString ("New task...");
-				Gdk.Color insensitiveColor =
-					addTaskEntry.Style.Text (Gtk.StateType.Insensitive);
-				addTaskEntry.ModifyText (Gtk.StateType.Normal, insensitiveColor);
-			}
-		}
-		
-		void OnAddTaskEntryChanged (object sender, EventArgs args)
-		{
-			string text = addTaskEntry.Text.Trim ();
-			if (text.Length == 0
-					|| text.CompareTo (Catalog.GetString ("New task...")) == 0) {
-				addTaskButton.Sensitive = false;
-			} else {
-				addTaskButton.Sensitive = true;
-			}
-		}
-		
-		void OnAddTaskEntryActivated (object sender, EventArgs args)
-		{
-			string newTaskText = addTaskEntry.Text.Trim ();
-			if (newTaskText.Length == 0)
-				return;
-			
-			OnAddTask (sender, args);
-		}
-
 		void OnAddTask (object sender, EventArgs args)
 		{
-			string enteredTaskText = addTaskEntry.Text.Trim ();
-			if (enteredTaskText.Length == 0)
-				return;
-			
 			Gtk.TreeIter iter;
 			if (categoryComboBox.GetActiveIter (out iter) == false)
 				return;
 			
 			Category category =
 				categoryComboBox.Model.GetValue (iter, 0) as Category;
-		
-			// If enabled, attempt to parse due date information
-			// out of the entered task text.
-			DateTime taskDueDate = DateTime.MinValue;
-			string taskName;
-			if (Application.Preferences.GetBool (Preferences.ParseDateEnabledKey))
-				Utilities.ParseTaskText (
-				                         enteredTaskText,
-				                         out taskName,
-				                         out taskDueDate);
-			else
-				taskName = enteredTaskText;
 			
-			Task task = CreateTask (taskName, category);
-			if (taskDueDate != DateTime.MinValue)
-				task.DueDate = taskDueDate;
+			Task task = CreateTask (Catalog.GetString ("New task"), category);
 			
-			HighlightTask (task);
+			// Scroll to the task and put it into "edit" mode
+			EnterEditMode (task, true);
 		}
 		
 		void OnNewTaskByCategory (object sender, EventArgs args)
 		{
-			string newTaskText = addTaskEntry.Text.Trim ();
-			if (newTaskText.Length == 0)
-				return;
-			
 			CategoryMenuItem item = sender as CategoryMenuItem;
 			if (item == null)
 				return;
@@ -935,9 +824,10 @@ namespace Tasque
 				}
 			}
 			
-			Task task = CreateTask (newTaskText, item.Category);
+			Task task = CreateTask (Catalog.GetString ("New task"),
+														item.Category);
 			
-			HighlightTask (task);
+			EnterEditMode (task, true);
 		}
 		
 		void OnCategoryChanged (object sender, EventArgs args)
@@ -1080,30 +970,6 @@ namespace Tasque
 			
 			dialog.Destroy ();
 		}
-		
-		private void OnBackendInitialized()
-		{		
-			//backend.BackendInitialized -= OnBackendInitialized;
-			PopulateWindow();
-//			OnBackendSyncFinished (); // To update the statusbar
-		}
-		
-/*		private void OnBackendSyncFinished ()
-		{
-			Logger.Debug("Backend sync finished");
-			string status =
-				string.Format ("Tasks loaded: {0}",DateTime.Now.ToString ());
-			TaskWindow.ShowStatus (status);
-			//if (Application.Backend.Configured) {
-				RebuildAddTaskMenu (Application.LocalCache.Categories);
-				addTaskEntry.Sensitive = true;
-				// Keep insensitive text color
-				Gdk.Color insensitiveColor =
-					addTaskEntry.Style.Text (Gtk.StateType.Insensitive);
-				addTaskEntry.ModifyText (Gtk.StateType.Normal, insensitiveColor);
-			//}
-		}
-*/
 #endregion // Event Handlers
 		
 		#region Private Classes

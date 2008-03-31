@@ -1,3 +1,8 @@
+2008-03-31  Boyd Timothy <btimothy@gmail.com> 
+
+	* src/Application.cs, src/TaskWindow.cs: Revert back to the old-style Add
+	  Task button (no Gtk.Entry widget).
+
 2008-03-18  Calvin Gaisford <calvinrg@gmail.com> 
 
 	* src/Backends/Rtm/RtmBackend.cs, src/SyncManager.cs: Fixed up SyncManager

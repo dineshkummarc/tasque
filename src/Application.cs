@@ -427,7 +427,7 @@ namespace Tasque
 		{
 			// Show the TaskWindow and then cause a new task to be created
 			TaskWindow.ShowWindow ();
-			TaskWindow.GrabNewTaskEntryFocus ();
+			TaskWindow.AddTask ();
 		}
 
 		private void OnQuit (object sender, EventArgs args)
