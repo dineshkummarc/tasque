@@ -1,5 +1,11 @@
 2008-03-31  Boyd Timothy <btimothy@gmail.com> 
 
+	* src/TaskWindow.cs: Added code to allow a new task to go into edit mode. 
+	  Also removed taskGroups, and HighlightTask since they're no longer
+	  needed.
+
+2008-03-31  Boyd Timothy <btimothy@gmail.com> 
+
 	* src/Application.cs, src/TaskWindow.cs: Revert back to the old-style Add
 	  Task button (no Gtk.Entry widget).
 

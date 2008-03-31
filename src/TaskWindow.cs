@@ -58,8 +58,6 @@ namespace Tasque
 		//private TaskGroup futureGroup;
 		//private CompletedTaskGroup completedTaskGroup;
 		
-		private List<TaskGroup> taskGroups;
-		
 		private Dictionary<Task, NoteDialog> noteDialogs;
 		
 		private Gtk.Statusbar statusbar;
@@ -80,7 +78,6 @@ namespace Tasque
 		
 		public TaskWindow () : base (WindowType.Toplevel)
 		{
-			taskGroups = new List<TaskGroup> ();
 			noteDialogs = new Dictionary<Task, NoteDialog> ();
 			InitWindow();
 		}
@@ -470,26 +467,6 @@ namespace Tasque
 			TaskWindow.ShowWindow ();
 		}
 		
-		public void HighlightTask (Task task)
-		{
-			Gtk.TreeIter iter;
-			
-			// Make sure we've waited around for the new task to fully
-			// be added to the TreeModel before continuing.  Some
-			// backends might be threaded and will have used something
-			// like Gtk.Idle.Add () to actually store the new Task in
-			// their TreeModel.
-			while (Gtk.Application.EventsPending ())
-				Gtk.Application.RunIteration ();
-
-			foreach (TaskGroup taskGroup in taskGroups) {
-				if (taskGroup.ContainsTask (task, out iter) == true) {
-					taskGroup.TreeView.Selection.SelectIter (iter);
-					break;
-				}
-			}
-		}
-		
 		/// <summary>
 		/// Search through the TaskGroups looking for the specified task and
 		/// adjust the window so the new task is showing.
@@ -497,7 +474,7 @@ namespace Tasque
 		/// <param name="task">
 		/// A <see cref="Task"/>
 		/// </param>
-		public void ScrollToTask (Task task)
+/*		public void ScrollToTask (Task task)
 		{
 			// TODO: NEED to add something to NOT scroll the window if the new
 			// task is already showing in the window!
@@ -567,6 +544,7 @@ namespace Tasque
 				}
 			}
 		}
+		*/
 		#endregion // Public Methods
 		
 		#region Private Methods
@@ -639,20 +617,72 @@ namespace Tasque
 			while (Gtk.Application.EventsPending ())
 				Gtk.Application.RunIteration ();
 			
-			if (adjustScrolledWindow == true)
-				ScrollToTask (task);
-			
-			
 			Gtk.TreeIter iter;
-			foreach (TaskGroup taskGroup in taskGroups) {
-				if (taskGroup.ContainsTask (task, out iter) == true) {
-					Logger.Debug ("Found new task group: {0}", taskGroup.DisplayName);
-					
-					// Get the header height
-					taskGroup.EnterEditMode (task, iter);
-					return;
-				}
+			if (GetTaskIter(task, out iter) == false)
+				return;
+			
+			Gtk.TreePath path = taskTreeView.Model.GetPath(iter);
+			// TODO: Figure out a way to NOT hard-code the column number
+			Gtk.TreeViewColumn nameColumn = taskTreeView.Columns [0];
+			if (adjustScrolledWindow == true) {
+				taskTreeView.ScrollToCell(path,
+										  nameColumn,
+										  true,
+										  0.0f,
+										  0.0f);
 			}
+			
+			// Enter edit mode
+			
+			// Select the row
+			taskTreeView.Selection.SelectIter (iter);
+			
+			// Go into edit mode
+			Gtk.CellRendererText nameCellRendererText =
+				nameColumn.CellRenderers [3] as Gtk.CellRendererText;
+			
+			taskTreeView.SetCursorOnCell (path, nameColumn, nameCellRendererText, true);
+		}
+		
+		/// <summary>
+		/// This method is necessary because it tracks Gtk.TreeIters specific to
+		/// the TreeModelFilter/Sort returned by LocalCache.Tasks.
+		/// </summary>
+		/// <param name="task">
+		/// A <see cref="Task"/>
+		/// </param>
+		/// <param name="iter">
+		/// A <see cref="Gtk.TreeIter"/>
+		/// </param>
+		/// <returns>
+		/// A <see cref="System.Boolean"/>
+		/// </returns>
+		private bool GetTaskIter (Task task, out Gtk.TreeIter iter)
+		{
+			Gtk.TreeIter parentIter;
+			iter = Gtk.TreeIter.Zero;
+			if (taskTreeView.Model.GetIterFirst(out parentIter) == false)
+				return false;
+			
+			do {
+				if (taskTreeView.Model.IterHasChild(parentIter) == true) {				
+					Gtk.TreeIter childIter;
+					if (taskTreeView.Model.IterChildren(out childIter, parentIter) == true) {
+						do {
+							TaskModelNode node = taskTreeView.Model.GetValue(childIter, 0) as TaskModelNode;
+							if (node.IsSeparator == true)
+								continue;
+							
+							if (node.Task.Id.CompareTo(task.Id) == 0) {
+								iter = childIter;
+								return true;
+							}
+						} while (taskTreeView.Model.IterNext(ref childIter) == true);
+					}
+				}
+			} while (taskTreeView.Model.IterNext(ref parentIter) == true);
+			
+			return false;
 		}
 		
 		private void RebuildAddTaskMenu (Gtk.TreeModel categoriesModel)
