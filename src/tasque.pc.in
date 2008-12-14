@@ -1,6 +1,0 @@
-Name: Tasque
-Description: Simple Task Management
-Version: 0.1
-
-Requires: 
-Libs: -r:@prefix@/lib/@PACKAGE@/Tasque.exe
