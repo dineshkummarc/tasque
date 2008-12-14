@@ -77,6 +77,7 @@ CSFILES = \
 	$(srcdir)/NoteWidget.cs \
 	$(srcdir)/Preferences.cs \
 	$(srcdir)/PreferencesDialog.cs \
+	$(srcdir)/BackendsDialog.cs \
 	$(srcdir)/RemoteControl.cs \
 	$(srcdir)/RemoteControlProxy.cs \
 	$(srcdir)/TaskCalendar.cs \

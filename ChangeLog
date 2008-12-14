@@ -1,3 +1,10 @@
+2008-12-14  Brian G. Merrell <bgmerrell@gmail.com>
+	
+	* src/Application.cs,
+	* src/BackendsDialog.cs: Add a "Backends" configuration dialog opened
+	by right-clicking the Tasque system tray icon.
+	* src/Makefile.am: Add BackendDialog.cs
+
 2008-11-18  Steve Frécinaux  <code@istique.net>
 
 	* src/Backends/Sqlite/SqliteTask.cs:

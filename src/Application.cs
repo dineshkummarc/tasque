@@ -62,6 +62,7 @@ namespace Tasque
 		private EventBox eb;
 		private IBackend backend;
 		private PreferencesDialog preferencesDialog;
+		private BackendsDialog backendsDialog;
 		private bool quietStart = false;
 		
 		private DateTime currentDay = DateTime.Today;
@@ -82,6 +83,7 @@ namespace Tasque
 		<menuitem action=""NewTaskAction""/>
 		<separator/>
 		<menuitem action=""PreferencesAction""/>
+		<menuitem action=""BackendsAction""/>
 		<menuitem action=""AboutAction""/>
 		<separator/>
 		<menuitem action=""RefreshAction""/>
@@ -457,16 +459,38 @@ namespace Tasque
 			
 			preferencesDialog.Present ();
 		}
+
+		private void OnBackends (object sender, EventArgs args)
+		{
+			Logger.Info ("OnBackends called");
+			if (backendsDialog == null) {
+				backendsDialog = new BackendsDialog ();
+				backendsDialog.Hidden += OnBackendsDialogHidden;
+			}
+			
+			backendsDialog.Present ();
+		}
 		
 		private void OnPreferencesDialogHidden (object sender, EventArgs args)
 		{
 			preferencesDialog.Destroy ();
 			preferencesDialog = null;
 		}
+
+		private void OnBackendsDialogHidden (object sender, EventArgs args)
+		{
+			backendsDialog.Destroy ();
+			backendsDialog = null;
+		}
 		
 		public static void ShowPreferences()
 		{
 			application.OnPreferences(null, EventArgs.Empty);
+		}
+	
+		public static void ShowBackends()
+		{
+			application.OnBackends(null, EventArgs.Empty);
 		}
 
 		private void OnAbout (object sender, EventArgs args)
@@ -629,6 +653,13 @@ namespace Tasque
 				new ActionEntry ("PreferencesAction",
 				                 Stock.Preferences,
 				                 OnPreferences),
+
+				new ActionEntry ("BackendsAction",
+				                 Stock.Preferences,
+						 Catalog.GetString ("Backends"),
+						 null,
+						 null,
+				                 OnBackends),
 				
 				new ActionEntry ("RefreshAction",
 				                 Stock.Execute,
