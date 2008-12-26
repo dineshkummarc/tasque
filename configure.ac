@@ -123,15 +123,6 @@ AC_ARG_ENABLE(backend_rtm,
 		enable_backend_rtm=$enableval, enable_backend_rtm=no)
 
 #
-# SQLite Backend
-#
-AC_ARG_ENABLE(backend_sqlite,
-	AC_HELP_STRING([--enable-backend-sqlite],
-		[Enable the SQLite Backend [default=no]]),
-		enable_backend_sqlite=$enableval, enable_backend_sqlite=no)
-AM_CONDITIONAL(ENABLE_BACKEND_SQLITE, test "x$enable_backend_sqlite" = "xyes")
-
-#
 # ICEcore for IceBackend Support
 #
 AC_ARG_ENABLE(backend_icecore,

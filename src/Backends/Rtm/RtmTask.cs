@@ -26,7 +26,7 @@ namespace Tasque.Backends.RtmBackend
 		{
 			this.taskSeries = taskSeries;
 			this.rtmBackend = be;
-			this.category = be.GetCategory(listID);
+			this.category = be.GetCategory(listID) as RtmCategory;
 			
 			if(CompletionDate == DateTime.MinValue )
 				state = TaskState.Active;
@@ -218,7 +218,7 @@ namespace Tasque.Backends.RtmBackend
 			get { return taskSeries.TaskID; }
 		}
 		
-		public string TaskTaskID
+		public string TaskID
 		{
 			get { return taskSeries.Task.TaskID; }
 		}

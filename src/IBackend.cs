@@ -2,23 +2,16 @@
 // User: boyd at 7:02 AM 2/11/2008
 
 using System;
+using System.Collections.Generic;
 
 namespace Tasque.Backends
 {
-	public delegate void BackendInitializedHandler ();
-	public delegate void BackendSyncStartedHandler ();
-	public delegate void BackendSyncFinishedHandler ();
-	
 	/// <summary>
 	/// This is the main integration interface for different backends that
 	/// Tasque can use.
 	/// </summary>
 	public interface IBackend
 	{
-		event BackendInitializedHandler BackendInitialized;
-		event BackendSyncStartedHandler BackendSyncStarted;
-		event BackendSyncFinishedHandler BackendSyncFinished;
-
 		#region Properties
 		/// <value>
 		/// A human-readable name for the backend that will be displayed in the
@@ -29,22 +22,22 @@ namespace Tasque.Backends
 		{
 			get;
 		}
-		
+
 		/// <value>
-		/// All the tasks provided by the backend.
-		/// </value>
-		Gtk.TreeModel Tasks
-		{
-			get;
-		}
-		
+                /// Dictionary of ITasks.  The key is the backend's task ID or external ID.
+                /// </value>
+                Dictionary<string, ITask> Tasks
+                {
+                        get;
+                }
+
 		/// <value>
-		/// This returns all the ICategory items from the backend.
-		/// </value>
-		Gtk.TreeModel Categories
-		{
-			get;
-		}
+                /// Dictionary of ICategories.  The key is the backend's category ID or external ID.
+                /// </value>
+                Dictionary<string, ICategory> Categories
+                {
+                        get;
+                }
 		
 		/// <value>
 		/// Indication that the backend has enough information

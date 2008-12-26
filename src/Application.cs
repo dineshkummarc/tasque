@@ -62,6 +62,7 @@ namespace Tasque
 		private EventBox eb;
 		private IBackend backend;
 		private PreferencesDialog preferencesDialog;
+		private LocalCache localCache;
 		private bool quietStart = false;
 		
 		private DateTime currentDay = DateTime.Today;
@@ -140,6 +141,11 @@ namespace Tasque
 			}
 //			get { return Application.Instance.availableBackends; }
 		}
+
+		public static LocalCache LocalCache
+                {
+                        get { return Application.Instance.localCache; }
+                }
 		
 		public static Application Instance
 		{

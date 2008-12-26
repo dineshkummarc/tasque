@@ -141,7 +141,7 @@ namespace Tasque
 							Preferences.SelectedCategoryKey);
 			if (cat != null) {
 				TreeIter iter;
-				TreeModel model = Application.Backend.Categories;
+				TreeModel model = Application.LocalCache.Categories;
 				
 				if (model.GetIterFirst (out iter)) {
 					do {

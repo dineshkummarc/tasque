@@ -1,3 +1,21 @@
+2008-12-26  Brian G. Merrell <bgmerrell@gmail.com>
+
+	* configure.ac,
+	* src/PreferencesDialog.cs,
+	* src/IBackend.cs,
+	* src/Application.cs,
+	* src/Backends/Rtm/RtmTask.cs,
+	* src/Backends/Rtm/RtmBackend.cs,
+	* src/CompletedTaskGroup.cs,
+	* src/TaskGroup.cs,
+	* src/TaskWindow.cs,
+	* src/RemoteControl.cs,
+	* src/Makefile.am: Manual merge of most things from the old cache
+	branch.  This branch will build at this point, but everything is
+	broken.  To summarize:  SQLite is removed as an optional backend and
+	is implemented as an integrated part of Tasque to store tasks before
+	they are pushed out to a backend.
+
 2008-12-24  Sandy Armstrong  <sanfordarmstrong@gmail.com>
 
 	* configure.ac:

@@ -218,20 +218,8 @@ namespace Tasque
 
 			mainVBox.PackEnd (statusbar, false, false, 0);
 			
-			//
-			// Delay adding in the TaskGroups until the backend is initialized
-			//
-			
 			Shown += OnWindowShown;
 			DeleteEvent += WindowDeleted;
-			
-			backend.BackendInitialized += OnBackendInitialized;
-			backend.BackendSyncStarted += OnBackendSyncStarted;
-			backend.BackendSyncFinished += OnBackendSyncFinished;
-			// if the backend is already initialized, go ahead... initialize
-			if(backend.Initialized) {
-				OnBackendInitialized();
-			}
 			
 			Application.Preferences.SettingChanged += OnSettingChanged;
 		}
@@ -252,6 +240,7 @@ namespace Tasque
 			rangeEnd = new DateTime (rangeEnd.Year, rangeEnd.Month, rangeEnd.Day,
 									 23, 59, 59);
 			
+			/*
 			overdueGroup = new TaskGroup (Catalog.GetString ("Overdue"),
 										  rangeStart, rangeEnd,
 										  backend.Tasks);
@@ -345,6 +334,7 @@ namespace Tasque
 			completedTaskGroup.Show ();
 			targetVBox.PackStart (completedTaskGroup, false, false, 0);
 			taskGroups.Add (completedTaskGroup);
+			*/
 			
 
 			//manualTarget = new TargetService();
@@ -354,7 +344,7 @@ namespace Tasque
 			
 			// Set up the combo box (after the above to set the current filter)
 
-			categoryComboBox.Model = Application.Backend.Categories;		
+			categoryComboBox.Model = Application.LocalCache.Categories;		
 
 			// Read preferences for the last-selected category and select it
 			string selectedCategoryName =
@@ -653,7 +643,7 @@ namespace Tasque
 			int count = 0;
 			
 			Gtk.TreeIter iter;
-			Gtk.TreeModel model = Application.Backend.Tasks;
+			Gtk.TreeModel model = Application.LocalCache.Tasks;
 			
 			if (!model.GetIterFirst (out iter))
 				return 0;
@@ -1148,39 +1138,6 @@ namespace Tasque
 			dialog.Destroy ();
 		}
 		
-		private void OnBackendInitialized()
-		{		
-			backend.BackendInitialized -= OnBackendInitialized;
-			PopulateWindow();
-			OnBackendSyncFinished (); // To update the statusbar
-		}
-		
-		private void OnBackendSyncStarted ()
-		{
-			TaskWindow.ShowStatus (Catalog.GetString ("Loading tasks..."));
-		}
-		
-		private void OnBackendSyncFinished ()
-		{
-			Logger.Debug("Backend sync finished");
-			if (Application.Backend.Configured) {
-				string now = DateTime.Now.ToString ();
-				status = string.Format ("Tasks loaded: {0}", now);
-				TaskWindow.lastLoadedTime = now;
-				TaskWindow.ShowStatus (status);
-				RebuildAddTaskMenu (Application.Backend.Categories);
-				addTaskEntry.Sensitive = true;
-				categoryComboBox.Sensitive = true;
-				// Keep insensitive text color
-				Gdk.Color insensitiveColor =
-					addTaskEntry.Style.Text (Gtk.StateType.Insensitive);
-				addTaskEntry.ModifyText (Gtk.StateType.Normal, insensitiveColor);
-			} else {
-				string status =
-					string.Format ("Not connected.");
-				TaskWindow.ShowStatus (status);
-			}
-		}
 		#endregion // Event Handlers
 		
 		#region Private Classes

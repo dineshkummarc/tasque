@@ -85,7 +85,7 @@ namespace Tasque
 						bool enterEditMode, bool parseDate)
 		{
 			Gtk.TreeIter iter;
-			Gtk.TreeModel model = Application.Backend.Categories;
+			Gtk.TreeModel model = Application.LocalCache.Categories;
 			
 			//
 			// Validate the input parameters.  Don't allow null or empty strings
@@ -169,7 +169,7 @@ namespace Tasque
 			string[] emptyArray = categories.ToArray ();
 			
 			Gtk.TreeIter iter;
-			Gtk.TreeModel model = Application.Backend.Categories;
+			Gtk.TreeModel model = Application.LocalCache.Categories;
 			
 			if (!model.GetIterFirst (out iter))
 				return emptyArray;
@@ -205,7 +205,7 @@ namespace Tasque
 			List<string> ids;
 			
 			ids = new List<string> ();
-			model = Application.Backend.Tasks;
+			model = Application.LocalCache.Tasks;
 			
 			if (!model.GetIterFirst (out iter))
 				return new string[0];
@@ -297,7 +297,7 @@ namespace Tasque
 			Gtk.TreeModel model;
 			
 			ITask task = null;
-			model = Application.Backend.Tasks;
+			model = Application.LocalCache.Tasks;
 			
 			if (model.GetIterFirst (out iter)) {
 				do {

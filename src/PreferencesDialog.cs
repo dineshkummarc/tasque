@@ -470,7 +470,7 @@ namespace Tasque
 			}
 			
 			IBackend backend = backendComboMap [selectedBackend];
-			filteredCategories = new TreeModelFilter (backend.Categories, null);
+			filteredCategories = new TreeModelFilter (Application.LocalCache.Categories, null);
 			filteredCategories.VisibleFunc = FilterFunc;
 			categoriesTree.Model = filteredCategories;
 		}

@@ -433,7 +433,7 @@ namespace Tasque
 			
 			if (selectedCategoryName != null) {
 				Gtk.TreeIter iter;
-				Gtk.TreeModel model = Application.Backend.Categories;
+				Gtk.TreeModel model = Application.LocalCache.Categories;
 
 				// Iterate through (yeah, I know this is gross!) and find the
 				// matching category
