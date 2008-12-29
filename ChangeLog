@@ -1,3 +1,15 @@
+2008-12-29  Brian G. Merrell <bgmerrell@gmail.com>
+
+	* src/TaskWindow.cs: manually merge more methods from the old caching branch
+	* src/RemoteControl.cs: Cast ITask to Task in the TaskWindow.SelectAndEdit call
+	* src/TaskTreeView.cs,
+	* src/NoteDialog.cs,
+	* src/TaskCalendar.cs,
+	* src/AllCategory.cs,
+	* src/CompletedTaskGroup.cs,
+	* src/TaskGroup.cs: Change references from ICategory to Category and ITask to Task
+	* src/SyncManager.cs: svn add
+
 2008-12-28  Brian G. Merrell <bgmerrell@gmail.com>
 
 	* src/Category.cs, 

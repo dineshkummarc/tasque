@@ -9,14 +9,14 @@ namespace Tasque
 {
 	public class NoteDialog : Gtk.Dialog
 	{
-		private ITask task;
+		private Task task;
 		
 		Gtk.VBox targetVBox;
 		Gtk.Button addButton = new Gtk.Button(Gtk.Stock.Add);
 		Gtk.ScrolledWindow sw = new Gtk.ScrolledWindow ();
 		
 		#region Constructors
-		public NoteDialog (Gtk.Window parentWindow, ITask task)
+		public NoteDialog (Gtk.Window parentWindow, Task task)
 			: base ()
 		{
 			this.ParentWindow = parentWindow.GdkWindow;
@@ -79,7 +79,7 @@ namespace Tasque
 		#endregion // Constructors
 		
 		#region Properties
-		public ITask Task
+		public Task Task
 		{
 			get { return task; }
 		}

@@ -7,7 +7,7 @@ using Mono.Unix;
 
 namespace Tasque
 {
-	public class AllCategory : ICategory
+	public class AllCategory : Category
 	{
 		// A "set" of categories specified by the user to show when the "All"
 		// category is selected in the TaskWindow.  If the list is empty, tasks
@@ -28,11 +28,11 @@ namespace Tasque
 			get { return Catalog.GetString ("All"); }
 		}
 		
-		public bool ContainsTask(ITask task)
+		public bool ContainsTask(Task task)
 		{
 			// Filter out tasks based on the user's preferences of which
 			// categories should be displayed in the AllCategory.
-			ICategory category = task.Category;
+			Category category = task.Category;
 			if (category == null)
 				return true;
 			

@@ -45,7 +45,7 @@ namespace Tasque
 		private static int lastYPos;
 		private static Gdk.Pixbuf noteIcon;
 		
-		private IBackend backend;
+		//private IBackend backend;
 		private ScrolledWindow scrolledWindow;
 		
 		private Entry addTaskEntry;
@@ -53,17 +53,17 @@ namespace Tasque
 		private Gtk.ComboBox categoryComboBox;
 		private Gtk.VBox targetVBox;
 		
-		private TaskGroup overdueGroup;
-		private TaskGroup todayGroup;
-		private TaskGroup tomorrowGroup;
-		private TaskGroup nextSevenDaysGroup;
-		private TaskGroup futureGroup;
-		private CompletedTaskGroup completedTaskGroup;
+		//private TaskGroup overdueGroup;
+		//private TaskGroup todayGroup;
+		//private TaskGroup tomorrowGroup;
+		//private TaskGroup nextSevenDaysGroup;
+		//private TaskGroup futureGroup;
+		//private CompletedTaskGroup completedTaskGroup;
 		private EventBox innerEb;
 
-		private List<TaskGroup> taskGroups;
+		//private List<TaskGroup> taskGroups;
 		
-		private Dictionary<ITask, NoteDialog> noteDialogs;
+		private Dictionary<Task, NoteDialog> noteDialogs;
 		
 		private Gtk.Statusbar statusbar;
 		private uint statusContext;
@@ -73,24 +73,23 @@ namespace Tasque
 		private static string lastLoadedTime;
 		private const uint DWELL_TIME_MS = 8000;
 		
-		private ITask clickedTask;
+		private Task clickedTask;
 		
 		private Gtk.AccelGroup accelGroup;
 		private GlobalKeybinder globalKeys;
+
+		private TaskTreeView taskTreeView;
 		
 		static TaskWindow ()
 		{
 			noteIcon = Utilities.GetIcon ("note", 16);
 		}
 		
-		public TaskWindow (IBackend aBackend) : base (Gtk.WindowType.Toplevel)
+		public TaskWindow () : base (Gtk.WindowType.Toplevel)
 		{
-			this.backend = aBackend;
-			taskGroups = new List<TaskGroup> ();
-			noteDialogs = new Dictionary<ITask, NoteDialog> ();
+			noteDialogs = new Dictionary<Task, NoteDialog> ();
 			InitWindow();
-			
-			Realized += OnRealized;
+			//Realized += OnRealized;
 		}
 
 		void InitWindow()
@@ -147,7 +146,8 @@ namespace Tasque
 			
 			// The new task entry widget
 			addTaskEntry = new Entry (Catalog.GetString ("New task..."));
-			addTaskEntry.Sensitive = false;
+			// TODO: Add some logic to this
+			addTaskEntry.Sensitive = true;
 			addTaskEntry.Focused += OnAddTaskEntryFocused;
 			addTaskEntry.Changed += OnAddTaskEntryChanged;
 			addTaskEntry.Activated += OnAddTaskEntryActivated;
@@ -168,7 +168,7 @@ namespace Tasque
 			addTaskButton = 
 				new MenuToolButton (buttonHBox, Catalog.GetString ("_Add Task"));
 			addTaskButton.UseUnderline = true;
-			// Disactivate the button until the backend is initialized
+			// Disactivate the button until some text is put in the entry
 			addTaskButton.Sensitive = false;
 			Gtk.Menu addTaskMenu = new Gtk.Menu ();
 			addTaskButton.Menu = addTaskMenu;
@@ -220,6 +220,9 @@ namespace Tasque
 			
 			Shown += OnWindowShown;
 			DeleteEvent += WindowDeleted;
+	
+			// XXX: test	
+			Realized += OnRealized;
 			
 			Application.Preferences.SettingChanged += OnSettingChanged;
 		}
@@ -239,6 +242,13 @@ namespace Tasque
 			rangeEnd = DateTime.Now.AddDays (-1);
 			rangeEnd = new DateTime (rangeEnd.Year, rangeEnd.Month, rangeEnd.Day,
 									 23, 59, 59);
+
+			//
+                        // Group TreeView
+                        //
+                        taskTreeView = new TaskTreeView (Application.LocalCache.Tasks);
+                        taskTreeView.Show ();
+                        targetVBox.PackStart (taskTreeView, true, true, 0);
 			
 			/*
 			overdueGroup = new TaskGroup (Catalog.GetString ("Overdue"),
@@ -423,8 +433,8 @@ namespace Tasque
 					}
 					taskWindow.Present();
 				}
-			} else if (Application.Backend != null) {
-				TaskWindow.taskWindow = new TaskWindow(Application.Backend);
+			} else if (Application.LocalCache != null) {
+				TaskWindow.taskWindow = new TaskWindow ();
 				if(lastXPos == 0 || lastYPos == 0)
 				{
 					lastXPos = Application.Preferences.GetInt("MainWindowLastXPos");
@@ -449,7 +459,7 @@ namespace Tasque
 			taskWindow.addTaskEntry.GrabFocus ();
 		}
 		
-		public static void SelectAndEdit (ITask task)
+		public static void SelectAndEdit (Task task)
 		{
 			ShowWindow ();
 			taskWindow.EnterEditMode (task, true);
@@ -517,6 +527,7 @@ namespace Tasque
 				TaskWindow.ShowWindow ();
 		}
 		
+		/*
 		public void HighlightTask (ITask task)
 		{
 			Gtk.TreeIter iter;
@@ -536,7 +547,9 @@ namespace Tasque
 				}
 			}
 		}
+		*/
 		
+		/*
 		/// <summary>
 		/// Search through the TaskGroups looking for the specified task and
 		/// adjust the window so the new task is showing.
@@ -614,6 +627,7 @@ namespace Tasque
 				}
 			}
 		}
+		*/
 		#endregion // Public Methods
 		
 		#region Private Methods
@@ -623,7 +637,7 @@ namespace Tasque
 									   Gtk.TreeIter iter)
 		{
 			Gtk.CellRendererText crt = renderer as Gtk.CellRendererText;
-			ICategory category = model.GetValue (iter, 0) as ICategory;
+			Category category = model.GetValue (iter, 0) as Category;
 
 			// CRG: What?  I added this check for null and we don't crash
 			// but I never see anything called unknown
@@ -636,8 +650,8 @@ namespace Tasque
 				crt.Text = "unknown";
 		}
 		
-		// TODO: Move this method into a property of ICategory.TaskCount
-		private int GetTaskCountInCategory (ICategory category)
+		// TODO: Move this method into a property of Category.TaskCount
+		private int GetTaskCountInCategory (Category category)
 		{
 			// This is disgustingly inefficient, but, oh well
 			int count = 0;
@@ -649,7 +663,7 @@ namespace Tasque
 				return 0;
 			
 			do {
-				ITask task = model.GetValue (iter, 0) as ITask;
+				Task task = model.GetValue (iter, 0) as Task;
 				if (task == null)
 					continue;
 				if (task.State != TaskState.Active
@@ -670,13 +684,13 @@ namespace Tasque
 		/// created.
 		/// </summary>
 		/// <param name="task">
-		/// A <see cref="ITask"/>
+		/// A <see cref="Task"/>
 		/// </param>
 		/// <param name="adjustScrolledWindow">
 		/// A <see cref="bool"/> which indicates whether the task should be
 		/// scrolled to.
 		/// </param>
-		private void EnterEditMode (ITask task, bool adjustScrolledWindow)
+		private void EnterEditMode (Task task, bool adjustScrolledWindow)
 		{
 			// Make sure we've waited around for the new task to fully
 			// be added to the TreeModel before continuing.  Some
@@ -686,21 +700,77 @@ namespace Tasque
 			while (Gtk.Application.EventsPending ())
 				Gtk.Application.RunIteration ();
 			
-			if (adjustScrolledWindow)
-				ScrollToTask (task);
+			//if (adjustScrolledWindow)
+			//	ScrollToTask (task);
 			
 			
 			Gtk.TreeIter iter;
-			foreach (TaskGroup taskGroup in taskGroups) {
-				if (taskGroup.ContainsTask (task, out iter)) {
-					Logger.Debug ("Found new task group: {0}", taskGroup.DisplayName);
-					
-					// Get the header height
-					taskGroup.EnterEditMode (task, iter);
-					return;
-				}
-			}
+			if (GetTaskIter(task, out iter) == false)
+                                return;
+
+                        Gtk.TreePath path = taskTreeView.Model.GetPath(iter);
+                        // TODO: Figure out a way to NOT hard-code the column number
+                        Gtk.TreeViewColumn nameColumn = taskTreeView.Columns [0];
+                        if (adjustScrolledWindow == true) {
+                                taskTreeView.ScrollToCell(path,
+                                                                                  nameColumn,
+                                                                                  true,
+                                                                                  0.0f,
+                                                                                  0.0f);
+                        }
+
+                        // Enter edit mode
+
+                        // Select the row
+                        taskTreeView.Selection.SelectIter (iter);
+
+                        // Go into edit mode
+                        Gtk.CellRendererText nameCellRendererText =
+                                nameColumn.CellRenderers [3] as Gtk.CellRendererText;
+
+                        taskTreeView.SetCursorOnCell (path, nameColumn, nameCellRendererText, true);	
 		}
+
+		/// <summary>
+                /// This method is necessary because it tracks Gtk.TreeIters specific to
+                /// the TreeModelFilter/Sort returned by LocalCache.Tasks.
+                /// </summary>
+                /// <param name="task">
+                /// A <see cref="Task"/>
+                /// </param>
+                /// <param name="iter">
+                /// A <see cref="Gtk.TreeIter"/>
+                /// </param>
+                /// <returns>
+                /// A <see cref="System.Boolean"/>
+                /// </returns>
+                private bool GetTaskIter (Task task, out Gtk.TreeIter iter)
+                {
+                        Gtk.TreeIter parentIter;
+                        iter = Gtk.TreeIter.Zero;
+                        if (taskTreeView.Model.GetIterFirst(out parentIter) == false)
+                                return false;
+
+                        do {
+                                if (taskTreeView.Model.IterHasChild(parentIter) == true) {                  
+                                        Gtk.TreeIter childIter;
+                                        if (taskTreeView.Model.IterChildren(out childIter, parentIter) == true) {
+                                                do {
+                                                        TaskModelNode node = taskTreeView.Model.GetValue(childIter, 0) as TaskModelNode;
+                                                        if (node.IsSeparator == true)
+                                                                continue;
+
+                                                        if (node.Task.Id.CompareTo(task.Id) == 0) {
+                                                                iter = childIter;
+                                                                return true;
+                                                        }
+                                                } while (taskTreeView.Model.IterNext(ref childIter) == true);
+                                        }
+                                }
+                        } while (taskTreeView.Model.IterNext(ref parentIter) == true);
+
+                        return false;
+                }
 		
 		private void RebuildAddTaskMenu (Gtk.TreeModel categoriesModel)
 		{
@@ -709,8 +779,8 @@ namespace Tasque
 			Gtk.TreeIter iter;
 			if (categoriesModel.GetIterFirst (out iter)) {
 				do {
-					ICategory category =
-						categoriesModel.GetValue (iter, 0) as ICategory;
+					Category category =
+						categoriesModel.GetValue (iter, 0) as Category;
 					
 					if (category is AllCategory)
 						continue; // Skip this one
@@ -736,7 +806,7 @@ namespace Tasque
 				// matching category
 				if (model.GetIterFirst (out iter)) {
 					do {
-						ICategory cat = model.GetValue (iter, 0) as ICategory;
+						Category cat = model.GetValue (iter, 0) as Category;
 						if (cat == null)
 							continue; // Needed for some reason to prevent crashes from some backends
 						if (cat.Name.CompareTo (categoryName) == 0) {
@@ -753,14 +823,14 @@ namespace Tasque
 				// category.
 				if (model.GetIterFirst (out iter)) {
 					// Make sure we can actually get a category
-					ICategory cat = model.GetValue (iter, 0) as ICategory;
+					Category cat = model.GetValue (iter, 0) as Category;
 					if (cat != null)
 						categoryComboBox.SetActiveIter (iter);
 				}
 			}
 		}
 		
-		private void ShowTaskNotes (ITask task)
+		private void ShowTaskNotes (Task task)
 		{
 			NoteDialog dialog = null;
 			if (!noteDialogs.ContainsKey (task)) {
@@ -777,9 +847,9 @@ namespace Tasque
 			dialog.Present ();
 		}
 		
-		private ITask CreateTask (string taskText, ICategory category)
+		private Task CreateTask (string taskText, Category category)
 		{
-			ITask task = backend.CreateTask (taskText, category);
+			Task task = Application.LocalCache.CreateTask (taskText, category);
 			
 			if (task == null) {
 				Logger.Debug ("Error creating a new task!");
@@ -795,6 +865,8 @@ namespace Tasque
 				addTaskEntry.GrabFocus ();
 			}
 			
+			// XXX: test
+			taskTreeView.ExpandAll ();
 			return task;
 		}
 		
@@ -867,7 +939,7 @@ namespace Tasque
 			
 			OnCategoryChanged (this, EventArgs.Empty);
 		}
-		
+
 		void OnGrabEntryFocus (object sender, EventArgs args)
 		{
 			addTaskEntry.GrabFocus ();
@@ -923,8 +995,8 @@ namespace Tasque
 			if (!categoryComboBox.GetActiveIter (out iter))
 				return;
 			
-			ICategory category =
-				categoryComboBox.Model.GetValue (iter, 0) as ICategory;
+			Category category =
+				categoryComboBox.Model.GetValue (iter, 0) as Category;
 		
 			// If enabled, attempt to parse due date information
 			// out of the entered task text.
@@ -938,19 +1010,20 @@ namespace Tasque
 			else
 				taskName = enteredTaskText;
 			
-			ITask task = CreateTask (taskName, category);
+			Task task = CreateTask (taskName, category);
 			if (task == null)
 				return; // TODO: Explain error to user!
 			
 			if (taskDueDate != DateTime.MinValue)
 				task.DueDate = taskDueDate;
 			
-			HighlightTask (task);
+			// XXX: test
+			//HighlightTask (task);
 		}
 		
 		void OnNewTaskByCategory (object sender, EventArgs args)
 		{
-			string newTaskText = addTaskEntry.Text.Trim ();
+			/*
 			if (newTaskText.Length == 0)
 				return;
 			
@@ -965,8 +1038,8 @@ namespace Tasque
 			// the title of the task.
 			Gtk.TreeIter iter;
 			if (categoryComboBox.GetActiveIter (out iter)) {
-				ICategory selectedCategory =
-					categoryComboBox.Model.GetValue (iter, 0) as ICategory;
+				Category selectedCategory =
+					categoryComboBox.Model.GetValue (iter, 0) as Category;
 				
 				// Check to see if "All" is selected
 				if (selectedCategory is AllCategory) {
@@ -987,28 +1060,25 @@ namespace Tasque
 			ITask task = CreateTask (newTaskText, item.Category);
 			
 			HighlightTask (task);
+			*/
+			Logger.Debug("OnNewTaskByCategory Called");
 		}
 		
 		void OnCategoryChanged (object sender, EventArgs args)
 		{
 			Gtk.TreeIter iter;
-			if (!categoryComboBox.GetActiveIter (out iter))
-				return;
-			
-			ICategory category =
-				categoryComboBox.Model.GetValue (iter, 0) as ICategory;
-				
-			// Update the TaskGroups so they can filter accordingly
-			overdueGroup.Refilter (category);
-			todayGroup.Refilter (category);
-			tomorrowGroup.Refilter (category);
-			nextSevenDaysGroup.Refilter (category);
-			futureGroup.Refilter (category);
-			completedTaskGroup.Refilter (category);
-			
-			// Save the selected category in preferences
-			Application.Preferences.Set (Preferences.SelectedCategoryKey,
-										 category.Name);
+                        if (categoryComboBox.GetActiveIter (out iter) == false)
+                                return;
+
+                        Category category =
+                                categoryComboBox.Model.GetValue (iter, 0) as Category;
+
+                        // Update the TreeView so it can filter accordingly
+                        taskTreeView.Refilter (category);
+
+                        // Save the selected category in preferences
+                        Application.Preferences.Set (Preferences.SelectedCategoryKey,
+                                                                                 category.Name);
 		}
 		
 		void OnRowActivated (object sender, Gtk.RowActivatedArgs args)
@@ -1026,7 +1096,7 @@ namespace Tasque
 			if (!model.GetIter (out iter, args.Path))
 				return;
 			
-			ITask task = model.GetValue (iter, 0) as ITask;
+			Task task = model.GetValue (iter, 0) as Task;
 			if (task == null)
 				return;
 			
@@ -1058,7 +1128,7 @@ namespace Tasque
 					if (!model.GetIter (out iter, path))
 						return;
 					
-					clickedTask = model.GetValue (iter, 0) as ITask;
+					clickedTask = model.GetValue (iter, 0) as Task;
 					if (clickedTask == null)
 						return;
 					
@@ -1103,7 +1173,7 @@ namespace Tasque
 			if (clickedTask == null)
 				return;
 		
-			Application.Backend.DeleteTask(clickedTask);
+			Application.LocalCache.DeleteTask(clickedTask);
 			
 			status = Catalog.GetString ("Task deleted");
 			TaskWindow.ShowStatus (status);
@@ -1143,14 +1213,14 @@ namespace Tasque
 		#region Private Classes
 		class CategoryMenuItem : Gtk.MenuItem
 		{
-			private ICategory cat;
+			private Category cat;
 			
-			public CategoryMenuItem (ICategory category) : base (category.Name)
+			public CategoryMenuItem (Category category) : base (category.Name)
 			{
 				cat = category;
 			}
 			
-			public ICategory Category
+			public Category Category
 			{
 				get { return cat; }
 			}

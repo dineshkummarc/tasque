@@ -139,7 +139,7 @@ namespace Tasque
 			}
 			
 			if (enterEditMode) {
-				TaskWindow.SelectAndEdit (task);
+				TaskWindow.SelectAndEdit (task as Task);
 			}
 			
 			#if ENABLE_NOTIFY_SHARP
