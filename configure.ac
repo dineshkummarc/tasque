@@ -152,7 +152,7 @@ fi
 AC_SUBST(EVOLUTION_SHARP_LIBS)
 
 #
-# SQLite Backend
+# Hiveminder Backend
 #
 AC_ARG_ENABLE(backend_hiveminder,
 	AC_HELP_STRING([--enable-backend-hiveminder],
@@ -224,7 +224,6 @@ Configuration:
 	Evolution Backend: ${enable_backend_eds}
 	ICECore Backend:   ${enable_backend_icecore}
 	RTM Backend:       ${enable_backend_rtm}
-	SQLite Backend:    ${enable_backend_sqlite}
 	Hiveminder Backend: ${enable_backend_hiveminder}
 "
 

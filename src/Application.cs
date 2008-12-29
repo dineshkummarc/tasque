@@ -61,6 +61,7 @@ namespace Tasque
 		private Preferences preferences;
 		private EventBox eb;
 		private IBackend backend;
+		private SyncManager syncManager;
 		private PreferencesDialog preferencesDialog;
 		private LocalCache localCache;
 		private bool quietStart = false;
@@ -212,6 +213,8 @@ namespace Tasque
 			RegisterUIManager ();
 
 			preferences = new Preferences (nativeApp.ConfDir);
+	
+			syncManager = new SyncManager();
 			
 #if !WIN32 && !OSX
 			// Register Tasque RemoteControl
@@ -379,6 +382,9 @@ namespace Tasque
 
 		private bool InitializeIdle()
 		{
+			localCache = new LocalCache ();
+			localCache.Initialize ();
+
 			if (customBackend != null) {
 				Application.Backend = customBackend;
 			} else {
@@ -407,6 +413,8 @@ namespace Tasque
 			}
 
 			nativeApp.InitializeIdle ();
+
+			syncManager.Start();
 			
 			return false;
 		}
@@ -530,6 +538,11 @@ namespace Tasque
 		private void OnQuit (object sender, EventArgs args)
 		{
 			Logger.Info ("OnQuit called - terminating application");
+
+			if (syncManager != null) {
+				syncManager.Stop();
+			}
+
 			if (backend != null) {
 				backend.Cleanup();
 			}
@@ -540,7 +553,7 @@ namespace Tasque
 		
 		private void OnRefreshAction (object sender, EventArgs args)
 		{
-			Application.Backend.Refresh();
+			syncManager.Sync();
 		}
 
 		private void OnTrayIconClick (object sender, EventArgs args) // handler for mouse click
