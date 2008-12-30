@@ -1,3 +1,10 @@
+2008-12-30  Brian G. Merrell <bgmerrell@gmail.com>
+
+	* src/Backends/Sqlite: Remove Sqlite backend files (since they are now integrated with
+	Tasque)
+	* src/TaskTreeView.cs: Use TaskTreeView.cs from old cache branch
+	* src/AllCategory.cs: Use AllCategory.cs from old cache branch 
+
 2008-12-29  Brian G. Merrell <bgmerrell@gmail.com>
 
 	* src/ICategory.cs: Add ID property with a getter

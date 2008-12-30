@@ -19,9 +19,7 @@ namespace Tasque
 		private static Gdk.Pixbuf[] inactiveAnimPixbufs;
 		
 		private Gtk.TreeModelFilter modelFilter;
-		private Category filterCategory;		
-
-		private static string status;
+		private Category filterCategory;
 		
 		static TaskTreeView ()
 		{
@@ -38,17 +36,7 @@ namespace Tasque
 
 		public TaskTreeView (Gtk.TreeModel model)
 			: base ()
-		{		
-
-			#if GTK_2_12
-			// set up the timing for the tooltips
-			this.Settings.SetLongProperty("gtk-tooltip-browse-mode-timeout", 0, "Tasque:TaskTreeView");
-			this.Settings.SetLongProperty("gtk-tooltip-browse-timeout", 750, "Tasque:TaskTreeView");
-			this.Settings.SetLongProperty("gtk-tooltip-timeout", 750, "Tasque:TaskTreeView");
-
-			ConnectEvents();
-			#endif
-			
+		{
 			// TODO: Modify the behavior of the TreeView so that it doesn't show
 			// the highlighted row.  Then, also tie in with the mouse hovering
 			// so that as you hover the mouse around, it will automatically
@@ -65,17 +53,21 @@ namespace Tasque
 			modelFilter.RowInserted += OnRowInsertedHandler;
 			modelFilter.RowDeleted += OnRowDeletedHandler;
 			
-			//Model = modelFilter
+			Model = modelFilter;
 			
 			Selection.Mode = Gtk.SelectionMode.Single;
 			RulesHint = false;
 			HeadersVisible = false;
 			HoverSelection = true;
+			// TODO: This can eventually be turned to false, but until debugged
+			// this should stay
+			ShowExpanders = true;
+			EnableTreeLines = false;
 			
 			// TODO: Figure out how to turn off selection highlight
 			
 			Gtk.CellRenderer renderer;
-			
+
 			//
 			// Checkbox Column
 			//
@@ -90,9 +82,182 @@ namespace Tasque
 			(renderer as Gtk.CellRendererToggle).Toggled += OnTaskToggled;
 			column.PackStart (renderer, false);
 			column.SetCellDataFunc (renderer,
-							new Gtk.TreeCellDataFunc (TaskToggleCellDataFunc));
+				new Gtk.TreeCellDataFunc (TaskToggleCellDataFunc));
+			//renderer.Xpad = 5;
+			//renderer.Ypad = 1;
+			//renderer.Width = 20;
+			//renderer.Height = 20;
+			renderer.Visible = false;
+			renderer.Xalign = 0;
+			
+			renderer = new Gtk.CellRendererText ();
+			column.PackStart (renderer, true);
+			column.SetCellDataFunc (renderer,
+				new Gtk.TreeCellDataFunc (TaskSeparatorTextCellDataFunc));
+			//renderer.Xpad = 5;
+			//renderer.Ypad = 1;
+			renderer.Visible = true;
+			renderer.Xalign = 0;
+			
+
+
+
+//==========================================
+			//
+			// Priority Column
+			//
+			//column.Sizing = Gtk.TreeViewColumnSizing.Fixed;
+			//column.Alignment = 0.5f;
+			//column.FixedWidth = 30;
+			//column.Resizable = false;
+			//column.Clickable = true;
+
+			renderer = new Gtk.CellRendererCombo ();
+			(renderer as Gtk.CellRendererCombo).Editable = true;
+			(renderer as Gtk.CellRendererCombo).HasEntry = false;
+			(renderer as Gtk.CellRendererCombo).Edited += OnTaskPriorityEdited;
+			Gtk.ListStore priorityStore = new Gtk.ListStore (typeof (string));
+			priorityStore.AppendValues (Catalog.GetString ("1")); // High
+			priorityStore.AppendValues (Catalog.GetString ("2")); // Medium
+			priorityStore.AppendValues (Catalog.GetString ("3")); // Low
+			priorityStore.AppendValues (Catalog.GetString ("-")); // None
+			(renderer as Gtk.CellRendererCombo).Model = priorityStore;
+			(renderer as Gtk.CellRendererCombo).TextColumn = 0;
+			renderer.Visible = false;
+			renderer.Xalign = 0.5f;
+			//renderer.Width = 30;
+			(renderer as Gtk.CellRendererCombo).WidthChars = 1;
+			//renderer.SetFixedSize(30, 30);
+			column.PackStart (renderer, false);
+			column.SetCellDataFunc (renderer,
+					new Gtk.TreeCellDataFunc (TaskPriorityCellDataFunc));
+
+			//
+			// Task Name Column
+			//
+			//column = new Gtk.TreeViewColumn ();
+			// Title for Task Name Column
+			//column.Title = Catalog.GetString ("Task Name");
+			//column.Sizing = Gtk.TreeViewColumnSizing.Autosize;
+			//column.Expand = true;
+			//column.Resizable = true;
+			
+			// TODO: Add in code to determine how wide we should make the name
+			// column.
+			// TODO: Add in code to readjust the size of the name column if the
+			// user resizes the Task Window.
+			//column.FixedWidth = 250;
+			
+			renderer = new Gtk.CellRendererText ();
+			column.PackStart (renderer, true);
+			column.SetCellDataFunc (renderer,
+				new Gtk.TreeCellDataFunc (TaskNameTextCellDataFunc));
+			((Gtk.CellRendererText)renderer).Editable = true;
+			((Gtk.CellRendererText)renderer).Edited += OnTaskNameEdited;
+			renderer.Visible = false;
+			renderer.Xalign = 0;			
+			
+			
+			//
+			// Due Date Column
+			//
+
+			//  2/11 - Today
+			//  2/12 - Tomorrow
+			//  2/13 - Wed
+			//  2/14 - Thu
+			//  2/15 - Fri
+			//  2/16 - Sat
+			//  2/17 - Sun
+			// --------------
+			//  2/18 - In 1 Week
+			// --------------
+			//  No Date
+			// ---------------
+			//  Choose Date...
+			
+			//column = new Gtk.TreeViewColumn ();
+			// Title for Due Date Column
+			//column.Title = Catalog.GetString ("Due Date");
+			//column.Sizing = Gtk.TreeViewColumnSizing.Fixed;
+			//column.Alignment = 0f;
+			//column.FixedWidth = 90;
+			//column.Resizable = false;
+			//column.Clickable = true;
+
+			renderer = new Gtk.CellRendererCombo ();
+			(renderer as Gtk.CellRendererCombo).Editable = true;
+			(renderer as Gtk.CellRendererCombo).HasEntry = false;
+			(renderer as Gtk.CellRendererCombo).Edited += OnDateEdited;
+			Gtk.ListStore dueDateStore = new Gtk.ListStore (typeof (string));
+			DateTime today = DateTime.Now;
+			dueDateStore.AppendValues (
+				today.ToString(Catalog.GetString("M/d - ")) + Catalog.GetString("Today"));
+			dueDateStore.AppendValues (
+				today.AddDays(1).ToString(Catalog.GetString("M/d - ")) + Catalog.GetString("Tomorrow"));
+			dueDateStore.AppendValues (
+				today.AddDays(2).ToString(Catalog.GetString("M/d - ddd")));
+			dueDateStore.AppendValues (
+				today.AddDays(3).ToString(Catalog.GetString("M/d - ddd")));
+			dueDateStore.AppendValues (
+				today.AddDays(4).ToString(Catalog.GetString("M/d - ddd")));
+			dueDateStore.AppendValues (
+				today.AddDays(5).ToString(Catalog.GetString("M/d - ddd")));
+			dueDateStore.AppendValues (
+				today.AddDays(6).ToString(Catalog.GetString("M/d - ddd")));
+			dueDateStore.AppendValues (
+				today.AddDays(7).ToString(Catalog.GetString("M/d - ")) + Catalog.GetString("In 1 Week"));			
+			dueDateStore.AppendValues (Catalog.GetString ("No Date"));
+			dueDateStore.AppendValues (Catalog.GetString ("Choose Date..."));
+			(renderer as Gtk.CellRendererCombo).Model = dueDateStore;
+			(renderer as Gtk.CellRendererCombo).TextColumn = 0;
+			renderer.Xalign = 0.0f;
+			column.PackStart (renderer, false);
+			column.SetCellDataFunc (renderer,
+					new Gtk.TreeCellDataFunc (DueDateCellDataFunc));
+			renderer.Visible = false;
+			renderer.Xalign = 0;	
+
+			
+			//
+			// Notes Column
+			//
+			//column = new Gtk.TreeViewColumn ();
+			// Title for Notes Column
+			//column.Title = Catalog.GetString ("Notes");
+			//column.Sizing = Gtk.TreeViewColumnSizing.Fixed;
+			//column.FixedWidth = 20;
+			//column.Resizable = false;
+			
+			renderer = new Gtk.CellRendererPixbuf ();
+			column.PackStart (renderer, false);
+			column.SetCellDataFunc (renderer,
+				new Gtk.TreeCellDataFunc (TaskNotesCellDataFunc));
+			renderer.Visible = false;
+			renderer.Xalign = 0;				
+			
+			//
+			// Timer Column
+			//
+			//column = new Gtk.TreeViewColumn ();
+			// Title for Timer Column
+			//column.Title = Catalog.GetString ("Timer");
+			//column.Sizing = Gtk.TreeViewColumnSizing.Fixed;
+			//column.FixedWidth = 20;
+			//column.Resizable = false;
+			
+			renderer = new Gtk.CellRendererPixbuf ();
+			renderer.Xalign = 0.5f;
+			column.PackStart (renderer, false);
+			column.SetCellDataFunc (renderer,
+				new Gtk.TreeCellDataFunc (TaskTimerCellDataFunc));
+			renderer.Visible = false;
+			renderer.Xalign = 0;				
+
+//===========================================
 			AppendColumn (column);
 			
+/*
 			//
 			// Priority Column
 			//
@@ -245,6 +410,7 @@ namespace Tasque
 				new Gtk.TreeCellDataFunc (TaskTimerCellDataFunc));
 			
 			AppendColumn (column);
+*/
 		}
 		
 		#region Public Methods
@@ -256,8 +422,9 @@ namespace Tasque
 		public void Refilter (Category selectedCategory)
 		{
 			this.filterCategory = selectedCategory;
-			Model = modelFilter;
 			modelFilter.Refilter ();
+			Model = modelFilter;
+			ExpandAll ();
 		}
 		
 		public int GetNumberOfTasks ()
@@ -267,6 +434,7 @@ namespace Tasque
 		#endregion // Public Methods
 		
 		#region Private Methods
+		
 		protected override void OnRealized ()
 		{
 			base.OnRealized ();
@@ -274,78 +442,25 @@ namespace Tasque
 			// Not sure why we need this, but without it, completed items are
 			// initially appearing in the view.
 			Refilter (filterCategory);
+			this.ExpandAll();
 		}
 
-		private static void ShowCompletedTaskStatus ()
-		{
-			status = Catalog.GetString ("Task Completed");
-			TaskWindow.ShowStatus (status);
-		}
 		
 		private void TaskToggleCellDataFunc (Gtk.TreeViewColumn column,
-										Gtk.CellRenderer cell,
-										Gtk.TreeModel model,
-										Gtk.TreeIter iter)
+											 Gtk.CellRenderer cell,
+											 Gtk.TreeModel model,
+											 Gtk.TreeIter iter)
 		{
 			Gtk.CellRendererToggle crt = cell as Gtk.CellRendererToggle;
-			Task task = model.GetValue (iter, 0) as Task;
-			if (task == null)
-				crt.Active = false;
+			TaskModelNode node = model.GetValue (iter, 0) as TaskModelNode;
+			if (node == null || node.IsSeparator)
+				crt.Visible = false;					
 			else {
+				crt.Visible = true;			
 				crt.Active =
-					task.State == TaskState.Active ? false : true;
+					node.Task.State == TaskState.Active ? false : true;
 			}
 		}
-
-		#if GTK_2_12
-		private void ConnectEvents()
-		{
-			this.CursorChanged += delegate(object o, EventArgs args) {			
-			int toolTipMaxLength = 250;
-			string snipText = "...";
-			int maxNumNotes = 3;
-			int notesAdded = 0;
-			TooltipText = null;
-			TriggerTooltipQuery();
-			TreeModel m;
-			TreeIter iter;
-			List<String> list = new List<String>();
-	
-			if(Selection.GetSelected(out m, out iter)) {
-				Task task = Model.GetValue (iter, 0) as Task;							      
-				if (task != null && task.HasNotes && task.Notes != null) {
-					foreach (INote note in task.Notes) {
-						// for the tooltip, truncate any notes longer than 250 characters.
-						if (note.Text.Length > toolTipMaxLength)
-							list.Add(note.Text.Substring(0, toolTipMaxLength - snipText.Length) + 
-											snipText);
-						else
-							list.Add(note.Text);
-						notesAdded++;
-						// stop iterating once we reach maxNumNotes
-						if (notesAdded >= maxNumNotes) {
-							break;
-						}
-					}
-				}			      		
-		
-				HasTooltip = list.Count > 0;
-				if (HasTooltip) {
-					// if there are more than maxNumNotes, append a notice to the tooltip
-					if (notesAdded < task.Notes.Count) {
-						int nMoreNotes = task.Notes.Count - notesAdded;
-						if (nMoreNotes > 1)
-							list.Add(String.Format("[{0} more notes]", nMoreNotes));
-						else
-							list.Add("[1 more note]");
-					}
-					TooltipText = String.Join("\n\n", list.ToArray());
-					TriggerTooltipQuery();
-				}
-			}
-			};
-		}
-		#endif
 
 		void TaskPriorityCellDataFunc (Gtk.TreeViewColumn tree_column,
 									   Gtk.CellRenderer cell,
@@ -354,8 +469,16 @@ namespace Tasque
 		{
 			// TODO: Add bold (for high), light (for None), and also colors to priority?
 			Gtk.CellRendererCombo crc = cell as Gtk.CellRendererCombo;
-			Task task = Model.GetValue (iter, 0) as Task;
-			switch (task.Priority) {
+			TaskModelNode node = Model.GetValue (iter, 0) as TaskModelNode;
+			if (node == null || node.IsSeparator) {
+				crc.Visible = false;			
+				crc.Text = string.Empty;
+				return;
+			}
+			
+			crc.Visible = true;
+			
+			switch (node.Task.Priority) {
 			case TaskPriority.Low:
 				crc.Text = Catalog.GetString ("3");
 				break;
@@ -371,20 +494,43 @@ namespace Tasque
 			}
 		}
 		
+
+		private void TaskSeparatorTextCellDataFunc (Gtk.TreeViewColumn treeColumn,
+				Gtk.CellRenderer renderer, Gtk.TreeModel model,
+				Gtk.TreeIter iter)
+		{
+			Gtk.CellRendererText crt = renderer as Gtk.CellRendererText;
+			TaskModelNode node = Model.GetValue (iter, 0) as TaskModelNode;
+			if( (node == null) || (!node.IsSeparator) ) {
+				crt.Visible = false;
+				crt.Text = string.Empty;
+				return;
+			}
+			crt.Visible = true;			
+
+			string formatString = "<span size=\"x-large\" foreground=\"#9eb96e\" weight=\"bold\">{0}</span>";
+
+			crt.Markup = string.Format (formatString,
+				GLib.Markup.EscapeText (node.Name));
+		}
+		
+		
 		private void TaskNameTextCellDataFunc (Gtk.TreeViewColumn treeColumn,
 				Gtk.CellRenderer renderer, Gtk.TreeModel model,
 				Gtk.TreeIter iter)
 		{
 			Gtk.CellRendererText crt = renderer as Gtk.CellRendererText;
 			crt.Ellipsize = Pango.EllipsizeMode.End;
-			Task task = model.GetValue (iter, 0) as Task;
-			if (task == null) {
+			TaskModelNode node = Model.GetValue (iter, 0) as TaskModelNode;
+			if( (node == null) || (node.IsSeparator) ) {
+				crt.Visible = false;
 				crt.Text = string.Empty;
 				return;
 			}
-			
+			crt.Visible = true;	
+
 			string formatString = "{0}";
-			switch (task.State) {
+			switch (node.Task.State) {
 			case TaskState.Inactive:
 				// Strikeout the text
 				formatString = "<span strikethrough=\"true\">{0}</span>";
@@ -399,7 +545,7 @@ namespace Tasque
 			}
 			
 			crt.Markup = string.Format (formatString,
-				GLib.Markup.EscapeText (task.Name));
+				GLib.Markup.EscapeText (node.Task.Name));
 		}
 		
 		protected virtual void DueDateCellDataFunc (Gtk.TreeViewColumn treeColumn,
@@ -407,10 +553,17 @@ namespace Tasque
 				Gtk.TreeIter iter)
 		{
 			Gtk.CellRendererCombo crc = renderer as Gtk.CellRendererCombo;
-			Task task = Model.GetValue (iter, 0) as Task;
-			DateTime date = task.State == TaskState.Completed ?
-									task.CompletionDate :
-									task.DueDate;
+			TaskModelNode node = Model.GetValue (iter, 0) as TaskModelNode;
+			if( (node == null) || (node.IsSeparator) ) {
+				crc.Visible = false;
+				crc.Text = string.Empty;
+				return;
+			}
+			crc.Visible = true;	
+
+			DateTime date = node.Task.State == TaskState.Completed ?
+									node.Task.CompletionDate :
+									node.Task.DueDate;
 			if (date == DateTime.MinValue || date == DateTime.MaxValue) {
 				crc.Text = "-";
 				return;
@@ -428,13 +581,15 @@ namespace Tasque
 				Gtk.TreeIter iter)
 		{
 			Gtk.CellRendererPixbuf crp = renderer as Gtk.CellRendererPixbuf;
-			Task task = model.GetValue (iter, 0) as Task;
-			if (task == null) {
+			TaskModelNode node = Model.GetValue (iter, 0) as TaskModelNode;
+			if( (node == null) || (node.IsSeparator) ) {
+				crp.Visible = false;
 				crp.Pixbuf = null;
 				return;
 			}
+			crp.Visible = true;	
 			
-			crp.Pixbuf = task.HasNotes ? notePixbuf : null;
+			crp.Pixbuf = node.Task.HasNotes ? notePixbuf : null;
 		}
 		
 		private void TaskTimerCellDataFunc (Gtk.TreeViewColumn treeColumn,
@@ -442,11 +597,15 @@ namespace Tasque
 				Gtk.TreeIter iter)
 		{
 			Gtk.CellRendererPixbuf crp = renderer as Gtk.CellRendererPixbuf;
-			Task task = model.GetValue (iter, 0) as Task;
-			if (task == null)
+			TaskModelNode node = Model.GetValue (iter, 0) as TaskModelNode;
+			if( (node == null) || (node.IsSeparator) ) {
+				crp.Visible = false;
+				crp.Pixbuf = null;
 				return;
+			}
+			crp.Visible = true;	
 			
-			if (task.State != TaskState.Inactive) {
+			if (node.Task.State != TaskState.Inactive) {
 				// The task is not in the inactive state so don't show any icon
 				crp.Pixbuf = null;
 				return;
@@ -459,7 +618,7 @@ namespace Tasque
 			
 			//Logger.Debug ("TaskTimerCellDataFunc ()\n\tNow.Ticks: {0}\n\tCompletionDate.Ticks: {1}",
 			//				DateTime.Now.Ticks, task.CompletionDate.Ticks);
-			long elapsedTicks = DateTime.Now.Ticks - task.CompletionDate.Ticks;
+			long elapsedTicks = DateTime.Now.Ticks - node.Task.CompletionDate.Ticks;
 			//Logger.Debug ("\tElapsed Ticks: {0}", elapsedTicks);
 			long elapsedMillis = elapsedTicks / 10000;
 			//Logger.Debug ("\tElapsed Milliseconds: {0}", elapsedMillis);
@@ -519,22 +678,80 @@ namespace Tasque
 										   Gtk.TreeIter iter)
 		{
 			// Filter out deleted tasks
-			Task task = model.GetValue (iter, 0) as Task;
-
-			if (task == null) {
-				Logger.Error ("FilterFunc: task at iter was null");
+			TaskModelNode node = model.GetValue (iter, 0) as TaskModelNode;
+			
+			if(node == null)
 				return false;
+				
+			if(node.IsSeparator) {
+				return ShouldShowSeparator (node, model, iter);
 			}
 			
-			if (task.State == TaskState.Deleted) {
+			if (node.Task.State == TaskState.Deleted) {
 				//Logger.Debug ("TaskTreeView.FilterFunc:\n\t{0}\n\t{1}\n\tReturning false", task.Name, task.State);  
 				return false;
 			}
 			
-			if (filterCategory == null)
+			if (filterCategory == null) {
 				return true;
+			}
+				
+			return filterCategory.ContainsTask (node.Task);
+		}
+		
+		/// <summary>
+		/// Evaluate the given parent iter to see if any of its children would
+		/// cause it to be shown.  As soon as one is found, return true.
+		/// </summary>
+		/// <param name="node">
+		/// A <see cref="TaskModelNode"/>
+		/// </param>
+		/// <param name="model">
+		/// A <see cref="Gtk.TreeModel"/>
+		/// </param>
+		/// <param name="iter">
+		/// A <see cref="Gtk.TreeIter"/>
+		/// </param>
+		/// <returns>
+		/// A <see cref="System.Boolean"/>
+		/// </returns>
+		private bool ShouldShowSeparator (TaskModelNode node,
+										  Gtk.TreeModel model,
+										  Gtk.TreeIter iter)
+		{
+			if (node.IsSeparator == false)
+				return false;
 			
-			return filterCategory.ContainsTask (task);
+			// Go through all of the children of the separator and check whether
+			// any of them should be showing based on the currently selected
+			// filterCategory.
+			if (model.IterHasChild (iter) == false) {
+				return false;
+			}
+			
+			if (filterCategory == null) {
+				return true;
+			}
+			
+			Gtk.TreeIter childIter;
+			if (model.IterChildren (out childIter, iter) == false)
+				return false;
+			
+			do {
+				TaskModelNode childNode = model.GetValue (childIter, 0) as TaskModelNode;
+				if (childNode == null)
+					continue;
+				
+				Task childTask = childNode.Task;
+				if (childTask.State == TaskState.Deleted)
+					continue;
+				
+				if (filterCategory.ContainsTask (childTask) == true) {
+					return true;
+				}
+			} while (model.IterNext (ref childIter));
+			
+			return false;
 		}
 		#endregion // Private Methods
 		
@@ -544,17 +761,17 @@ namespace Tasque
 			Logger.Debug ("OnTaskToggled");
 			Gtk.TreeIter iter;
 			Gtk.TreePath path = new Gtk.TreePath (args.Path);
-			if (!Model.GetIter (out iter, path))
+			if (Model.GetIter (out iter, path) == false)
 				return; // Do nothing
-			
-			Task task = Model.GetValue (iter, 0) as Task;
-			if (task == null)
+
+			TaskModelNode node = Model.GetValue (iter, 0) as TaskModelNode;			
+			if (node == null)
 				return;
 
 			// remove any timer set up on this task			
-			InactivateTimer.CancelTimer(task);
+			InactivateTimer.CancelTimer(node.Task);
 			
-			if (task.State == TaskState.Active) {
+			if (node.Task.State == TaskState.Active) {
 				bool showCompletedTasks =
 					Application.Preferences.GetBool (
 						Preferences.ShowCompletedTasksKey);
@@ -562,32 +779,30 @@ namespace Tasque
 				// When showCompletedTasks is true, complete the tasks right
 				// away.  Otherwise, set a timer and show the timer animation
 				// before marking the task completed.
-				if (showCompletedTasks) {
-					task.Complete ();
-					ShowCompletedTaskStatus ();
+				if (showCompletedTasks == true) {
+					node.Task.Complete ();
 				} else {
-					task.Inactivate ();
+					node.Task.Inactivate ();
 					
 					// Read the inactivate timeout from a preference
 					int timeout =
 						Application.Preferences.GetInt (Preferences.InactivateTimeoutKey);
 					Logger.Debug ("Read timeout from prefs: {0}", timeout);
 					InactivateTimer timer =
-						new InactivateTimer (this, iter, task, (uint) timeout);
+						new InactivateTimer (this, iter, node.Task, (uint) timeout);
 					timer.StartTimer ();
 				}
 			} else {
-				status = Catalog.GetString ("Action Canceled");
-				TaskWindow.ShowStatus (status);
-				task.Activate ();
+				node.Task.Activate ();
 			}
+			this.ExpandAll();			
 		}
 
 		void OnTaskPriorityEdited (object sender, Gtk.EditedArgs args)
 		{
 			Gtk.TreeIter iter;
 			Gtk.TreePath path = new TreePath (args.Path);
-			if (!Model.GetIter (out iter, path))
+			if (Model.GetIter (out iter, path) == false)
 				return;
 
 			TaskPriority newPriority;
@@ -601,39 +816,40 @@ namespace Tasque
 				newPriority = TaskPriority.None;
 
 			// Update the priority if it's different
-			Task task = Model.GetValue (iter, 0) as Task;
-			if (task.Priority != newPriority)
-				task.Priority = newPriority;
+			
+			TaskModelNode node = Model.GetValue (iter, 0) as TaskModelNode;
+			if (node.Task.Priority != newPriority)
+				node.Task.Priority = newPriority;
 		}
 		
 		void OnTaskNameEdited (object sender, Gtk.EditedArgs args)
 		{
 			Gtk.TreeIter iter;
 			Gtk.TreePath path = new TreePath (args.Path);
-			if (!Model.GetIter (out iter, path))
+			if (Model.GetIter (out iter, path) == false)
 				return;
 			
-			Task task = Model.GetValue (iter, 0) as Task;
-			if (task == null)
+			TaskModelNode node = Model.GetValue (iter, 0) as TaskModelNode;
+			if (node == null)
 				return;
 			
 			string newText = args.NewText;
 			
 			// Attempt to derive due date information from text.
 			if (Application.Preferences.GetBool (Preferences.ParseDateEnabledKey) &&
-			    task.State == TaskState.Active &&
-			    task.DueDate == DateTime.MinValue) {
+			    node.Task.State == TaskState.Active &&
+			    node.Task.DueDate == DateTime.MinValue) {
 				
 				string parsedTaskText;
 				DateTime parsedDueDate;
 				Utilities.ParseTaskText (newText, out parsedTaskText, out parsedDueDate);
 				
 				if (parsedDueDate != DateTime.MinValue)
-					task.DueDate = parsedDueDate;
+					node.Task.DueDate = parsedDueDate;
 				newText = parsedTaskText;
 			}
 			
-			task.Name = newText;
+			node.Task.Name = newText;
 		}
 		
 		/// <summary>
@@ -648,14 +864,9 @@ namespace Tasque
 		/// </param>
 		void OnDateEdited (object sender, Gtk.EditedArgs args)
 		{
-			if (args.NewText == null) {
-				Logger.Debug ("New date text null, not setting date");
-				return;
-			}
-			
 			Gtk.TreeIter iter;
 			Gtk.TreePath path = new TreePath (args.Path);
-			if (!Model.GetIter (out iter, path))
+			if (Model.GetIter (out iter, path) == false)
 				return;
 			
 			//  2/11 - Today
@@ -674,7 +885,7 @@ namespace Tasque
 			
 			DateTime newDate = DateTime.MinValue;
 			DateTime today = DateTime.Now;
-			Task task = Model.GetValue (iter, 0) as Task;			
+			TaskModelNode node = Model.GetValue (iter, 0) as TaskModelNode;			
 			
 			if (args.NewText.CompareTo (
 							today.ToString(Catalog.GetString("M/d - ")) + Catalog.GetString("Today") ) == 0)
@@ -688,7 +899,7 @@ namespace Tasque
 				today.AddDays(7).ToString(Catalog.GetString("M/d - ")) + Catalog.GetString("In 1 Week")	) == 0)
 				newDate = today.AddDays (7);
 			else if (args.NewText.CompareTo (Catalog.GetString ("Choose Date...")) == 0) {
-				TaskCalendar tc = new TaskCalendar(task, this.Parent);
+				TaskCalendar tc = new TaskCalendar(node.Task, this.Parent);
 				tc.ShowCalendar();
 				return;
 			} else {
@@ -702,13 +913,14 @@ namespace Tasque
 				}
 			}
 			
-			if (task.State == TaskState.Completed) {
+			if (node.Task.State == TaskState.Completed) {
 				// Modify the completion date
-				task.CompletionDate = newDate;
+				node.Task.CompletionDate = newDate;
 			} else {
 				// Modify the due date
-				task.DueDate = newDate;
+				node.Task.DueDate = newDate;
 			}
+			this.ExpandAll();
 		}
 		
 		void OnRowInsertedHandler (object sender, Gtk.RowInsertedArgs args)
@@ -749,9 +961,7 @@ namespace Tasque
 			private TaskTreeView tree;
 			private Task task;
 			private uint delay;
-			private uint secondsLeft;
 			protected uint pulseTimeoutId;
-			private uint secondTimerId;
 			private Gtk.TreeIter iter;
 			private Gtk.TreePath path;
 			
@@ -764,7 +974,6 @@ namespace Tasque
 				iter = taskIter;
 				path = treeView.Model.GetPath (iter);
 				task = taskToComplete;
-				secondsLeft = delayInSeconds;
 				delay = delayInSeconds * 1000; // Convert to milliseconds
 				pulseTimeoutId = 0;
 			}
@@ -772,14 +981,13 @@ namespace Tasque
 			public void StartTimer ()
 			{
 				pulseTimeoutId = GLib.Timeout.Add (500, PulseAnimation);
-				StartSecondCountdown ();
 				task.TimerID = GLib.Timeout.Add (delay, CompleteTask);
 				timers [task.TimerID] = this;
 			}
-		
+			
 			public static void CancelTimer(Task task)
 			{
-				Logger.Debug ("Timeout Canceled for task: " + task.Name);
+				Logger.Debug("Timeout Canceled for task: " + task.Name);
 				InactivateTimer timer = null;
 				uint timerId = task.TimerID;
 				if(timerId != 0) {
@@ -807,49 +1015,21 @@ namespace Tasque
 					return false;
 					
 				task.Complete ();
-				ShowCompletedTaskStatus ();
 				tree.Refilter ();
 				return false; // Don't automatically call this handler again
 			}
 			
 			private bool PulseAnimation ()
 			{
-				if (tree.Model == null) {
-					// Widget has been closed, no need to call this again
-					return false;
-				} else {
-					// Emit this signal to cause the TreeView to update the row
-					// where the task is located.  This will allow the
-					// CellRendererPixbuf to update the icon.
-					tree.Model.EmitRowChanged (path, iter);
-					
-					// Return true so that this method will be called after an
-					// additional timeout duration has elapsed.
-					return true;
-				}
+				// Emit this signal to cause the TreeView to update the row
+				// where the task is located.  This will allow the
+				// CellRendererPixbuf to update the icon.
+				tree.Model.EmitRowChanged (path, iter);
+				
+				// Return true so that this method will be called after an
+				// additional timeout duration has elapsed.
+				return true;
 			}
-
-			private void StartSecondCountdown ()
-			{
-				SecondCountdown();
-				secondTimerId = GLib.Timeout.Add (1000, SecondCountdown);
-			}
-
-			private bool SecondCountdown ()
-			{
-				if (tree.Model == null) {
-					// Widget has been closed, no need to call this again
-					return false;
-				}
-				if (secondsLeft > 0 && task.State == TaskState.Inactive) {
-					status = String.Format (Catalog.GetString ("Completing Task In: {0}"), secondsLeft--);
-					TaskWindow.ShowStatus (status);
-					return true;
-				} else {
-					return false;
-				}
-			}
-	
 		}
 		#endregion // Private Classes
 	}
