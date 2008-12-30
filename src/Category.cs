@@ -46,7 +46,7 @@ namespace Tasque
 			string command = String.Format("INSERT INTO Categories (Name, ExternalID) values ('{0}', '{1}')", name, string.Empty);
 			cache.Database.ExecuteScalar(command);
 			this.id = cache.Database.Connection.LastInsertRowId;
-			//Logger.Debug("Inserted category named: {0} with id {1}", name, id);
+			Logger.Debug("Inserted category named: {0} with id {1}", name, id);
 		}
 		
 		public Category (LocalCache cache, int id)

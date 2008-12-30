@@ -103,9 +103,9 @@ namespace Tasque
 				return string.Empty;
 			}
 			
-			ICategory category = null;
+			Category category = null;
 			do {
-				ICategory tempCategory = model.GetValue (iter, 0) as ICategory;
+				Category tempCategory = model.GetValue (iter, 0) as Category;
 				if (tempCategory.Name.ToLower ().CompareTo (categoryName.ToLower ()) == 0) {
 					// Found a match
 					category = tempCategory;
@@ -124,9 +124,9 @@ namespace Tasque
 				                         taskName,
 				                         out taskName,
 				                         out taskDueDate);
-			ITask task = null;
+			Task task = null;
 			try {
-				task = Application.Backend.CreateTask (taskName, category);
+				task = Application.LocalCache.CreateTask (taskName, category);
 				if (taskDueDate != DateTime.MinValue)
 					task.DueDate = taskDueDate;
 			} catch (Exception e) {
@@ -139,7 +139,7 @@ namespace Tasque
 			}
 			
 			if (enterEditMode) {
-				TaskWindow.SelectAndEdit (task as Task);
+				TaskWindow.SelectAndEdit (task);
 			}
 			
 			#if ENABLE_NOTIFY_SHARP
@@ -154,7 +154,7 @@ namespace Tasque
 			#endif
 			
 			
-			return task.Id;
+			return task.Id.ToString();
 		}
 		
 		/// <summary>
@@ -175,7 +175,7 @@ namespace Tasque
 				return emptyArray;
 			
 			do {
-				ICategory category = model.GetValue (iter, 0) as ICategory;
+				Category category = model.GetValue (iter, 0) as Category;
 				if (category is AllCategory)
 					continue; // Prevent the AllCategory from being returned
 				categories.Add (category.Name);
@@ -201,7 +201,7 @@ namespace Tasque
 			Gtk.TreeIter iter;
 			Gtk.TreeModel model;
 			
-			ITask task;
+			Task task;
 			List<string> ids;
 			
 			ids = new List<string> ();
@@ -211,8 +211,8 @@ namespace Tasque
 				return new string[0];
 				
 			do {
-				task = model.GetValue (iter, 0) as ITask;
-				ids.Add (task.Id);
+				task = model.GetValue (iter, 0) as Task;
+				ids.Add (task.Id.ToString());
 			} while (model.IterNext (ref iter));
 			
 			return ids.ToArray ();
@@ -229,7 +229,7 @@ namespace Tasque
 		/// </returns>
 		public string GetNameForTaskById (string id)
 		{
-			ITask task = GetTaskById (id);
+			Task task = GetTaskById (id);
 			return task != null ? task.Name : string.Empty;
 		}
 		
@@ -244,7 +244,7 @@ namespace Tasque
 		/// </returns>
 		public string GetCategoryForTaskById (string id)
 		{
-			ITask task = GetTaskById (id);
+			Task task = GetTaskById (id);
 			return task != null ? task.Category.Name : string.Empty;
 		}
 		
@@ -259,7 +259,7 @@ namespace Tasque
 		/// </returns>
 		public int GetStateForTaskById (string id)
 		{
-			ITask task = GetTaskById (id);
+			Task task = GetTaskById (id);
 			return task != null ? (int) task.State : -1;
 		}
 
@@ -271,7 +271,7 @@ namespace Tasque
 		/// </param>
 		public void MarkTaskAsCompleteById (string id)
 		{
-			ITask task = GetTaskById (id);
+			Task task = GetTaskById (id);
 			if (task == null)
 				return;
 				
@@ -289,19 +289,19 @@ namespace Tasque
 		/// A <see cref="System.String"/> for the ID of the task
 		/// </param>
 		/// <returns>
-		/// A <see cref="ITask"/> having the given ID
+		/// A <see cref="Task"/> having the given ID
 		/// </returns>
-		private ITask GetTaskById (string id)
+		private Task GetTaskById (string id)
 		{
 			Gtk.TreeIter  iter;
 			Gtk.TreeModel model;
 			
-			ITask task = null;
+			Task task = null;
 			model = Application.LocalCache.Tasks;
 			
 			if (model.GetIterFirst (out iter)) {
 				do {
-					task = model.GetValue (iter, 0) as ITask;
+					task = model.GetValue (iter, 0) as Task;
 					if (task.Id.Equals (id)) {
 						return task;
 					}

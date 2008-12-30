@@ -15,6 +15,11 @@ namespace Tasque
 			get;
 		}
 		
+		string ID
+		{
+			get;
+		}
+		
 		bool ContainsTask(ITask task);
 	}
 }

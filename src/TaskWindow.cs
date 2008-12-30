@@ -244,16 +244,16 @@ namespace Tasque
 									 23, 59, 59);
 
 			//
-                        // Group TreeView
-                        //
-                        taskTreeView = new TaskTreeView (Application.LocalCache.Tasks);
-                        taskTreeView.Show ();
-                        targetVBox.PackStart (taskTreeView, true, true, 0);
+			// Group TreeView
+			//
+			taskTreeView = new TaskTreeView (Application.LocalCache.Tasks);
+			taskTreeView.Show ();
+			targetVBox.PackStart (taskTreeView, true, true, 0);
 			
 			/*
 			overdueGroup = new TaskGroup (Catalog.GetString ("Overdue"),
 										  rangeStart, rangeEnd,
-										  backend.Tasks);
+										  Application.LocalCache.Tasks);
 			overdueGroup.RowActivated += OnRowActivated;
 			overdueGroup.ButtonPressed += OnButtonPressed;
 			overdueGroup.Show ();
@@ -271,7 +271,7 @@ namespace Tasque
 									 rangeEnd.Day, 23, 59, 59);
 			todayGroup = new TaskGroup (Catalog.GetString ("Today"),
 										rangeStart, rangeEnd,
-										backend.Tasks);
+										Application.LocalCache.Tasks);
 			todayGroup.RowActivated += OnRowActivated;
 			todayGroup.ButtonPressed += OnButtonPressed;
 			todayGroup.Show ();
@@ -289,7 +289,7 @@ namespace Tasque
 									 rangeEnd.Day, 23, 59, 59);
 			tomorrowGroup = new TaskGroup (Catalog.GetString ("Tomorrow"),
 										   rangeStart, rangeEnd,
-										   backend.Tasks);
+										   Application.LocalCache.Tasks);
 			tomorrowGroup.RowActivated += OnRowActivated;
 			tomorrowGroup.ButtonPressed += OnButtonPressed;			
 			tomorrowGroup.Show ();
@@ -307,7 +307,7 @@ namespace Tasque
 									 rangeEnd.Day, 23, 59, 59);
 			nextSevenDaysGroup = new TaskGroup (Catalog.GetString ("Next 7 Days"),
 										   rangeStart, rangeEnd,
-										   backend.Tasks);
+										   Application.LocalCache.Tasks);
 			nextSevenDaysGroup.RowActivated += OnRowActivated;
 			nextSevenDaysGroup.ButtonPressed += OnButtonPressed;				
 			nextSevenDaysGroup.Show ();
@@ -323,7 +323,7 @@ namespace Tasque
 			rangeEnd = DateTime.MaxValue;
 			futureGroup = new TaskGroup (Catalog.GetString ("Future"),
 										 rangeStart, rangeEnd,
-										 backend.Tasks);
+										 Application.LocalCache.Tasks);
 			futureGroup.RowActivated += OnRowActivated;
 			futureGroup.ButtonPressed += OnButtonPressed;			
 			futureGroup.Show ();
@@ -338,15 +338,14 @@ namespace Tasque
 			completedTaskGroup = new CompletedTaskGroup (
 					Catalog.GetString ("Completed"),
 					rangeStart, rangeEnd,
-					backend.Tasks);
+					Application.LocalCache.Tasks);
 			completedTaskGroup.RowActivated += OnRowActivated;
 			completedTaskGroup.ButtonPressed += OnButtonPressed;
 			completedTaskGroup.Show ();
 			targetVBox.PackStart (completedTaskGroup, false, false, 0);
 			taskGroups.Add (completedTaskGroup);
-			*/
 			
-
+*/
 			//manualTarget = new TargetService();
 			//manualTarget.Show ();
 			//mainVBox.PackStart(manualTarget, false, false, 0);
@@ -400,7 +399,7 @@ namespace Tasque
 
 		}
 		
-		public static void ShowWindow ()
+		public static void ShowWindow()
 		{
 			ShowWindow (false);
 		}
@@ -528,7 +527,7 @@ namespace Tasque
 		}
 		
 		/*
-		public void HighlightTask (ITask task)
+		public void HighlightTask (Task task)
 		{
 			Gtk.TreeIter iter;
 			
@@ -549,15 +548,14 @@ namespace Tasque
 		}
 		*/
 		
-		/*
 		/// <summary>
 		/// Search through the TaskGroups looking for the specified task and
 		/// adjust the window so the new task is showing.
 		/// </summary>
 		/// <param name="task">
-		/// A <see cref="ITask"/>
+		/// A <see cref="Task"/>
 		/// </param>
-		public void ScrollToTask (ITask task)
+/*		public void ScrollToTask (Task task)
 		{
 			// TODO: NEED to add something to NOT scroll the window if the new
 			// task is already showing in the window!
@@ -632,13 +630,12 @@ namespace Tasque
 		
 		#region Private Methods
 		void CategoryComboBoxDataFunc (Gtk.CellLayout layout,
-									   Gtk.CellRenderer renderer,
-									   Gtk.TreeModel model,
-									   Gtk.TreeIter iter)
+					       Gtk.CellRenderer renderer,
+					       Gtk.TreeModel model,
+					       Gtk.TreeIter iter)
 		{
 			Gtk.CellRendererText crt = renderer as Gtk.CellRendererText;
 			Category category = model.GetValue (iter, 0) as Category;
-
 			// CRG: What?  I added this check for null and we don't crash
 			// but I never see anything called unknown
 			if(category != null && category.Name != null) {
@@ -646,8 +643,9 @@ namespace Tasque
 					string.Format ("{0} ({1})",
 								   category.Name,
 								   GetTaskCountInCategory (category));
-			} else
+			} else {
 				crt.Text = "unknown";
+			}
 		}
 		
 		// TODO: Move this method into a property of Category.TaskCount
@@ -902,7 +900,8 @@ namespace Tasque
 		
 		private void OnRealized (object sender, EventArgs args)
 		{
-			addTaskEntry.GrabFocus ();
+			//addTaskEntry.GrabFocus ();
+			PopulateWindow();
 		}
 		
 		private void WindowDeleted (object sender, DeleteEventArgs args)
@@ -1023,7 +1022,8 @@ namespace Tasque
 		
 		void OnNewTaskByCategory (object sender, EventArgs args)
 		{
-			/*
+			string newTaskText = addTaskEntry.Text.Trim ();
+
 			if (newTaskText.Length == 0)
 				return;
 			
@@ -1057,10 +1057,9 @@ namespace Tasque
 				}
 			}
 			
-			ITask task = CreateTask (newTaskText, item.Category);
+			Task task = CreateTask (newTaskText, item.Category);
 			
-			HighlightTask (task);
-			*/
+			//HighlightTask (task);
 			Logger.Debug("OnNewTaskByCategory Called");
 		}
 		
