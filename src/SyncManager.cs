@@ -81,13 +81,32 @@ namespace Tasque
 					Logger.Debug("Populating local cache with tasks.");
 					foreach(ITask task in tasks.Values)
 					{
-						Logger.Debug("Task: {0}", task.Name);
+						CreateLocalTask(task);
 					}
 				}
 			
 				Logger.Debug("SyncThreadLoop done!");
 			}
 		}
-		
+
+		private void CreateLocalTask(ITask task)
+		{
+			Logger.Debug("Creating Local Task:");
+			Logger.Debug("Name: {0}", task.Name);
+			Logger.Debug("DueDate: {0}", task.DueDate);
+			Logger.Debug("CompletionDate: {0}", task.CompletionDate);
+			Logger.Debug("Priority: {0}", task.Priority);
+			Logger.Debug("State: {0}", task.State);
+			Logger.Debug("Category: {0}", task.Category);
+			Logger.Debug("External ID: {0}", task.Id);
+			if (Application.LocalCache.Database.ExternalTaskExists(task.Id)) {
+				Logger.Debug("Task not added.");
+				Logger.Debug("External ID {0} already exists", task.Id);
+				return;
+			}
+			Task local_task = new Task (Application.LocalCache, task.Name, task.DueDate,
+						    task.CompletionDate, task.Priority, task.State,
+						    task.Category as Category, task.Id);
+		}
 	}
 }

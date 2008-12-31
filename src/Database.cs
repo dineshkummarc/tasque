@@ -83,99 +83,106 @@ namespace Tasque
 		
 
 		public object ExecuteScalar(string command)
-        {
-        	object resultset;
-        	
-        	SqliteCommand cmd = connection.CreateCommand();
-        	cmd.CommandText = command;
-        	resultset = cmd.ExecuteScalar();
-        	return resultset;
-        }
-        
-        public int ExecuteNonQuery(string command)		
-        {
-        	int resultCode;
-        	SqliteCommand cmd = connection.CreateCommand();
-        	cmd.CommandText = command;
-        	resultCode = cmd.ExecuteNonQuery();
-        	cmd.Dispose();
-        	return resultCode;
-        }
-        
-        public string GetSingleString(string command)
-        {
-        	string readString = String.Empty;
-        	try {
-	        	SqliteCommand cmd = connection.CreateCommand();
-	        	cmd.CommandText = command;
-	        	SqliteDataReader dataReader = cmd.ExecuteReader();
-	        	if(dataReader.Read())
-	        		readString = dataReader.GetString(0);
-	        	else
-	        		readString = string.Empty;
-	        	dataReader.Close();
-	        	cmd.Dispose();
-			} catch (Exception e) {
-				Logger.Debug("Exception Thrown {0}", e);
-			}
-        	return readString;
-        }
-        
-        public DateTime GetDateTime(string command)
-        {
-        	long longValue;
-        	DateTime dtValue;
-	       	try{
-	        	longValue = GetSingleLong(command);
-	        	if(longValue == 0)
-	        		dtValue = DateTime.MinValue;
-	        	else
-	        		dtValue = Database.ToDateTime(longValue);
-			} catch (Exception e) {
-				Logger.Debug("Exception Thrown {0}", e);
-				dtValue = DateTime.MinValue;
-			}
-        	return dtValue;
-        }        
-        
-        public int GetSingleInt(string command)
-        {
-        	int dtVal = 0;
-        	try {        	
-	        	SqliteCommand cmd = connection.CreateCommand();
-	        	cmd.CommandText = command;
-	        	SqliteDataReader dataReader = cmd.ExecuteReader();
-	        	if(dataReader.Read())
-	        		dtVal = dataReader.GetInt32(0);
-	        	else
-	        		dtVal = 0;
-	        	dataReader.Close();
-	        	cmd.Dispose();
-			} catch (Exception e) {
-				Logger.Debug("Exception Thrown {0}", e);
-			}        	
-        	return dtVal;
-        }  
+		{
+			object resultset;
+			
+			SqliteCommand cmd = connection.CreateCommand();
+			cmd.CommandText = command;
+			resultset = cmd.ExecuteScalar();
+			return resultset;
+		}
+		
+		public int ExecuteNonQuery(string command)		
+		{
+			int resultCode;
+			SqliteCommand cmd = connection.CreateCommand();
+			cmd.CommandText = command;
+			resultCode = cmd.ExecuteNonQuery();
+			cmd.Dispose();
+			return resultCode;
+		}
+		
+		public string GetSingleString(string command)
+		{
+			string readString = String.Empty;
+			try {
+				SqliteCommand cmd = connection.CreateCommand();
+				cmd.CommandText = command;
+				SqliteDataReader dataReader = cmd.ExecuteReader();
+				if(dataReader.Read())
+					readString = dataReader.GetString(0);
+				else
+					readString = string.Empty;
+				dataReader.Close();
+				cmd.Dispose();
+				} catch (Exception e) {
+					Logger.Debug("Exception Thrown {0}", e);
+				}
+			return readString;
+		}
+		
+		public DateTime GetDateTime(string command)
+		{
+			long longValue;
+			DateTime dtValue;
+			try{
+				longValue = GetSingleLong(command);
+				if(longValue == 0)
+					dtValue = DateTime.MinValue;
+				else
+					dtValue = Database.ToDateTime(longValue);
+				} catch (Exception e) {
+					Logger.Debug("Exception Thrown {0}", e);
+					dtValue = DateTime.MinValue;
+				}
+			return dtValue;
+		}        
+		
+		public int GetSingleInt(string command)
+		{
+			int dtVal = 0;
+			try {        	
+				SqliteCommand cmd = connection.CreateCommand();
+				cmd.CommandText = command;
+				SqliteDataReader dataReader = cmd.ExecuteReader();
+				if(dataReader.Read())
+					dtVal = dataReader.GetInt32(0);
+				else
+					dtVal = 0;
+				dataReader.Close();
+				cmd.Dispose();
+				} catch (Exception e) {
+					Logger.Debug("Exception Thrown {0}", e);
+				}        	
+			return dtVal;
+		}  
 
-        public long GetSingleLong(string command)
-        {
-        	long dtVal = 0;
-         	try {       	
-	        	SqliteCommand cmd = connection.CreateCommand();
-	        	cmd.CommandText = command;
-	        	SqliteDataReader dataReader = cmd.ExecuteReader();
-	        	if(dataReader.Read())
-	        		dtVal = dataReader.GetInt64(0);
-	        	else
-	        		dtVal = 0;
-	        	dataReader.Close();
-	        	cmd.Dispose();
-			} catch (Exception e) {
-				Logger.Debug("Exception Thrown {0}", e);
-			} 
-        	return dtVal;
-        }  
+		public long GetSingleLong(string command)
+		{
+			long dtVal = 0;
+			try {       	
+				SqliteCommand cmd = connection.CreateCommand();
+				cmd.CommandText = command;
+				SqliteDataReader dataReader = cmd.ExecuteReader();
+				if(dataReader.Read())
+					dtVal = dataReader.GetInt64(0);
+				else
+					dtVal = 0;
+				dataReader.Close();
+				cmd.Dispose();
+				} catch (Exception e) {
+					Logger.Debug("Exception Thrown {0}", e);
+				} 
+			return dtVal;
+		}  
 
+		public bool ExternalTaskExists(string externalID)
+		{
+			return Convert.ToInt32(ExecuteScalar(String.Format(@"
+				SELECT COUNT (*)
+				FROM Tasks
+				WHERE ExternalID='{0}'", externalID))) > 0;
+		}
         
 		public bool TableExists(string table)
 		{

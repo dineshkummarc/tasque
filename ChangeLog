@@ -1,3 +1,13 @@
+2008-12-31  Brian G. Merrell <bgmerrell@gmail.com>
+
+	* src/SyncManager.cs: Add external tasks to the local database, and only do so if the task hasn't
+	been previously added (this is done by checking the local database for a task with the external
+	tasks externalID).
+	* src/Task.cs: Add constructor for an external task.  We're not yet handling the category
+	correctly.
+	* src/Database.cs: Add boolean method to determine if an external task id already exists in the 
+	local database.  Also hastily fixed some indentation.
+
 2008-12-30  Brian G. Merrell <bgmerrell@gmail.com>
 
 	* src/Backends/Sqlite: Remove Sqlite backend files (since they are now integrated with

@@ -22,6 +22,17 @@ namespace Tasque
 			cache.Database.ExecuteScalar(command);
 			this.id = cache.Database.Connection.LastInsertRowId;
 		}
+
+		// The constructor for external tasks
+		public Task(LocalCache cache, string name, DateTime dueDate, DateTime completionDate, TaskPriority priority, TaskState state, Category category, string externalID)
+		{
+			this.cache = cache;
+			// XXX: Handle the category correctly
+                        string command = String.Format("INSERT INTO Tasks (Name, DueDate, CompletionDate, Priority, State, Category, ExternalID) values ('{0}','{1}', '{2}','{3}', '{4}', '{5}', '{6}')",
+                                                                name, Database.FromDateTime(dueDate), Database.FromDateTime(completionDate), ((int)(TaskPriority)priority), ((int)(TaskState)state), 0, externalID);
+                        cache.Database.ExecuteScalar(command);
+                        this.id = cache.Database.Connection.LastInsertRowId;
+		}
 		
 		public Task (LocalCache cache, int id)
 		{
