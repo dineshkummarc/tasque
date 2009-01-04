@@ -47,6 +47,20 @@ namespace Tasque
 			get { return id; }
 			set { id = value; }
 		}
+
+		public string ExternalId
+		{
+			get {
+				string command = String.Format("SELECT ExternalID FROM Tasks where ID='{0}'", id);
+				return cache.Database.GetSingleString(command);
+			}
+
+			set {
+				string command = String.Format("UPDATE Tasks set ExternalID='{0}' where ID='{1}'", value, id);
+				cache.Database.ExecuteScalar(command);
+				cache.UpdateTask(this);
+			}
+		}
 		
 		public string Name
 		{

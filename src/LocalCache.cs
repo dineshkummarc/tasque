@@ -13,6 +13,7 @@ namespace Tasque
 	public class LocalCache
 	{
 		private Dictionary<int, Gtk.TreeIter> taskIters;
+		private Dictionary<string, Task> tasks;
 		private Gtk.TreeStore taskStore;
 		private Gtk.TreeModelSort sortedTasksModel;
 		private bool initialized;
@@ -71,6 +72,24 @@ namespace Tasque
 		public Gtk.TreeModel Tasks
 		{
 			get { return sortedTasksModel; }
+		}
+
+		public Dictionary<string, Task> TasksNew
+		{
+			get {
+				tasks = new Dictionary<string, Task>();
+				Task newTask;
+				string command = "SELECT id FROM Tasks";
+				SqliteCommand cmd = db.Connection.CreateCommand();
+				cmd.CommandText = command;
+				SqliteDataReader dataReader = cmd.ExecuteReader();
+				while(dataReader.Read()) {
+					int id = dataReader.GetInt32(0);
+					newTask = new Task(this, id);
+					tasks.Add(newTask.Id.ToString(), newTask);	
+				}
+				return tasks;
+			}
 		}
 		
 		/// <value>
@@ -252,11 +271,11 @@ namespace Tasque
 			bool hasValues = false;
 			
 			string command = "SELECT id FROM Categories";
-        	SqliteCommand cmd = db.Connection.CreateCommand();
-        	cmd.CommandText = command;
-        	SqliteDataReader dataReader = cmd.ExecuteReader();
-        	while(dataReader.Read()) {
-			    int id = dataReader.GetInt32(0);
+			SqliteCommand cmd = db.Connection.CreateCommand();
+			cmd.CommandText = command;
+			SqliteDataReader dataReader = cmd.ExecuteReader();
+			while(dataReader.Read()) {
+				int id = dataReader.GetInt32(0);
 				hasValues = true;
 				
 				newCategory = new Category (this, id);
@@ -264,10 +283,10 @@ namespace Tasque
 					defaultCategory = newCategory;
 				iter = categoryListStore.Append ();
 				categoryListStore.SetValue (iter, 0, newCategory);				
-        	}
+			}
 
-        	dataReader.Close();
-        	cmd.Dispose();
+			dataReader.Close();
+			cmd.Dispose();
 
 			if(!hasValues)
 			{
@@ -294,8 +313,8 @@ namespace Tasque
 		public void RefreshTasks()
 		{
 			Gtk.TreeIter iter;
-        	Gtk.TreeIter parentIter;
-        	Task newTask;
+			Gtk.TreeIter parentIter;
+			Task newTask;
 			bool hasValues = false;
 
 			overdueIter = taskStore.AppendNode();
@@ -317,11 +336,11 @@ namespace Tasque
 			taskStore.SetValue(completedTaskIter, 0, new TaskModelNode(Catalog.GetString("Completed")));
 
 			string command = "SELECT id FROM Tasks";
-        	SqliteCommand cmd = db.Connection.CreateCommand();
-        	cmd.CommandText = command;
-        	SqliteDataReader dataReader = cmd.ExecuteReader();
-        	while(dataReader.Read()) {
-			    int id = dataReader.GetInt32(0);
+			SqliteCommand cmd = db.Connection.CreateCommand();
+			cmd.CommandText = command;
+			SqliteDataReader dataReader = cmd.ExecuteReader();
+			while(dataReader.Read()) {
+				int id = dataReader.GetInt32(0);
 				hasValues = true;
 				
 				newTask = new Task(this, id);
@@ -329,10 +348,10 @@ namespace Tasque
 				iter = taskStore.AppendNode(parentIter);
 				taskStore.SetValue (iter, 0, new TaskModelNode(newTask));
 				taskIters [newTask.Id] = iter;				
-        	}
+        		}
 
-        	dataReader.Close();
-        	cmd.Dispose();
+			dataReader.Close();
+			cmd.Dispose();
 
 			if(!hasValues)
 			{

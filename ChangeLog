@@ -1,17 +1,32 @@
+2008-01-04  Brian G. Merrell <bgmerrell@gmail.com>
+
+	* LocalCache.cs: Add property (needs renamed) to get a dictionary of
+	the tasks in the local database (much like the dictionary received
+	from the backend). Fix some indentation.
+	* SyncManager.cs: Add logic to (1) send local tasks to the remote
+	backend if they don't exist at the remote backend and (2) update the
+	local task that was sent to the remote backend with an external ID (so
+	it won't be sent to the remote backend again.  Currently crashing when
+	calling the backend's CreateTask method.  Needs work.
+	* Task.cs: Add ExternalId property (with a getter and setter) that can
+	get the external ID in the local database or set it.
+
 2008-12-31  Brian G. Merrell <bgmerrell@gmail.com>
 
-	* src/SyncManager.cs: Add external tasks to the local database, and only do so if the task hasn't
-	been previously added (this is done by checking the local database for a task with the external
-	tasks externalID).
-	* src/Task.cs: Add constructor for an external task.  We're not yet handling the category
-	correctly.
-	* src/Database.cs: Add boolean method to determine if an external task id already exists in the 
-	local database.  Also hastily fixed some indentation.
+	* src/SyncManager.cs: Add external tasks to the local database, and
+	only do so if the task hasn't been previously added (this is done by
+	checking the local database for a task with the external tasks
+	externalID).
+	* src/Task.cs: Add constructor for an external task.  We're not yet
+	handling the category correctly.
+	* src/Database.cs: Add boolean method to determine if an external task
+	id already exists in the local database.  Also hastily fixed some
+	indentation.
 
 2008-12-30  Brian G. Merrell <bgmerrell@gmail.com>
 
-	* src/Backends/Sqlite: Remove Sqlite backend files (since they are now integrated with
-	Tasque)
+	* src/Backends/Sqlite: Remove Sqlite backend files (since they are now
+	integrated with Tasque)
 	* src/TaskTreeView.cs: Use TaskTreeView.cs from old cache branch
 	* src/AllCategory.cs: Use AllCategory.cs from old cache branch 
 
@@ -20,18 +35,22 @@
 	* src/ICategory.cs: Add ID property with a getter
 	* src/Category.cs: Uncomment a print statement for debugging
 	* src/TaskWindow.cs: More merging with the old caching code
-	* src/RemoteControl.cs: Change references from ICategory to Category and ITask to Task
+	* src/RemoteControl.cs: Change references from ICategory to Category
+	and ITask to Task
 
 2008-12-29  Brian G. Merrell <bgmerrell@gmail.com>
 
-	* src/TaskWindow.cs: manually merge more methods from the old caching branch
-	* src/RemoteControl.cs: Cast ITask to Task in the TaskWindow.SelectAndEdit call
+	* src/TaskWindow.cs: manually merge more methods from the old caching
+	branch
+	* src/RemoteControl.cs: Cast ITask to Task in the
+	TaskWindow.SelectAndEdit call
 	* src/TaskTreeView.cs,
 	* src/NoteDialog.cs,
 	* src/TaskCalendar.cs,
 	* src/AllCategory.cs,
 	* src/CompletedTaskGroup.cs,
-	* src/TaskGroup.cs: Change references from ICategory to Category and ITask to Task
+	* src/TaskGroup.cs: Change references from ICategory to Category and
+	ITask to Task
 	* src/SyncManager.cs: svn add
 
 2008-12-28  Brian G. Merrell <bgmerrell@gmail.com>
