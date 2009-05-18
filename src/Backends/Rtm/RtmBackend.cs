@@ -94,7 +94,7 @@ namespace Tasque.Backends.RtmBackend
 			string categoryID;
 			RtmTask rtmTask = null;
 			
-			if(category is Tasque.AllCategory)
+			if(category == null || category is Tasque.AllCategory)
 				categoryID = null;
 			else
 				categoryID = (category as RtmCategory).ID;	
