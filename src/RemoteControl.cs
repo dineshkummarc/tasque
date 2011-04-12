@@ -234,6 +234,30 @@ namespace Tasque
 		}
 		
 		/// <summary>
+		/// Sets the name of a task for a given ID
+		/// </summary>
+		/// <param name="id">
+		/// A <see cref="System.String"/> for the ID of the task
+		/// </param>
+		/// <param>
+		/// A <see cref="System.String"/> the name of the task
+		/// </param>
+		/// <returns>
+		/// A <see cref="System.Boolean"/>, true for success, false
+		/// for failure.
+		/// </returns>
+		public bool SetNameForTaskById (string id, string name)
+		{
+			ITask task = GetTaskById (id);
+			if (task == null)
+			{
+				return false;
+			}
+			task.Name = name;
+			return true;
+		}
+		
+		/// <summary>
 		/// Gets the category of a task for a given ID
 		/// </summary>
 		/// <param name="id">
@@ -246,6 +270,92 @@ namespace Tasque
 		{
 			ITask task = GetTaskById (id);
 			return task != null ? task.Category.Name : string.Empty;
+		}
+		
+		/// <summary>
+		/// Sets the category of a task for a given ID
+		/// </summary>
+		/// <param name="id">
+		/// A <see cref="System.String"/> for the ID of the task
+		/// </param>
+		/// <param name="category">
+		/// A <see cref="System.String"/> the category of the task
+		/// </param>
+		/// <returns>
+		/// A <see cref="System.Boolean"/>, true for success, false
+		/// for failure.
+		/// </returns>
+		public bool SetCategoryForTaskById (string id,
+							string categoryName)
+		{
+			ITask task = GetTaskById (id);
+			if (task == null)
+			{
+				return false;
+			}
+			Gtk.TreeIter iter;
+			Gtk.TreeModel model = Application.Backend.Categories;
+			
+			if (!model.GetIterFirst (out iter))
+				return false;
+			
+			do {
+				ICategory category = model.GetValue (iter, 0) as ICategory;
+				if (string.Compare(category.Name,categoryName)==0)
+				{
+					task.Category = category;
+					return true;
+				}
+			} while (model.IterNext (ref iter));
+			return false;
+		}
+		
+		/// <summary>
+		/// Get the due date of a task for a given ID
+		/// </summary>
+		/// <param name="id">
+		/// A <see cref="System.String"/> for the ID of the task
+		/// </param>
+		/// <returns>
+		/// A <see cref="System.Int32"/> containing the POSIX time
+		/// of the due date
+		/// </returns>
+		public int GetDueDateForTaskById (string id)
+		{
+			ITask task = GetTaskById (id);
+			if (task == null)
+				return -1;
+			if (task.DueDate == DateTime.MinValue)
+				return 0;
+			return (int)(task.DueDate - new DateTime(1970,1,1)).TotalSeconds;
+		}
+		
+		/// <summary>
+		/// Set the due date of a task for a given ID
+		/// </summary>
+		/// <param name="id">
+		/// A <see cref="System.String"/> for the ID of the task
+		/// </param>
+		/// <param name="duedate">
+		/// A <see cref="System.Int32"/> containing the POSIX time
+		/// of the due date
+		/// </param>
+		/// <returns>
+		/// A <see cref="System.Boolean"/>, true for success, false
+		/// for failure.
+		/// <returns>
+		public bool SetDueDateForTaskById (string id, int dueDate)
+		{
+			ITask task = GetTaskById (id);
+			if (task == null)
+			{
+				return false;
+			}
+			if (dueDate == 0)
+				task.DueDate = DateTime.MinValue;
+			else
+				task.DueDate = new DateTime(1970,1,1).AddSeconds(dueDate);
+			return true;
 		}
 		
 		/// <summary>
@@ -264,6 +374,65 @@ namespace Tasque
 		}
 
 		/// <summary>
+		/// Gets the priority of a task for a given ID
+		/// </summary>
+		/// <param name="id">
+		/// A <see cref="System.String"/> for the ID of the task
+		/// </param>
+		/// <returns>
+		/// A <see cref="System.Int32"/> the priority of the task
+		/// </returns>
+		public int GetPriorityForTaskById (string id)
+		{
+			ITask task = GetTaskById (id);
+			return task != null ? (int) task.Priority : -1;
+		}
+		
+		/// <summary>
+		/// Sets the priority of a task for a given ID
+		/// </summary>
+		/// <param name="id">
+		/// A <see cref="System.String"/> for the ID of the task
+		/// </param>
+		/// <param name="priority">
+		/// A <see cref="System.Int32"/> the priority of the task
+		/// </param>
+		/// <returns>
+		/// A <see cref="System.Boolean"/>, true for success, false
+		/// for failure.
+		/// </returns>
+		public bool SetPriorityForTaskById (string id, int priority)
+		{
+			ITask task = GetTaskById (id);
+			if (task == null)
+			{
+				return false;
+			}
+			task.Priority = (TaskPriority) priority;
+			return true;
+		}
+		
+		/// <summary>
+		/// Marks a task active
+		/// </summary>
+		/// <param name="id">
+		/// A <see cref="System.String"/> for the ID of the task
+		/// </param>
+		/// <returns>
+		/// A <see cref="System.Boolean"/>, true for success, false
+		/// for failure.
+		/// </returns>
+		public bool MarkTaskAsActiveById (string id)
+		{
+			ITask task = GetTaskById (id);
+			if (task == null)
+				return false;
+				
+			task.Activate ();
+			return true;
+		}
+		
+		/// <summary>
 		/// Marks a task complete
 		/// </summary>
 		/// <param name="id">
@@ -281,6 +450,27 @@ namespace Tasque
 				task.Complete ();
 			}
 		}
+		
+		/// <summary>
+		/// Deletes a task
+		/// </summary>
+		/// <param name="id">
+		/// A <see cref="System.String"/> for the ID of the task
+		/// </param>
+		/// <returns>
+		/// A <see cref="System.Boolean"/>, true for sucess, false
+		/// for failure.
+		/// </returns>
+		public bool DeleteTaskById (string id)
+		{
+			ITask task = GetTaskById (id);
+			if (task == null)
+				return false;
+				
+			task.Delete ();
+			return true;
+		}
+
 		
 		/// <summary>
 		/// Looks up a task by ID in the backend
