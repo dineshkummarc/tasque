@@ -2,16 +2,16 @@
 # Copyright (C) 2008 THE tasque'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the tasque package.
 # Alexander Telenga <telenga@gmail.com>, 2008.
-#  
+#
 #
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: tasque HEAD\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-04-05 23:55-0400\n"
-"PO-Revision-Date: 2008-11-14 13:10+0300\n"
-"Last-Translator: Alexander Telenga <telenga@gmail.com>\n"
+"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tasque&component=general\n"
+"POT-Creation-Date: 2010-04-06 03:58+0000\n"
+"PO-Revision-Date: 2011-07-28 09:32+0300\n"
+"Last-Translator: Yuri Myasoedov <omerta13@yandex.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -20,42 +20,41 @@ msgstr ""
 
 #: ../data/tasque.desktop.in.h:1
 msgid "Easy quick task management"
-msgstr ""
+msgstr "Простое и быстрое управление задачами"
 
 #: ../data/tasque.desktop.in.h:2
-#, fuzzy
 msgid "Task Manager"
-msgstr "Имя задачи"
+msgstr "Менеджер задач"
 
 #: ../data/tasque.desktop.in.h:3
 msgid "Tasque"
-msgstr ""
+msgstr "Tasque"
 
 #: ../src/Application.cs:518
 #, csharp-format
 msgid "{0} task is Overdue\n"
 msgid_plural "{0} tasks are Overdue\n"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{0} задача просрочена\n"
+msgstr[1] "Задач просрочено: {0}\n"
 
 #: ../src/Application.cs:526
 #, csharp-format
 msgid "{0} task for Today\n"
 msgid_plural "{0} tasks for Today\n"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{0} задача на сегодня\n"
+msgstr[1] "Задач на сегодня: {0}\n"
 
 #: ../src/Application.cs:534
 #, csharp-format
 msgid "{0} task for Tomorrow\n"
 msgid_plural "{0} tasks for Tomorrow\n"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{0} задача на завтра\n"
+msgstr[1] "Задач на завтра: {0}\n"
 
 #. Translators: This is the status icon's tooltip. When no tasks are overdue, due today, or due tomorrow, it displays this fun message
 #: ../src/Application.cs:540
 msgid "Tasque Rocks"
-msgstr ""
+msgstr "Tasque — классное приложение"
 
 #. string [] documenters = new string [] {
 #. "Calvin Gaisford <calvinrg@gmail.com>"
@@ -63,7 +62,7 @@ msgstr ""
 #.
 #: ../src/Application.cs:584
 msgid "translator-credits"
-msgstr ""
+msgstr "Юрий Мясоедов <omerta13@yandex.ru>, 2011"
 
 #: ../src/Application.cs:593
 msgid "Copyright © 2008 Novell, Inc."
@@ -79,22 +78,23 @@ msgstr "Домашняя страница проекта Tasque"
 
 #: ../src/Application.cs:710
 msgid "New Task ..."
-msgstr "Новая задача …"
+msgstr "Создать задачу…"
 
 #: ../src/Application.cs:717
 msgid "Show Tasks ..."
-msgstr "Показать задачи …"
+msgstr "Показать задачи…"
 
 #: ../src/Application.cs:732
-#, fuzzy
 msgid "Refresh Tasks ..."
-msgstr "Обновить задачи"
+msgstr "Обновить задачи…"
 
-#: ../src/AllCategory.cs:28 ../src/CompletedTaskGroup.cs:174
+#: ../src/AllCategory.cs:28
+#: ../src/CompletedTaskGroup.cs:174
 msgid "All"
 msgstr "Все"
 
-#: ../src/CompletedTaskGroup.cs:165 ../src/Utilities.cs:282
+#: ../src/CompletedTaskGroup.cs:165
+#: ../src/Utilities.cs:282
 msgid "Yesterday"
 msgstr "Вчера"
 
@@ -117,16 +117,16 @@ msgstr "Заметки для: {0:s}"
 
 #: ../src/OSXApplication.cs:38
 msgid "_File"
-msgstr ""
+msgstr "_Файл"
 
 #: ../src/OSXApplication.cs:44
 msgid "_Window"
-msgstr ""
+msgstr "_Окно"
 
 #. Update the window title
 #: ../src/PreferencesDialog.cs:97
 msgid "Tasque Preferences"
-msgstr ""
+msgstr "Настройки Tasque"
 
 #: ../src/PreferencesDialog.cs:116
 msgid "General"
@@ -134,21 +134,19 @@ msgstr "Общее"
 
 #: ../src/PreferencesDialog.cs:124
 msgid "Appearance"
-msgstr ""
+msgstr "Внешний вид"
 
 #: ../src/PreferencesDialog.cs:160
 msgid "Color Management"
-msgstr ""
+msgstr "Управление цветом"
 
 #: ../src/PreferencesDialog.cs:171
-#, fuzzy
 msgid "Today:"
-msgstr "Сегодня"
+msgstr "Сегодня:"
 
 #: ../src/PreferencesDialog.cs:199
-#, fuzzy
 msgid "Overdue:"
-msgstr "Просроченные"
+msgstr "Просроченные:"
 
 #: ../src/PreferencesDialog.cs:243
 msgid "Task Management System"
@@ -159,14 +157,13 @@ msgid "Task Filtering"
 msgstr "Фильтрация задач"
 
 #: ../src/PreferencesDialog.cs:304
-#, fuzzy
 msgid "Sh_ow completed tasks"
-msgstr "Показать _завершенные задачи"
+msgstr "Показать _завершённые задачи"
 
 #. Categories TreeView
 #: ../src/PreferencesDialog.cs:313
 msgid "Only _show these categories when \"All\" is selected:"
-msgstr "_Показывать эти категории, только когда выбрано \"Все\":"
+msgstr "_Показывать эти категории, только когда выбрано «Все»:"
 
 #: ../src/PreferencesDialog.cs:331
 msgid "Category"
@@ -177,7 +174,8 @@ msgid "New task created."
 msgstr "Создана новая задача."
 
 #. Title for Completed/Checkbox Column
-#: ../src/TaskTreeView.cs:84 ../src/TaskWindow.cs:342
+#: ../src/TaskTreeView.cs:84
+#: ../src/TaskWindow.cs:342
 msgid "Completed"
 msgstr "Завершено"
 
@@ -186,25 +184,29 @@ msgstr "Завершено"
 msgid "Priority"
 msgstr "Приоритет"
 
-#: ../src/TaskTreeView.cs:114 ../src/TaskTreeView.cs:366
+#: ../src/TaskTreeView.cs:114
+#: ../src/TaskTreeView.cs:366
 #: ../src/TaskTreeView.cs:612
 msgid "1"
 msgstr "1"
 
 #. High
-#: ../src/TaskTreeView.cs:115 ../src/TaskTreeView.cs:363
+#: ../src/TaskTreeView.cs:115
+#: ../src/TaskTreeView.cs:363
 #: ../src/TaskTreeView.cs:610
 msgid "2"
 msgstr "2"
 
 #. Medium
-#: ../src/TaskTreeView.cs:116 ../src/TaskTreeView.cs:360
+#: ../src/TaskTreeView.cs:116
+#: ../src/TaskTreeView.cs:360
 #: ../src/TaskTreeView.cs:608
 msgid "3"
 msgstr "3"
 
 #. Low
-#: ../src/TaskTreeView.cs:117 ../src/TaskTreeView.cs:369
+#: ../src/TaskTreeView.cs:117
+#: ../src/TaskTreeView.cs:369
 msgid "-"
 msgstr "-"
 
@@ -218,41 +220,54 @@ msgstr "Имя задачи"
 msgid "Due Date"
 msgstr "Срок выполнения"
 
-#: ../src/TaskTreeView.cs:187 ../src/TaskTreeView.cs:189
-#: ../src/TaskTreeView.cs:201 ../src/TaskTreeView.cs:694
-#: ../src/TaskTreeView.cs:697 ../src/TaskTreeView.cs:702
+#: ../src/TaskTreeView.cs:187
+#: ../src/TaskTreeView.cs:189
+#: ../src/TaskTreeView.cs:201
+#: ../src/TaskTreeView.cs:694
+#: ../src/TaskTreeView.cs:697
+#: ../src/TaskTreeView.cs:702
 msgid "M/d - "
 msgstr "d.M - "
 
-#: ../src/TaskTreeView.cs:187 ../src/TaskTreeView.cs:694
-#: ../src/TaskWindow.cs:275 ../src/Utilities.cs:276
+#: ../src/TaskTreeView.cs:187
+#: ../src/TaskTreeView.cs:694
+#: ../src/TaskWindow.cs:275
+#: ../src/Utilities.cs:276
 msgid "Today"
 msgstr "Сегодня"
 
-#: ../src/TaskTreeView.cs:189 ../src/TaskTreeView.cs:697
-#: ../src/TaskWindow.cs:293 ../src/Utilities.cs:295
+#: ../src/TaskTreeView.cs:189
+#: ../src/TaskTreeView.cs:697
+#: ../src/TaskWindow.cs:293
+#: ../src/Utilities.cs:295
 msgid "Tomorrow"
 msgstr "Завтра"
 
-#: ../src/TaskTreeView.cs:191 ../src/TaskTreeView.cs:193
-#: ../src/TaskTreeView.cs:195 ../src/TaskTreeView.cs:197
-#: ../src/TaskTreeView.cs:199 ../src/TaskTreeView.cs:434
+#: ../src/TaskTreeView.cs:191
+#: ../src/TaskTreeView.cs:193
+#: ../src/TaskTreeView.cs:195
+#: ../src/TaskTreeView.cs:197
+#: ../src/TaskTreeView.cs:199
+#: ../src/TaskTreeView.cs:434
 #: ../src/TaskTreeView.cs:711
 msgid "M/d - ddd"
 msgstr "d.M - ddd"
 
-#: ../src/TaskTreeView.cs:201 ../src/TaskTreeView.cs:702
+#: ../src/TaskTreeView.cs:201
+#: ../src/TaskTreeView.cs:702
 msgid "In 1 Week"
 msgstr "Через 1 неделю"
 
-#: ../src/TaskTreeView.cs:202 ../src/TaskTreeView.cs:699
+#: ../src/TaskTreeView.cs:202
+#: ../src/TaskTreeView.cs:699
 #: ../src/Utilities.cs:308
 msgid "No Date"
 msgstr "Без даты"
 
-#: ../src/TaskTreeView.cs:203 ../src/TaskTreeView.cs:704
+#: ../src/TaskTreeView.cs:203
+#: ../src/TaskTreeView.cs:704
 msgid "Choose Date..."
-msgstr "Выберите дату …"
+msgstr "Выберите дату…"
 
 #. Title for Notes Column
 #: ../src/TaskTreeView.cs:219
@@ -265,9 +280,8 @@ msgid "Timer"
 msgstr "Таймер"
 
 #: ../src/TaskTreeView.cs:281
-#, fuzzy
 msgid "Task Completed"
-msgstr "Завершено"
+msgstr "Задача выполнена"
 
 #: ../src/TaskTreeView.cs:436
 msgid "M/d/yy - ddd"
@@ -275,19 +289,22 @@ msgstr "d.M.yy - ddd"
 
 #: ../src/TaskTreeView.cs:594
 msgid "Action Canceled"
-msgstr ""
+msgstr "Действие отменено"
 
 #: ../src/TaskTreeView.cs:859
 #, csharp-format
 msgid "Completing Task In: {0}"
-msgstr ""
+msgstr "Выполнение задачи: {0}"
 
 #. The new task entry widget
 #. Clear the entry if it contains the default text
-#: ../src/TaskWindow.cs:149 ../src/TaskWindow.cs:837 ../src/TaskWindow.cs:893
-#: ../src/TaskWindow.cs:903 ../src/TaskWindow.cs:914
+#: ../src/TaskWindow.cs:149
+#: ../src/TaskWindow.cs:837
+#: ../src/TaskWindow.cs:893
+#: ../src/TaskWindow.cs:903
+#: ../src/TaskWindow.cs:914
 msgid "New task..."
-msgstr "Новая задача …"
+msgstr "Создать задачу…"
 
 #: ../src/TaskWindow.cs:165
 msgid "_Add"
@@ -310,24 +327,25 @@ msgid "Future"
 msgstr "Будущее"
 
 #. Translators: This status shows the date and time when the task list was last refreshed
-#: ../src/TaskWindow.cs:474 ../src/TaskWindow.cs:1213
+#: ../src/TaskWindow.cs:474
+#: ../src/TaskWindow.cs:1213
 #, csharp-format
 msgid "Tasks loaded: {0}"
-msgstr ""
+msgstr "Загружено задач: {0}"
 
 #. Show error status
 #: ../src/TaskWindow.cs:801
 msgid "Error creating a new task"
-msgstr ""
+msgstr "Ошибка при создании новой задачи"
 
 #. Show successful status
 #: ../src/TaskWindow.cs:805
 msgid "Task created successfully"
-msgstr ""
+msgstr "Задача успешно создана"
 
 #: ../src/TaskWindow.cs:1089
 msgid "_Notes..."
-msgstr "_Заметки …"
+msgstr "_Заметки…"
 
 #: ../src/TaskWindow.cs:1096
 msgid "_Delete task"
@@ -335,18 +353,16 @@ msgstr "_Удалить задачу"
 
 #: ../src/TaskWindow.cs:1101
 msgid "_Edit task"
-msgstr "_Редактировать задачу"
+msgstr "_Изменить задачу"
 
 #. TODO Needs translation.
 #: ../src/TaskWindow.cs:1133
-#, fuzzy
 msgid "_Change category"
-msgstr "Категория"
+msgstr "_Изменить категорию"
 
 #: ../src/TaskWindow.cs:1162
-#, fuzzy
 msgid "Task deleted"
-msgstr "Фильтрация задач"
+msgstr "Задача удалена"
 
 #: ../src/TaskWindow.cs:1204
 msgid "Loading tasks..."
@@ -354,7 +370,7 @@ msgstr "Загрузка задач…"
 
 #: ../src/TaskWindow.cs:1225
 msgid "Not connected."
-msgstr ""
+msgstr "Нет подключения."
 
 #: ../src/Utilities.cs:274
 #, csharp-format
@@ -409,176 +425,144 @@ msgstr "d. MMMM yyyy"
 
 #: ../src/Backends/Rtm/RtmPreferencesWidget.cs:65
 msgid "Click Here to Connect"
-msgstr ""
+msgstr "Щёлкните, чтобы подключиться"
 
 #: ../src/Backends/Rtm/RtmPreferencesWidget.cs:71
 #: ../src/Backends/Rtm/RtmPreferencesWidget.cs:142
 msgid "You are currently connected"
-msgstr ""
+msgstr "Вы сейчас подключены"
 
 #: ../src/Backends/Rtm/RtmPreferencesWidget.cs:75
 #: ../src/Backends/Rtm/RtmPreferencesWidget.cs:147
 msgid "You are currently connected as"
-msgstr ""
+msgstr "Вы сейчас подключены как"
 
 #: ../src/Backends/Rtm/RtmPreferencesWidget.cs:79
 msgid "You are not connected"
-msgstr ""
+msgstr "Подключение отсутствует"
 
 #: ../src/Backends/Rtm/RtmPreferencesWidget.cs:112
 msgid "Remember the Milk not responding. Try again later."
-msgstr ""
+msgstr "Remember the Milk не отвечает. Попробуйте ещё раз."
 
 #: ../src/Backends/Rtm/RtmPreferencesWidget.cs:119
 msgid "Click Here After Authorizing"
-msgstr ""
+msgstr "Щёлкните здесь после авторизации"
 
 #: ../src/Backends/Rtm/RtmPreferencesWidget.cs:122
 msgid "Set the default browser and try again"
-msgstr ""
+msgstr "Установите браузер по умолчанию и попробуйте ещё раз"
 
 #: ../src/Backends/Rtm/RtmPreferencesWidget.cs:125
 msgid "Processing..."
-msgstr ""
+msgstr "Обработка…"
 
 #: ../src/Backends/Rtm/RtmPreferencesWidget.cs:135
 msgid "Failed, Try Again"
-msgstr ""
+msgstr "Неудачно, попробуйте ещё раз"
 
 #: ../src/Backends/Rtm/RtmPreferencesWidget.cs:139
 msgid "Thank You"
-msgstr ""
+msgstr "Спасибо"
 
 #. Token "O". Notice only the suffix is translated.
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
 #: ../src/libtasque/TaskParser.cs:49
 msgid "th,st,nd,rd"
-msgstr ""
+msgstr "-е"
 
 #. Token "T"
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
 #: ../src/libtasque/TaskParser.cs:53
-#, fuzzy
 msgid "today"
-msgstr "Сегодня"
+msgstr "сегодня"
 
 #. Token "T"
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
 #: ../src/libtasque/TaskParser.cs:57
-#, fuzzy
 msgid "tomorrow"
-msgstr "Завтра"
+msgstr "завтра"
 
 #. Token "m". Don't forget to include the plural value, if any
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
 #: ../src/libtasque/TaskParser.cs:61
 msgid "month|months"
-msgstr ""
+msgstr "месяц|месяцы"
 
 #. Token "w". Don't forget to include the plural value, if any
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
 #: ../src/libtasque/TaskParser.cs:65
 msgid "week|weeks"
-msgstr ""
+msgstr "неделя|недели"
 
 #. Token "y". Don't forget to include the plural value, if any
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
 #: ../src/libtasque/TaskParser.cs:69
 msgid "year|years"
-msgstr ""
+msgstr "год|годы"
 
 #. Token "d". Don't forget to include the plural value, if any
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
 #: ../src/libtasque/TaskParser.cs:73
 msgid "day|days"
-msgstr ""
+msgstr "день|дни"
 
 #. Token "u". More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
 #: ../src/libtasque/TaskParser.cs:207
 msgid "due before|due by|due"
-msgstr ""
+msgstr "выполнить до|выполнить к|выполнить"
 
 #. Token "n". Examples could be: "Next Month", "Next Monday"
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
 #: ../src/libtasque/TaskParser.cs:233
 msgid "next"
-msgstr ""
+msgstr "след."
 
 #. Token "o". Examples could be: "On April 1st", "On Wednesday"
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
 #: ../src/libtasque/TaskParser.cs:239
 msgid "on"
-msgstr ""
+msgstr "(в)"
 
 #. Token "i". Examples could be: "In 2 weeks", "In 3 months"
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
 #: ../src/libtasque/TaskParser.cs:245
 msgid "in"
-msgstr ""
+msgstr "в течение"
 
 #. Represents "Today and Tomorrow" expression.
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
 #: ../src/libtasque/TaskParser.cs:260
 msgid "u T"
-msgstr ""
+msgstr "u T"
 
 #. Represents: "Next" expression.
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
 #: ../src/libtasque/TaskParser.cs:263
 msgid "n w|n m|n y|n D"
-msgstr ""
+msgstr "n w|n m|n y|n D"
 
 #. Represents "Due" expression.
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
 #: ../src/libtasque/TaskParser.cs:266
 msgid "u o D|u M O|u M N|u O|u M"
-msgstr ""
+msgstr "u o D|u M O|u M N|u O|u M"
 
 #. Represents "On" expression.
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
 #: ../src/libtasque/TaskParser.cs:269
 msgid "o D|o O"
-msgstr ""
+msgstr "o D|o O"
 
 #. Represents "In" expression.
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
 #: ../src/libtasque/TaskParser.cs:272
 msgid "i N d|i d|i N w|i w|i N m|i m|i N y|i y"
-msgstr ""
+msgstr "i N d|i d|i N w|i w|i N m|i m|i N y|i y"
 
 #. Represents all other expressions not using tokens.
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
 #: ../src/libtasque/TaskParser.cs:275
 msgid "T|D|M O|M N|O|A"
-msgstr ""
+msgstr "T|D|M O|M N|O|A"
 
-#, fuzzy
-#~ msgid "New task1..."
-#~ msgstr "Новая задача …"
-
-#~ msgid "Sunday"
-#~ msgstr "Воскресение"
-
-#~ msgid "Monday"
-#~ msgstr "Понедельник"
-
-#~ msgid "Tuesday"
-#~ msgstr "Вторник"
-
-#~ msgid "Wednesday"
-#~ msgstr "Среда"
-
-#~ msgid "Thursday"
-#~ msgstr "Четверг"
-
-#~ msgid "Friday"
-#~ msgstr "Пятница"
-
-#~ msgid "Saturday"
-#~ msgstr "Суббота"
-
-#~ msgid "^(?<task>.+)\\s+today\\W*$"
-#~ msgstr "^(?<task>.+)\\s+today\\W*$"
-
-#~ msgid "^(?<task>.+)\\s+tomorrow\\W*$"
-#~ msgstr "^(?<task>.+)\\s+tomorrow\\W*$"
