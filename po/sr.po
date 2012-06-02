@@ -1,14 +1,14 @@
-# SOME DESCRIPTIVE TITLE.
+# Serbian translation of tasque.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the tasque package.
 # Мирослав Николић <miroslavnikolic@rocketmail.com>, 2012.
 msgid ""
 msgstr ""
 "Project-Id-Version: tasque\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=tasque"
 "&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2012-01-08 04:06+0000\n"
-"PO-Revision-Date: 2012-03-18 12:20+0200\n"
+"POT-Creation-Date: 2012-03-19 09:13+0000\n"
+"PO-Revision-Date: 2012-06-02 08:22+0200\n"
 "Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
 "Language-Team: Serbian <gnom@prevod.org>\n"
 "Language: sr\n"
@@ -20,16 +20,16 @@ msgstr ""
 "X-Project-Style: gnome\n"
 
 #: ../data/tasque.desktop.in.h:1
+msgid "Tasque"
+msgstr "Задачићи"
+
+#: ../data/tasque.desktop.in.h:2
 msgid "Easy quick task management"
 msgstr "Лако и брзо управљање задацима"
 
-#: ../data/tasque.desktop.in.h:2
+#: ../data/tasque.desktop.in.h:3
 msgid "Task Manager"
 msgstr "Управник задатака"
-
-#: ../data/tasque.desktop.in.h:3
-msgid "Tasque"
-msgstr "Задачићи"
 
 #: ../src/Application.cs:518
 #, csharp-format
@@ -455,7 +455,7 @@ msgstr "Хвала вам"
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
 #: ../src/libtasque/TaskParser.cs:49
 msgid "th,st,nd,rd"
-msgstr "ви,ги,ћи,ти"
+msgstr "-ог"
 
 #. Token "T"
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
@@ -479,7 +479,7 @@ msgstr "месец|месеца|месеци"
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
 #: ../src/libtasque/TaskParser.cs:65
 msgid "week|weeks"
-msgstr "недељу|недеље|недеља"
+msgstr "недеља|недеље|недеља"
 
 #. Token "y". Don't forget to include the plural value, if any
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
@@ -502,13 +502,13 @@ msgstr "истиче пре|истиче|истиче"
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
 #: ../src/libtasque/TaskParser.cs:233
 msgid "next"
-msgstr "сљедећег"
+msgstr "следећег|следеће"
 
 #. Token "o". Examples could be: "On April 1st", "On Wednesday"
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
 #: ../src/libtasque/TaskParser.cs:239
 msgid "on"
-msgstr ""
+msgstr "|у"
 
 #. Token "i". Examples could be: "In 2 weeks", "In 3 months"
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
@@ -520,34 +520,34 @@ msgstr "за"
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
 #: ../src/libtasque/TaskParser.cs:260
 msgid "u T"
-msgstr ""
+msgstr "u T"
 
 #. Represents: "Next" expression.
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
 #: ../src/libtasque/TaskParser.cs:263
 msgid "n w|n m|n y|n D"
-msgstr ""
+msgstr "n w|n m|n y|n D"
 
 #. Represents "Due" expression.
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
 #: ../src/libtasque/TaskParser.cs:266
 msgid "u o D|u M O|u M N|u O|u M"
-msgstr ""
+msgstr "u o D|u O M|u N M|u O|u M"
 
 #. Represents "On" expression.
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
 #: ../src/libtasque/TaskParser.cs:269
 msgid "o D|o O"
-msgstr ""
+msgstr "o D|O"
 
 #. Represents "In" expression.
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
 #: ../src/libtasque/TaskParser.cs:272
 msgid "i N d|i d|i N w|i w|i N m|i m|i N y|i y"
-msgstr ""
+msgstr "i N d|i d|i N w|i w|i N m|i m|i N y|i y"
 
 #. Represents all other expressions not using tokens.
 #. More information in http://git.gnome.org/browse/tasque/tree/TRANSLATORS
 #: ../src/libtasque/TaskParser.cs:275
 msgid "T|D|M O|M N|O|A"
-msgstr ""
+msgstr "T|D|O M|N M|O|A"
